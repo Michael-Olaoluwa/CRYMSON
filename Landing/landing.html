@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crymson</title>
+
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+
+body{
+background:#050507;
+color:white;
+overflow-x:hidden;
+scroll-behavior:smooth;
+}
+
+/* background particles */
+canvas#particles{
+position:fixed;
+top:0;
+left:0;
+z-index:-2;
+}
+
+/* soft gradient glow */
+body::before{
+content:"";
+position:fixed;
+width:900px;
+height:900px;
+background:radial-gradient(circle,#ff2e63 0%,transparent 70%);
+filter:blur(180px);
+opacity:.25;
+top:-200px;
+left:-200px;
+z-index:-1;
+}
+
+header{
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:20px;
+}
+
+h1{
+font-size:5rem;
+letter-spacing:10px;
+font-weight:600;
+background:linear-gradient(90deg,#ffffff,#ff2e63);
+-webkit-background-clip:text;
+color:transparent;
+animation:fadeUp 1.5s ease forwards;
+}
+
+.tagline{
+margin-top:25px;
+font-size:1.5rem;
+color:#aaa;
+max-width:600px;
+animation:fadeUp 2s ease forwards;
+}
+
+section{
+padding:120px 10%;
+}
+
+h2{
+font-size:2.5rem;
+margin-bottom:50px;
+font-weight:600;
+}
+
+/* cards */
+.tools{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:30px;
+}
+
+.card{
+background:rgba(255,255,255,0.03);
+backdrop-filter:blur(20px);
+border-radius:18px;
+padding:35px;
+position:relative;
+transform:translateY(50px);
+opacity:0;
+transition:all .7s ease;
+border:1px solid rgba(255,255,255,0.08);
+}
+
+.card.show{
+transform:translateY(0);
+opacity:1;
+}
+
+.card:hover{
+box-shadow:0 0 40px rgba(255,46,99,0.5);
+transform:translateY(-10px);
+}
+
+.card h3{
+margin-bottom:10px;
+color:#ff2e63;
+font-size:1.4rem;
+}
+
+.card p{
+color:#aaa;
+line-height:1.5;
+}
+
+.coming{
+position:absolute;
+top:15px;
+right:-45px;
+background:#ff2e63;
+padding:6px 55px;
+font-size:.7rem;
+transform:rotate(45deg);
+letter-spacing:1px;
+}
+
+/* slideshow */
+.slideshow{
+max-width:900px;
+margin:auto;
+text-align:center;
+}
+
+.slide{
+display:none;
+font-size:1.6rem;
+color:#ccc;
+line-height:1.6;
+}
+
+.slide.active{
+display:block;
+animation:fadeUp 1s ease;
+}
+
+/* crymson id */
+.id-box{
+max-width:800px;
+margin:auto;
+text-align:center;
+font-size:1.2rem;
+color:#bbb;
+line-height:1.7;
+}
+
+/* dashboard preview */
+.dashboard-preview{
+background:rgba(255,255,255,0.03);
+backdrop-filter:blur(25px);
+border-radius:20px;
+padding:50px;
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:0 0 60px rgba(255,46,99,0.25);
+}
+
+.dashboard-preview h3{
+font-size:1.6rem;
+margin-bottom:10px;
+}
+
+.dashboard-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:25px;
+margin-top:30px;
+}
+
+.dashboard-box{
+background:rgba(255,255,255,0.05);
+padding:25px;
+border-radius:12px;
+text-align:center;
+font-size:1rem;
+border:1px solid rgba(255,255,255,0.06);
+transition:all .3s;
+}
+
+.dashboard-box:hover{
+background:rgba(255,46,99,0.15);
+transform:translateY(-6px);
+}
+
+footer{
+text-align:center;
+padding:60px;
+color:#666;
+font-size:.9rem;
+}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(40px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="particles"></canvas>
+
+<header>
+<h1>CRYMSON</h1>
+<p class="tagline">A futuristic productivity ecosystem designed to help students organize life, track progress, and achieve academic excellence.</p>
+</header>
+
+<section>
+<h2>The Vision</h2>
+
+<div class="slideshow">
+<div class="slide active">One Crymson ID. Every tool you need.</div>
+<div class="slide">Plan your semester, track your CGPA, and stay productive.</div>
+<div class="slide">Tools that work together to guide your academic journey.</div>
+<div class="slide">Built for students who want to win.</div>
+</div>
+
+</section>
+
+<section>
+<h2>Upcoming Tools</h2>
+
+<div class="tools">
+
+<div class="card">
+<div class="coming">COMING SOON</div>
+<h3>Crymson CGPA</h3>
+<p>Track courses, calculate GPA, and monitor your academic performance throughout the semester.</p>
+</div>
+
+<div class="card">
+<div class="coming">COMING SOON</div>
+<h3>Crymson Tasks</h3>
+<p>An intelligent task manager designed to keep students organized and productive.</p>
+</div>
+
+<div class="card">
+<div class="coming">COMING SOON</div>
+<h3>Crymson Time</h3>
+<p>Understand where your study time goes and improve your focus habits.</p>
+</div>
+
+<div class="card">
+<div class="coming">COMING SOON</div>
+<h3>Crymson Finance</h3>
+<p>Track spending, manage allowance, and build better financial discipline.</p>
+</div>
+
+</div>
+
+</section>
+
+<section>
+<h2>Crymson ID</h2>
+
+<div class="id-box">
+A single Crymson ID will unlock every Crymson tool. Sign in once and access a complete ecosystem designed to support your academic life.
+</div>
+
+</section>
+
+<section>
+<h2>The Future Dashboard</h2>
+
+<div class="dashboard-preview">
+<h3>Welcome, Michael</h3>
+<p style="color:#888">Your tools</p>
+
+<div class="dashboard-grid">
+
+<div class="dashboard-box">CGPA Tracker</div>
+<div class="dashboard-box">Task Manager</div>
+<div class="dashboard-box">Time Tracker</div>
+<div class="dashboard-box">Finance Tracker</div>
+
+</div>
+
+</div>
+
+</section>
+
+<footer>
+<p>© 2026 Crymson</p>
+</footer>
+
+<script>
+
+/* scroll reveal */
+const cards=document.querySelectorAll('.card');
+
+const observer=new IntersectionObserver(entries=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.classList.add('show');
+}
+});
+});
+
+cards.forEach(card=>observer.observe(card));
+
+/* slideshow */
+const slides=document.querySelectorAll('.slide');
+let index=0;
+
+setInterval(()=>{
+slides[index].classList.remove('active');
+index=(index+1)%slides.length;
+slides[index].classList.add('active');
+},4000);
+
+/* particles */
+const canvas=document.getElementById('particles');
+const ctx=canvas.getContext('2d');
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let particles=[];
+
+for(let i=0;i<90;i++){
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2+1,
+dx:(Math.random()-0.5)*0.4,
+dy:(Math.random()-0.5)*0.4
+});
+}
+
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+p.x+=p.dx;
+p.y+=p.dy;
+
+if(p.x<0||p.x>canvas.width)p.dx*=-1;
+if(p.y<0||p.y>canvas.height)p.dy*=-1;
+
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle="#ff2e63";
+ctx.fill();
+});
+
+requestAnimationFrame(animate);
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
