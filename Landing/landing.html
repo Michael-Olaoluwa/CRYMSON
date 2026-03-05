@@ -16,7 +16,6 @@ overflow-x:hidden;
 scroll-behavior:smooth;
 }
 
-/* background particles */
 canvas#particles{
 position:fixed;
 top:0;
@@ -24,7 +23,7 @@ left:0;
 z-index:-2;
 }
 
-/* soft gradient glow */
+
 body::before{
 content:"";
 position:fixed;
@@ -76,7 +75,6 @@ margin-bottom:50px;
 font-weight:600;
 }
 
-/* cards */
 .tools{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -127,7 +125,7 @@ transform:rotate(45deg);
 letter-spacing:1px;
 }
 
-/* slideshow */
+
 .slideshow{
 max-width:900px;
 margin:auto;
@@ -146,7 +144,7 @@ display:block;
 animation:fadeUp 1s ease;
 }
 
-/* crymson id */
+
 .id-box{
 max-width:800px;
 margin:auto;
@@ -156,7 +154,7 @@ color:#bbb;
 line-height:1.7;
 }
 
-/* dashboard preview */
+
 .dashboard-preview{
 background:rgba(255,255,255,0.03);
 backdrop-filter:blur(25px);
@@ -297,7 +295,7 @@ A single Crymson ID will unlock every Crymson tool. Sign in once and access a co
 
 <script>
 
-/* scroll reveal */
+
 const cards=document.querySelectorAll('.card');
 
 const observer=new IntersectionObserver(entries=>{
@@ -310,7 +308,7 @@ entry.target.classList.add('show');
 
 cards.forEach(card=>observer.observe(card));
 
-/* slideshow */
+
 const slides=document.querySelectorAll('.slide');
 let index=0;
 
@@ -320,7 +318,7 @@ index=(index+1)%slides.length;
 slides[index].classList.add('active');
 },4000);
 
-/* particles */
+
 const canvas=document.getElementById('particles');
 const ctx=canvas.getContext('2d');
 
