@@ -5,7 +5,7 @@
   <title>Crymson — Luxury Corporate Minimalist</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
- 
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -272,6 +272,12 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
+    .tool-badge:hover {
+      background-color: var(--burgundy);
+      color: var(--white);
+      box-shadow: 0 6px 16px rgba(128,0,32,0.25);
+      transition: all 0.25s ease;
+}
 
     /* CRYMSON ID */
     .id-highlight {
@@ -488,8 +494,8 @@
         <div class="tools-grid">
           <div class="tool-card">
             <div class="tool-name">CGPA Calculator</div>
-            <span class="tool-badge">Coming Soon</span>
-          </div>
+            <a href="cgpa-calculator.html" class="tool-badge" style="text-decoration: none; cursor: pointer;">Launch App</a>
+        </div>
 
           <div class="tool-card">
             <div class="tool-name">Smart To‑Do</div>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crymson - A Minimalist Ecosystem of Tools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== CSS VARIABLES / COLOR SCHEME ===== */
+        :root {
+            --black: #0a0a0a;
+            --dark-grey: #1a1a1a;
+            --grey: #2a2a2a;
+            --light-grey: #3a3a3a;
+            --burgundy: #800020;
+            --dusty-olive: #6B705C;
+            --ivory-white: #F8F5F0;
+            --subtle-grey: #555555;
+        }
+
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--black);
+            color: var(--ivory-white);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        h1 {
+            font-size: 5rem;
+            line-height: 1.1;
+        }
+
+        h2 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            line-height: 1.7;
+            color: rgba(248, 245, 240, 0.85);
+        }
+
+        /* ===== CONTAINER STYLES ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 120px 0;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 80px 2rem;
+            background: radial-gradient(ellipse at center, rgba(128, 0, 32, 0.1) 0%, transparent 70%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23800020' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.4;
+            animation: moveBackground 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1.2s ease-out;
+            max-width: 900px;
+        }
+
+        .hero h1 {
+            color: var(--burgundy);
+            margin-bottom: 1.5rem;
+            font-size: 6rem;
+            font-weight: 700;
+            text-shadow: 0 10px 40px rgba(128, 0, 32, 0.2);
+        }
+
+        .hero-tagline {
+            font-size: 1.3rem;
+            color: var(--dusty-olive);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            margin-bottom: 2rem;
+        }
+
+        .search-highlight {
+            color: var(--dusty-olive);
+        }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--ivory-white);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* ===== TOOLS SECTION ===== */
+        .tools-section {
+            background-color: var(--black);
+            position: relative;
+        }
+
+        .tools-section h2 {
+            text-align: center;
+            margin-bottom: 4rem;
+            color: var(--ivory-white);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .tool-card {
+            background: var(--dark-grey);
+            border: 1px solid var(--grey);
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .tool-card:nth-child(1) { animation-delay: 0.1s; }
+        .tool-card:nth-child(2) { animation-delay: 0.2s; }
+        .tool-card:nth-child(3) { animation-delay: 0.3s; }
+        .tool-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(128, 0, 32, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card:hover {
+            border-color: var(--burgundy);
+            background: var(--grey);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(128, 0, 32, 0.15), inset 0 0 40px rgba(128, 0, 32, 0.05);
+        }
+
+        .tool-card h3 {
+            color: var(--ivory-white);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-badge {
+            display: inline-block;
+            background-color: var(--burgundy);
+            color: var(--ivory-white);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== CRYMSON ID SECTION ===== */
+        .crymson-id-section {
+            background: linear-gradient(135deg, var(--black) 0%, var(--dark-grey) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crymson-id-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .crymson-id-content h2 {
+            color: var(--ivory-white);
+            margin-bottom: 2rem;
+        }
+
+        .id-highlight {
+            color: var(--dusty-olive);
+            font-weight: 500;
+        }
+
+        .crymson-id-content p {
+            font-size: 1.15rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            color: rgba(248, 245, 240, 0.8);
+        }
+
+        /* ===== DASHBOARD PREVIEW SECTION ===== */
+        .dashboard-section {
+            background-color: var(--black);
+            text-align: center;
+        }
+
+        .dashboard-section h2 {
+            color: var(--ivory-white);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-container {
+            background: var(--dark-grey);
+            border: 1px solid var(--grey);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(128, 0, 32, 0.03);
+            animation: fadeInUp 1.2s ease-out;
+            overflow: hidden;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dashboard-widget {
+            background: var(--grey);
+            border: 1px solid var(--light-grey);
+            border-radius: 12px;
+            padding: 1.8rem;
+            text-align: left;
+            transition: all 0.35s ease;
+            cursor: pointer;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        .dashboard-widget:nth-child(1) { animation-delay: 0.15s; }
+        .dashboard-widget:nth-child(2) { animation-delay: 0.25s; }
+        .dashboard-widget:nth-child(3) { animation-delay: 0.35s; }
+        .dashboard-widget:nth-child(4) { animation-delay: 0.45s; }
+        .dashboard-widget:nth-child(5) { animation-delay: 0.55s; }
+        .dashboard-widget:nth-child(6) { animation-delay: 0.65s; }
+
+        .dashboard-widget:hover {
+            background: var(--light-grey);
+            border-color: var(--burgundy);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(128, 0, 32, 0.2);
+        }
+
+        .widget-label {
+            font-size: 0.9rem;
+            color: var(--dusty-olive);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+        }
+
+        .widget-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--ivory-white);
+            margin-bottom: 0.5rem;
+        }
+
+        .widget-subtitle {
+            font-size: 0.85rem;
+            color: rgba(248, 245, 240, 0.6);
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta-section {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-content {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .cta-content h2 {
+            color: var(--ivory-white);
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--burgundy);
+            color: var(--ivory-white);
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 2px solid var(--burgundy);
+            transition: all 0.35s ease;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .cta-button:hover {
+            background-color: transparent;
+            color: var(--burgundy);
+            box-shadow: 0 10px 30px rgba(128, 0, 32, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .cta-button.secondary {
+            background-color: transparent;
+            color: var(--dusty-olive);
+            border-color: var(--dusty-olive);
+            margin-left: 1rem;
+        }
+
+        .cta-button.secondary:hover {
+            background-color: var(--dusty-olive);
+            color: var(--ivory-white);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: var(--dark-grey);
+            border-top: 1px solid var(--grey);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: rgba(248, 245, 240, 0.6);
+            font-size: 0.95rem;
+        }
+
+        footer p {
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+            color: rgba(248, 245, 240, 0.6);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ===== INTERSECTION OBSERVER ANIMATION ===== */
+        .fade-in-observer {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            h2 {
+                font-size: 2.2rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            section {
+                padding: 80px 0;
+            }
+
+            .hero {
+                padding: 60px 1rem;
+                min-height: auto;
+            }
+
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+
+            .hero-tagline {
+                font-size: 1.1rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .tool-card {
+                padding: 2rem;
+            }
+
+            .dashboard-container {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .cta-button,
+            .cta-button.secondary {
+                display: block;
+                margin: 0.5rem auto;
+                width: 90%;
+                max-width: 300px;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            section {
+                padding: 60px 0;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-tagline {
+                font-size: 1rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-widget {
+                padding: 1.5rem;
+            }
+
+            .widget-value {
+                font-size: 1.4rem;
+            }
+        }
+  </style>
+</head>
+<body>
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Crymson</h1>
+            <p class="hero-tagline">A minimalist <span class="search-highlight">ecosystem</span> of tools built to improve student <span class="search-highlight">life</span>.</p>
+        </div>
+        <div class="scroll-indicator">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12l7 7 7-7"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ===== TOOLS SECTION ===== -->
+    <section class="tools-section">
+        <div class="container">
+            <h2>Our Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <h3>CGPA Calculator</h3>
+                    <p>Track your academic progress with precision. Calculate GPA instantly and understand your degree classification.</p>
+                    <div class="tool-badge">Coming Soon</div>
+                </div>
+                <div class="tool-card">
+                    <h3>Smart To-Do</h3>
+                    <p>Organize your tasks intelligently. Prioritize, schedule, and accomplish more with less effort.</p>
+                    <div class="tool-badge">Coming Soon</div>
+                </div>
+                <div class="tool-card">
+                    <h3>Time Tracker</h3>
+                    <p>Understand how you spend your time. Get insights and optimize your productivity automatically.</p>
+                    <div class="tool-badge">Coming Soon</div>
+                </div>
+                <div class="tool-card">
+                    <h3>Finance Tracker</h3>
+                    <p>Manage your budget effortlessly. Track expenses, set goals, and build financial awareness.</p>
+                    <div class="tool-badge">Coming Soon</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CRYMSON ID SECTION ===== -->
+    <section class="crymson-id-section">
+        <div class="container">
+            <div class="crymson-id-content">
+                <h2><span class="id-highlight">Crymson ID</span></h2>
+                <p>One account. All your productivity tools. Seamlessly connected across every device.</p>
+                <p>
+                    With Crymson ID, you get a <span class="id-highlight">unified experience</span> that keeps all your data synchronized in real-time. Start a task on your phone, continue on your laptop, and access your insights anywhere. Your academic and personal growth, always within reach.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== DASHBOARD PREVIEW SECTION ===== -->
+    <section class="dashboard-section">
+        <div class="container">
+            <h2>Your Crymson Dashboard</h2>
+            <div class="dashboard-container">
+                <div class="dashboard-grid">
+                    <div class="dashboard-widget">
+                        <div class="widget-label">Active Tasks</div>
+                        <div class="widget-value">7</div>
+                        <div class="widget-subtitle">3 due today</div>
+                    </div>
+                    <div class="dashboard-widget">
+                        <div class="widget-label">Current CGPA</div>
+                        <div class="widget-value">3.8</div>
+                        <div class="widget-subtitle">Second Class Upper</div>
+                    </div>
+                    <div class="dashboard-widget">
+                        <div class="widget-label">Study Time</div>
+                        <div class="widget-value">24h 32m</div>
+                        <div class="widget-subtitle">This week</div>
+                    </div>
+                    <div class="dashboard-widget">
+                        <div class="widget-label">Budget Balance</div>
+                        <div class="widget-value">₦8,450</div>
+                        <div class="widget-subtitle">67% remaining</div>
+                    </div>
+                    <div class="dashboard-widget">
+                        <div class="widget-label">Productivity</div>
+                        <div class="widget-value">+15%</div>
+                        <div class="widget-subtitle">vs. last month</div>
+                    </div>
+                    <div class="dashboard-widget">
+                        <div class="widget-label">Streak</div>
+                        <div class="widget-value">12</div>
+                        <div class="widget-subtitle">days active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CTA SECTION ===== -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Transform Your Student Life?</h2>
+                <p style="margin-bottom: 2rem;">Join thousands of students optimizing their academic and personal journey with Crymson.</p>
+                <a href="#" class="cta-button">Join Waitlist</a>
+                <a href="cgpa-calculator.html" class="cta-button secondary">Try CGPA Calculator</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <p>&copy; 2026 Crymson. All rights reserved.</p>
+        <p>Crafted with precision for the modern student.</p>
+    </footer>
+
+    <!-- ===== JAVASCRIPT FOR SMOOTH INTERACTIONS ===== -->
+    <script>
+        // ===== INTERSECTION OBSERVER FOR SCROLL ANIMATIONS =====
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-observer');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections for animation on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+
+        // ===== SMOOTH SCROLL ENHANCEMENT =====
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // ===== PARALLAX EFFECT ON SCROLL =====
+        window.addEventListener('scroll', () => {
+            const hero = document.querySelector('.hero');
+            const scrollPosition = window.pageYOffset;
+            if (scrollPosition < window.innerHeight) {
+                hero.style.backgroundPosition = `0 ${scrollPosition * 0.5}px`;
+            }
+        });
+
+        // ===== TOOL CARD INTERACTION =====
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'all 0.35s cubic-bezier(0.23, 1, 0.320, 1)';
+            });
+        });
+
+        // ===== DASHBOARD WIDGET ANIMATION =====
+        document.querySelectorAll('.dashboard-widget').forEach(widget => {
+            widget.addEventListener('mouseenter', () => {
+                widget.style.transition = 'all 0.35s ease';
+            });
+        });
+    </script>
+</html>

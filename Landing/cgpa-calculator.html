@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crymson CGPA Calculator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --white: #F8F5F0;
+      --black: #000000;
+      --burgundy: #800020;
+      --olive: #6B705C;
+      --grey: #dcd9d4;
+      --soft-grey: #f1efeb;
+      --transition-fast: 0.25s ease;
+      --transition-med: 0.4s ease;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      font-family: 'Inter', sans-serif;
+      line-height:1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 6rem auto;
+      padding: 0 1.5rem;
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: clamp(3rem, 8vw, 5rem);
+      color: var(--burgundy);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+
+    .tagline {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    /* CONTROLS */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary {
+      background: var(--burgundy);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: #a00028;
+      box-shadow: 0 8px 20px rgba(128,0,32,0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: var(--olive);
+      color: var(--white);
+    }
+
+    .btn-secondary:hover {
+      background: #556a1b;
+      box-shadow: 0 8px 20px rgba(107,112,88,0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #d9534f;
+      color: var(--white);
+      border-radius: 6px;
+    }
+
+    .btn-danger:hover { background: #c9302c; }
+    .btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* TABLE */
+    .table-wrapper {
+      overflow-x: auto;
+      background: var(--soft-grey);
+      border-radius: 18px;
+      border: 1px solid var(--grey);
+      padding: 1rem;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    table { width:100%; border-collapse: collapse; }
+    thead { background: var(--black); color: var(--white); }
+    th { padding: 1rem; text-align:left; border-bottom: 3px solid var(--burgundy); font-weight:600; }
+    td { padding: 0.75rem; border-bottom: 1px solid var(--grey); }
+
+    input[type="text"], input[type="number"] {
+      width:100%; padding:0.65rem; border-radius:6px;
+      border:2px solid var(--grey); font-family: inherit; outline:none;
+      transition:border-color var(--transition-fast);
+      background: var(--white); color: var(--black);
+    }
+
+    input:focus { border-color: var(--burgundy); }
+
+    /* RESULTS CARDS */
+    .results { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+
+    .result-card {
+      background: var(--soft-grey);
+      border-left: 5px solid var(--burgundy);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align:center;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.08);
+    }
+
+    .result-card.classification { border-left-color: var(--olive); }
+    .result-card label { font-weight:600; text-transform:uppercase; opacity:0.7; margin-bottom:0.5rem; display:block; }
+    .result-card .value { font-size:2.5rem; font-weight:700; color: var(--burgundy); }
+    .result-card.classification .value { color: var(--olive); font-size:1.8rem; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--grey); padding:2.5rem 1.5rem; text-align:center; font-size:0.85rem; color: var(--black); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .results { grid-template-columns:1fr; }
+      h1 { font-size:2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Crymson CGPA Calculator</h1>
+    <p class="tagline">Track your academic progress seamlessly within the Crymson ecosystem.</p>
+  </header>
+
+  <div class="container">
+    <div class="controls">
+      <button class="btn-primary" onclick="addCourse()">➕ Add Course</button>
+      <button class="btn-secondary" onclick="calculateCGPA()">📊 Calculate CGPA</button>
+      <button class="btn-secondary" onclick="exportToCSV()">📥 Export CSV</button>
+      <button class="btn-primary" onclick="resetTable()">🔄 Reset Table</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="coursesTable">
+        <thead>
+          <tr>
+            <th>Select</th>
+            <th>Course Name</th>
+            <th>Credit Units</th>
+            <th>Score (0-100)</th>
+            <th>Grade Point</th>
+            <th>Weighted Points</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="results">
+      <div class="result-card waiting" id="cgpaCard">
+        <label>Your CGPA</label>
+        <div class="value" id="cgpaValue">—</div>
+      </div>
+      <div class="result-card classification waiting" id="classificationCard">
+        <label>Degree Classification</label>
+        <div class="value" id="classificationValue">—</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-danger" id="removeBtnContainer" onclick="removeSelectedCourse()" style="display:none;">🗑️ Remove Selected</button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 Crymson CGPA Calculator
+  </footer>
+
+  <script>
+     // ===== GRADING SYSTEM CONSTANTS =====
+        const GRADING_SYSTEM = {
+            '70-100': 5,
+            '60-69': 4,
+            '50-59': 3,
+            '45-49': 2,
+            '40-44': 1,
+            '0-39': 0
+        };
+
+        // ===== DEGREE CLASSIFICATION RANGES =====
+        const CLASSIFICATIONS = [
+            { min: 4.50, max: 5.00, name: 'First Class' },
+            { min: 3.50, max: 4.49, name: 'Second Class Upper' },
+            { min: 2.40, max: 3.49, name: 'Second Class Lower' },
+            { min: 1.50, max: 2.39, name: 'Third Class' },
+            { min: 1.00, max: 1.49, name: 'Pass' }
+        ];
+
+        // ===== LOCAL STORAGE KEY =====
+        const STORAGE_KEY = 'crymson_cgpa_courses';
+
+        // ===== PAGE INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCoursesFromStorage();
+            if (document.querySelectorAll('#tableBody tr').length === 0) {
+                addCourse();
+            }
+            attachEventListeners();
+        });
+
+        // ===== ATTACH EVENT LISTENERS FOR DYNAMIC CALCULATION =====
+        function attachEventListeners() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.addEventListener('change', (e) => {
+                if (e.target.type === 'number' || e.target.type === 'text') {
+                    updateWeightedPoints(e.target);
+                }
+                if (e.target.type === 'checkbox') {
+                    updateRemoveButton();
+                }
+                saveCoursesToStorage();
+            });
+        }
+
+        // ===== ADD NEW COURSE ROW =====
+        function addCourse() {
+            const tableBody = document.getElementById('tableBody');
+            const rowId = `row-${Date.now()}`;
+
+            const row = document.createElement('tr');
+            row.id = rowId;
+            row.innerHTML = `
+                <td>
+                    <input type="checkbox" class="course-checkbox" onchange="updateRemoveButton()">
+                </td>
+                <td>
+                    <input type="text" class="courseName" placeholder="e.g., Mathematics 101" value="">
+                </td>
+                <td>
+                    <input type="number" class="creditUnits" min="0" max="10" step="0.5" placeholder="e.g., 3" value="">
+                </td>
+                <td>
+                    <input type="number" class="score" min="0" max="100" step="0.1" placeholder="e.g., 75" value="">
+                </td>
+                <td>
+                    <input type="text" class="gradePoint" readonly placeholder="Auto">
+                </td>
+                <td>
+                    <input type="text" class="weightedPoints" readonly placeholder="Auto">
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+
+            // Attach event listeners to new inputs
+            const scoreInput = row.querySelector('.score');
+            const creditInput = row.querySelector('.creditUnits');
+
+            scoreInput.addEventListener('change', () => updateWeightedPoints(scoreInput));
+            creditInput.addEventListener('change', () => updateWeightedPoints(creditInput));
+
+            saveCoursesToStorage();
+            showToast('Course row added successfully');
+        }
+
+        // ===== CONVERT SCORE TO GRADE POINT =====
+        function getGradePoint(score) {
+            if (score === '' || score === null) return null;
+
+            score = parseFloat(score);
+
+            if (score >= 70 && score <= 100) return 5;
+            if (score >= 60 && score < 70) return 4;
+            if (score >= 50 && score < 60) return 3;
+            if (score >= 45 && score < 50) return 2;
+            if (score >= 40 && score < 45) return 1;
+            if (score >= 0 && score < 40) return 0;
+
+            return null;
+        }
+
+        // ===== UPDATE WEIGHTED POINTS DYNAMICALLY =====
+        function updateWeightedPoints(inputElement) {
+            const row = inputElement.closest('tr');
+            const creditUnits = parseFloat(row.querySelector('.creditUnits').value) || 0;
+            const score = parseFloat(row.querySelector('.score').value);
+
+            const gradePoint = getGradePoint(score);
+            const gradePointInput = row.querySelector('.gradePoint');
+            const weightedPointsInput = row.querySelector('.weightedPoints');
+
+            // Update grade point display
+            if (gradePoint !== null) {
+                gradePointInput.value = gradePoint.toFixed(1);
+            } else {
+                gradePointInput.value = '';
+            }
+
+            // Calculate and update weighted points
+            if (gradePoint !== null && creditUnits > 0) {
+                const weightedPoints = creditUnits * gradePoint;
+                weightedPointsInput.value = weightedPoints.toFixed(2);
+            } else {
+                weightedPointsInput.value = '';
+            }
+
+            saveCoursesToStorage();
+        }
+
+        // ===== UPDATE REMOVE BUTTON VISIBILITY =====
+        function updateRemoveButton() {
+            const checkboxes = document.querySelectorAll('.course-checkbox');
+            const isAnyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            document.getElementById('removeBtnContainer').style.display = isAnyChecked ? 'block' : 'none';
+        }
+
+        // ===== REMOVE SELECTED COURSE(S) =====
+        function removeSelectedCourse() {
+            const checkboxes = document.querySelectorAll('.course-checkbox:checked');
+
+            if (checkboxes.length === 0) {
+                showToast('Please select a course to remove', 'error');
+                return;
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.closest('tr').remove();
+            });
+
+            updateRemoveButton();
+            saveCoursesToStorage();
+            showToast(`${checkboxes.length} course(s) removed`);
+
+            // Add a new row if table is empty
+            if (document.querySelectorAll('#tableBody tr').length === 0) {
+                addCourse();
+            }
+        }
+
+        // ===== CALCULATE CGPA =====
+        function calculateCGPA() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            let totalWeightedPoints = 0;
+            let totalCreditUnits = 0;
+            let validCourses = 0;
+
+            rows.forEach(row => {
+                const creditUnits = parseFloat(row.querySelector('.creditUnits').value) || 0;
+                const weightedPoints = parseFloat(row.querySelector('.weightedPoints').value) || 0;
+
+                if (creditUnits > 0 && row.querySelector('.score').value !== '') {
+                    totalWeightedPoints += weightedPoints;
+                    totalCreditUnits += creditUnits;
+                    validCourses++;
+                }
+            });
+
+            if (validCourses === 0) {
+                showToast('Please enter at least one course with valid score', 'error');
+                clearResults();
+                return;
+            }
+
+            const cgpa = totalCreditUnits > 0 ? (totalWeightedPoints / totalCreditUnits) : 0;
+            const classification = getClassification(cgpa);
+
+            displayResults(cgpa, classification);
+            saveCoursesToStorage();
+        }
+
+        // ===== GET DEGREE CLASSIFICATION =====
+        function getClassification(cgpa) {
+            for (let range of CLASSIFICATIONS) {
+                if (cgpa >= range.min && cgpa <= range.max) {
+                    return range.name;
+                }
+            }
+            return 'Invalid CGPA';
+        }
+
+        // ===== DISPLAY RESULTS =====
+        function displayResults(cgpa, classification) {
+            const cgpaCard = document.getElementById('cgpaCard');
+            const classificationCard = document.getElementById('classificationCard');
+            const cgpaValue = document.getElementById('cgpaValue');
+            const classificationValue = document.getElementById('classificationValue');
+
+            cgpaValue.textContent = cgpa.toFixed(2);
+            classificationValue.textContent = classification;
+
+            cgpaCard.classList.remove('waiting');
+            classificationCard.classList.remove('waiting');
+
+            showToast('CGPA calculated successfully');
+        }
+
+        // ===== CLEAR RESULTS =====
+        function clearResults() {
+            document.getElementById('cgpaCard').classList.add('waiting');
+            document.getElementById('classificationCard').classList.add('waiting');
+            document.getElementById('cgpaValue').textContent = '—';
+            document.getElementById('classificationValue').textContent = '—';
+        }
+
+        // ===== RESET TABLE =====
+        function resetTable() {
+            if (confirm('Are you sure you want to clear all courses? This action cannot be undone.')) {
+                document.getElementById('tableBody').innerHTML = '';
+                addCourse();
+                clearResults();
+                localStorage.removeItem(STORAGE_KEY);
+                showToast('Table reset successfully');
+            }
+        }
+
+        // ===== EXPORT TO CSV =====
+        function exportToCSV() {
+            const rows = document.querySelectorAll('#tableBody tr');
+
+            if (rows.length === 0) {
+                showToast('No courses to export', 'error');
+                return;
+            }
+
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            csvContent += 'Course Name,Credit Units,Score,Grade Point,Weighted Points\n';
+
+            rows.forEach(row => {
+                const courseName = row.querySelector('.courseName').value || '';
+                const creditUnits = row.querySelector('.creditUnits').value || '';
+                const score = row.querySelector('.score').value || '';
+                const gradePoint = row.querySelector('.gradePoint').value || '';
+                const weightedPoints = row.querySelector('.weightedPoints').value || '';
+
+                csvContent += `"${courseName}",${creditUnits},${score},${gradePoint},${weightedPoints}\n`;
+            });
+
+            // Add CGPA and classification if available
+            const cgpaValue = document.getElementById('cgpaValue').textContent;
+            const classificationValue = document.getElementById('classificationValue').textContent;
+
+            if (cgpaValue !== '—') {
+                csvContent += `\nCGPA,${cgpaValue}\n`;
+                csvContent += `Degree Classification,${classificationValue}\n`;
+            }
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `crymson_cgpa_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('Courses exported to CSV successfully');
+        }
+
+        // ===== SAVE TO LOCAL STORAGE =====
+        function saveCoursesToStorage() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            const courses = [];
+
+            rows.forEach(row => {
+                courses.push({
+                    courseName: row.querySelector('.courseName').value,
+                    creditUnits: row.querySelector('.creditUnits').value,
+                    score: row.querySelector('.score').value
+                });
+            });
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+        }
+
+        // ===== LOAD FROM LOCAL STORAGE =====
+        function loadCoursesFromStorage() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+
+            if (stored) {
+                try {
+                    const courses = JSON.parse(stored);
+
+                    if (courses.length > 0) {
+                        courses.forEach(course => {
+                            addCourse();
+                            const lastRow = document.querySelector('#tableBody tr:last-child');
+                            lastRow.querySelector('.courseName').value = course.courseName;
+                            lastRow.querySelector('.creditUnits').value = course.creditUnits;
+                            lastRow.querySelector('.score').value = course.score;
+                            updateWeightedPoints(lastRow.querySelector('.score'));
+                        });
+
+                        // Remove the initial empty row added in DOMContentLoaded
+                        const rows = document.querySelectorAll('#tableBody tr');
+                        if (rows.length > courses.length) {
+                            rows[0].remove();
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error loading courses from storage:', e);
+                }
+            }
+        }
+
+        // ===== SHOW TOAST NOTIFICATION =====
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+  </script>
+</body>
+</html>
