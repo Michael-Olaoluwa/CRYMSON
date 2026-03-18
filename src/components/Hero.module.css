@@ -1,0 +1,41 @@
+.hero {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 6rem 5%;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.hero.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.heroTitle {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-size: clamp(4rem, 10vw, 6rem);
+  color: var(--burgundy);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heroTagline {
+  max-width: 480px;
+  font-size: 1.1rem;
+  opacity: 0.8;
+  text-align: center;
+}
+
+.heroSubtext {
+  max-width: 620px;
+  margin-top: 1rem;
+  font-size: 1rem;
+  opacity: 0.7;
+  text-align: center;
+}

@@ -1,0 +1,23 @@
+/* ANIMATED LINE DIVIDER */
+.line {
+  width: 0;
+  height: 2px;
+  background: var(--burgundy);
+  margin: 0 auto;
+  animation: lineGrow 1.8s ease forwards;
+}
+
+@keyframes lineGrow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 120px;
+    opacity: 1;
+  }
+}
+
+.landing main {
+  padding-top: 4.5rem;
+}

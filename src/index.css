@@ -1,0 +1,31 @@
+:root {
+  --white: #F8F5F0;
+  --black: #000000;
+  --burgundy: #800020;
+  --olive: #6B705C;
+  --grey: #dcd9d4;
+  --soft-grey: #f1efeb;
+  --transition-fast: 0.25s ease;
+  --transition-med: 0.4s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--white);
+  color: var(--black);
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}

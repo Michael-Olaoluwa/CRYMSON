@@ -1,0 +1,62 @@
+.footer {
+  border-top: 1px solid var(--grey);
+  padding: 2.5rem min(8vw, 5rem);
+  background: #f4f1ec;
+  font-size: 0.85rem;
+}
+
+.footerInner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+}
+
+.footerLogo {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--burgundy);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.footerMuted {
+  opacity: 0.7;
+}
+
+.footerHeading {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.footerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.footerLinks a {
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.7);
+  transition: color var(--transition-fast);
+}
+
+.footerLinks a:hover {
+  color: var(--burgundy);
+}
+
+.footerBottom {
+  margin-top: 2rem;
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .footerInner {
+    grid-template-columns: 1fr;
+  }
+}

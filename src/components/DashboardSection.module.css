@@ -1,0 +1,92 @@
+.section {
+  padding: 6rem min(8vw, 5rem);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.center {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.label {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.subtext {
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.7;
+  font-size: 1rem;
+}
+
+.dashboardShell {
+  margin-top: 3rem;
+  background: var(--soft-grey);
+  border-radius: 24px;
+  padding: 2rem;
+  border: 1px solid var(--grey);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.dashboardShell:hover {
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.widget {
+  background: white;
+  border: 1px solid var(--grey);
+  border-radius: 16px;
+  padding: 1rem;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.widget:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.widgetTitle {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.widgetBody {
+  height: 60px;
+  background: var(--soft-grey);
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 4.5rem 1.75rem;
+  }
+}

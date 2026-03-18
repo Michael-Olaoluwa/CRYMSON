@@ -1,0 +1,100 @@
+.section {
+  padding: 6rem min(8vw, 5rem);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.center {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.label {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.subtext {
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.7;
+  font-size: 1rem;
+}
+
+.toolsGrid {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.toolCard {
+  background: var(--soft-grey);
+  border: 1px solid var(--grey);
+  border-radius: 18px;
+  padding: 2rem;
+  text-align: left;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.toolCard:hover {
+  border-color: var(--burgundy);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+}
+
+.toolName {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.toolBadge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--olive);
+  color: var(--olive);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.toolBadge:hover {
+  background-color: var(--burgundy);
+  border-color: var(--burgundy);
+  color: var(--white);
+  box-shadow: 0 6px 16px rgba(128, 0, 32, 0.25);
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 4.5rem 1.75rem;
+  }
+}

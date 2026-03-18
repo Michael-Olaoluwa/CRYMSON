@@ -1,0 +1,41 @@
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+
+.btnPrimary {
+  background: var(--burgundy);
+  color: var(--white);
+}
+
+.btnPrimary:hover {
+  background: #a00028;
+  box-shadow: 0 8px 20px rgba(128, 0, 32, 0.25);
+  transform: translateY(-2px);
+}
+
+.btnSecondary {
+  background: var(--olive);
+  color: var(--white);
+}
+
+.btnSecondary:hover {
+  background: #556a1b;
+  box-shadow: 0 8px 20px rgba(107, 112, 88, 0.25);
+  transform: translateY(-2px);
+}
