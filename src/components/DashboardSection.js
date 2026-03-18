@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './DashboardSection.module.css';
 
-function DashboardSection({ scrollY }) {
+function DashboardSection() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ function DashboardSection({ scrollY }) {
       { threshold: 0.2 }
     );
 
-    const element = document.getElementById('dashboard-section');
+    const element = document.getElementById('dashboard');
     if (element) observer.observe(element);
 
     return () => {
@@ -22,14 +22,10 @@ function DashboardSection({ scrollY }) {
     };
   }, []);
 
-  const offset = scrollY * 0.15;
-
   return (
     <section
       id="dashboard"
-      id="dashboard-section"
       className={`${styles.section} ${isVisible ? styles.visible : ''}`}
-      style={{ transform: `translateY(${offset}px)` }}
     >
       <div className={styles.center}>
         <div className={styles.label}>Preview</div>

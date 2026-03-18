@@ -14,7 +14,7 @@ function IDSection() {
       { threshold: 0.2 }
     );
 
-    const element = document.getElementById('id-section');
+    const element = document.getElementById('id');
     if (element) observer.observe(element);
 
     return () => {
@@ -23,7 +23,7 @@ function IDSection() {
   }, []);
 
   return (
-    <section id="id" id="id-section" className={`${styles.section} ${isVisible ? styles.visible : ''}`}>
+    <section id="id" className={`${styles.section} ${isVisible ? styles.visible : ''}`}>
       <div className={styles.center}>
         <div className={styles.label}>Identity</div>
         <h2 className={styles.title}>Crymson ID</h2>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styles from './Landing.module.css';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
@@ -9,28 +9,53 @@ import AdvantagesSlideshow from '../components/AdvantagesSlideshow';
 import Footer from '../components/Footer';
 
 function Landing({ onNavigateToCGPA }) {
-  const [scrollY, setScrollY] = useState(0);
+  const heroRef = useRef(null);
+  const dashboardRef = useRef(null);
 
   useEffect(() => {
+    let animationFrameId;
+
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      const scrollY = window.scrollY;
+
+      if (heroRef.current) {
+        const offset = scrollY * 0.25;
+        heroRef.current.style.transform = `translateY(${offset}px)`;
+      }
+
+      if (dashboardRef.current) {
+        const offset = scrollY * 0.15;
+        dashboardRef.current.style.transform = `translateY(${offset}px)`;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const handleScrollThrottled = () => {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(handleScroll);
+    };
+
+    window.addEventListener('scroll', handleScrollThrottled);
+    return () => {
+      window.removeEventListener('scroll', handleScrollThrottled);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   return (
     <div className={styles.landing}>
       <Navbar onNavigateToCGPA={onNavigateToCGPA} />
       <main>
-        <Hero scrollY={scrollY} />
+        <div ref={heroRef}>
+          <Hero />
+        </div>
         <div className={styles.line}></div>
         <ToolsSection onNavigateToCGPA={onNavigateToCGPA} />
         <div className={styles.line}></div>
         <IDSection />
         <div className={styles.line}></div>
-        <DashboardSection scrollY={scrollY} />
+        <div ref={dashboardRef}>
+          <DashboardSection />
+        </div>
         <div className={styles.line}></div>
         <AdvantagesSlideshow />
       </main>

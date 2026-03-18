@@ -14,7 +14,7 @@ function ToolsSection({ onNavigateToCGPA }) {
       { threshold: 0.2 }
     );
 
-    const element = document.getElementById('tools-section');
+    const element = document.getElementById('tools');
     if (element) observer.observe(element);
 
     return () => {
@@ -23,7 +23,7 @@ function ToolsSection({ onNavigateToCGPA }) {
   }, []);
 
   return (
-    <section id="tools" id="tools-section" className={`${styles.section} ${isVisible ? styles.visible : ''}`}>
+    <section id="tools" className={`${styles.section} ${isVisible ? styles.visible : ''}`}>
       <div className={styles.center}>
         <div className={styles.label}>Solutions</div>
         <h2 className={styles.title}>Purpose‑Built Tools for Academic Efficiency</h2>

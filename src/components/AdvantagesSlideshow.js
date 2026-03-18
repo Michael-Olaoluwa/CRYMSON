@@ -28,7 +28,7 @@ function AdvantagesSlideshow() {
       { threshold: 0.2 }
     );
 
-    const element = document.getElementById('advantages-section');
+    const element = document.getElementById('advantages');
     if (element) observer.observe(element);
 
     return () => {
@@ -49,7 +49,7 @@ function AdvantagesSlideshow() {
   };
 
   return (
-    <section id="advantages" id="advantages-section" className={`${styles.section} ${isVisible ? styles.visible : ''}`}>
+    <section id="advantages" className={`${styles.section} ${isVisible ? styles.visible : ''}`}>
       <div className={styles.center}>
         <div className={styles.label}>Advantages</div>
         <h2 className={styles.title}>Designed for Students, Built for Institutions</h2>

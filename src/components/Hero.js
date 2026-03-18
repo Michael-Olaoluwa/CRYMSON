@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Hero.module.css';
 
-function Hero({ scrollY }) {
+function Hero() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  const offset = scrollY * 0.25;
-
   return (
-    <section id="hero" className={`${styles.hero} ${isVisible ? styles.visible : ''}`} style={{ transform: `translateY(${offset}px)` }}>
+    <section id="hero" className={`${styles.hero} ${isVisible ? styles.visible : ''}`}>
       <h1 className={styles.heroTitle}>Crymson</h1>
       <p className={styles.heroTagline}>A unified productivity ecosystem for modern academic environments.</p>
       <p className={styles.heroSubtext}>
