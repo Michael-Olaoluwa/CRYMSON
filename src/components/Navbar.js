@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Navbar.module.css';
 
-function Navbar({ onNavigateToCGPA }) {
+function Navbar({ onSignInClick, onSignUpClick }) {
   return (
     <header className={styles.navbar}>
       <div className={styles.navLogo}>Crymson</div>
@@ -12,7 +12,14 @@ function Navbar({ onNavigateToCGPA }) {
         <a href="#dashboard">Dashboard</a>
         <a href="#advantages">Advantages</a>
       </nav>
-      <button className={styles.navCta}>Sign In</button>
+      <div className={styles.authActions}>
+        <button type="button" className={styles.signInBtn} onClick={onSignInClick}>
+          Sign In
+        </button>
+        <button type="button" className={styles.signUpBtn} onClick={onSignUpClick}>
+          Sign Up
+        </button>
+      </div>
     </header>
   );
 }

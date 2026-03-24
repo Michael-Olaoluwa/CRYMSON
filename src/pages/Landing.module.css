@@ -21,3 +21,135 @@
 .landing main {
   padding-top: 4.5rem;
 }
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(24, 20, 18, 0.26);
+  backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 1.2rem;
+}
+
+.modal {
+  width: min(420px, 94vw);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(128, 0, 32, 0.2);
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+  padding: 1.6rem 1.4rem 1.4rem;
+  position: relative;
+  animation: modalIn 220ms ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(128, 0, 32, 0.2);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--burgundy);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  border-color: var(--burgundy);
+}
+
+.modalEyebrow {
+  margin: 0;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: rgba(0, 0, 0, 0.48);
+}
+
+.modalTitle {
+  margin: 0.25rem 0 0;
+  font-family: "Cormorant Garamond", serif;
+  color: var(--burgundy);
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+}
+
+.modalSubtext {
+  margin: 0.35rem 0 1.2rem;
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 0.95rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.fieldLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.66rem;
+  color: rgba(0, 0, 0, 0.56);
+}
+
+.input {
+  height: 2.65rem;
+  border-radius: 12px;
+  border: 1px solid rgba(128, 0, 32, 0.2);
+  padding: 0 0.88rem;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--black);
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(128, 0, 32, 0.58);
+  box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.13);
+}
+
+.submitButton {
+  margin-top: 0.65rem;
+  height: 2.8rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--burgundy);
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.submitButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(128, 0, 32, 0.28);
+}
+
+@media (max-width: 768px) {
+  .modal {
+    padding: 1.35rem 1.1rem 1.15rem;
+  }
+
+  .modalTitle {
+    font-size: 1.7rem;
+  }
+}

@@ -87,8 +87,59 @@
   box-shadow: 0 8px 20px rgba(128, 0, 32, 0.25);
 }
 
+.authActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.signInBtn,
+.signUpBtn {
+  padding: 0.45rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  font-family: inherit;
+}
+
+.signInBtn {
+  border: 1px solid rgba(128, 0, 32, 0.45);
+  color: var(--burgundy);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.signInBtn:hover {
+  border-color: var(--burgundy);
+  background: var(--white);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.signUpBtn {
+  border: 1px solid var(--burgundy);
+  color: var(--white);
+  background: var(--burgundy);
+}
+
+.signUpBtn:hover {
+  box-shadow: 0 8px 20px rgba(128, 0, 32, 0.25);
+}
+
 @media (max-width: 768px) {
   .navLinks {
     display: none;
+  }
+
+  .authActions {
+    gap: 0.45rem;
+  }
+
+  .signInBtn,
+  .signUpBtn {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    padding: 0.4rem 0.85rem;
   }
 }
