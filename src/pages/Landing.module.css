@@ -44,6 +44,10 @@
   animation: modalIn 220ms ease-out;
 }
 
+.successModal {
+  text-align: center;
+}
+
 @keyframes modalIn {
   from {
     opacity: 0;
@@ -146,6 +150,32 @@
 .submitButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 25px rgba(128, 0, 32, 0.28);
+}
+
+.successTitle {
+  margin: 0.35rem 0 0.45rem;
+  font-family: "Cormorant Garamond", serif;
+  color: var(--burgundy);
+  font-size: 2rem;
+  letter-spacing: 0.03em;
+}
+
+.successText {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.generatedId {
+  margin: 1rem 0 0.7rem;
+  font-size: clamp(2rem, 8vw, 2.7rem);
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  color: var(--burgundy);
+}
+
+.successHint {
+  margin: 0 0 1rem;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 @media (max-width: 768px) {

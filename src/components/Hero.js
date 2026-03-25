@@ -11,11 +11,10 @@ function Hero() {
   return (
     <section id="hero" className={`${styles.hero} ${isVisible ? styles.visible : ''}`}>
       <h1 className={styles.heroTitle}>Crymson</h1>
-      <p className={styles.heroTagline}>A unified productivity ecosystem for modern academic environments.</p>
+      <p className={styles.heroTagline}>Student Productivity Ecosystem</p>
       <p className={styles.heroSubtext}>
-        Crymson delivers a structured, reliable, and efficient suite of tools designed to support
-        institutional performance and student success. The platform emphasizes clarity, operational
-        consistency, and a premium user experience aligned with contemporary corporate standards.
+        Crymson helps students organize coursework, track academic progress, and stay productive
+        through one cohesive digital environment designed for both learners and institutions.
       </p>
     </section>
   );

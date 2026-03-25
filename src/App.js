@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Landing from './pages/Landing';
+import Landing from './pages/Landing.jsx';
 import CGPACalculator from './pages/CGPACalculator';
 
 function App() {
