@@ -39,6 +39,7 @@
 
 .slideshow {
   margin-top: 3rem;
+  overflow: hidden;
 }
 
 .slideshowTrack {
