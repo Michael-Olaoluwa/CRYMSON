@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import styles from './ToolsSection.module.css';
 
 const tools = [
-  { name: 'CGPA Calculator', label: 'Live', href: '#', accent: 'olive' },
-  { name: 'To-Do Planner', label: 'Soon', href: '#', accent: 'olive' },
+  { name: 'CGPA Tracker', label: 'Live', href: '#', accent: 'olive' },
+  { name: 'To-Do Planner', label: 'Live', href: '#', accent: 'olive' },
   { name: 'Time Tracker', label: 'Soon', href: '#', accent: 'olive' },
   { name: 'Focus Analytics', label: 'Soon', href: '#', accent: 'olive' },
 ];
 
-function ToolsSection({ onNavigateToCGPA }) {
+function ToolsSection({ onNavigateToCGPA, onNavigateToTodo }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -30,9 +30,15 @@ function ToolsSection({ onNavigateToCGPA }) {
   }, []);
 
   const handleToolClick = (event, toolName) => {
-    if (toolName === 'CGPA Calculator' && onNavigateToCGPA) {
+    if (toolName === 'CGPA Tracker' && onNavigateToCGPA) {
       event.preventDefault();
       onNavigateToCGPA();
+      return;
+    }
+
+    if (toolName === 'To-Do Planner' && onNavigateToTodo) {
+      event.preventDefault();
+      onNavigateToTodo();
     }
   };
 

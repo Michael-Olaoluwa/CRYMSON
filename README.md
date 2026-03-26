@@ -1,6 +1,6 @@
 # Crymson React Application
 
-A React-based conversion of the Crymson productivity ecosystem, featuring a landing page and CGPA calculator.
+A React-based conversion of the Crymson productivity ecosystem, featuring a landing page and CGPA tracker.
 
 ## Project Structure
 
@@ -22,7 +22,7 @@ src/
   │   └── Toast.js
   ├── pages/
   │   ├── Landing.js
-  │   └── CGPACalculator.js
+  │   └── CGPATracker.js
   ├── utils/
   │   └── toast.js
   ├── App.js
@@ -44,7 +44,7 @@ package.json
 - Auto-rotating advantages slideshow with manual navigation
 - Responsive footer with links
 
-### CGPA Calculator
+### CGPA Tracker
 - Dynamic course entry table
 - Automatic grade point calculation based on Nigerian grading system
 - Automatic weighted points calculation

@@ -1,7 +1,9 @@
 import React from 'react';
 import styles from '../pages/Landing.module.css';
 
-function SignupModal({ formData, onChange, onClose, onSubmit }) {
+function SignupModal({ formData, errorMessage, onChange, onClose, onSubmit }) {
+  const hasPasswordMismatch = Boolean(errorMessage);
+
   return (
     <div className={styles.modalOverlay} onMouseDown={onClose}>
       <section
@@ -79,8 +81,10 @@ function SignupModal({ formData, onChange, onClose, onSubmit }) {
             type="password"
             value={formData.password}
             onChange={onChange}
-            className={styles.input}
+            className={`${styles.input} ${hasPasswordMismatch ? styles.inputError : ''}`}
             placeholder="••••••••"
+            required
+            aria-invalid={hasPasswordMismatch}
           />
 
           <label className={styles.fieldLabel} htmlFor="confirmPassword">Confirm Password</label>
@@ -90,9 +94,15 @@ function SignupModal({ formData, onChange, onClose, onSubmit }) {
             type="password"
             value={formData.confirmPassword}
             onChange={onChange}
-            className={styles.input}
+            className={`${styles.input} ${hasPasswordMismatch ? styles.inputError : ''}`}
             placeholder="••••••••"
+            required
+            aria-invalid={hasPasswordMismatch}
           />
+
+          {hasPasswordMismatch && (
+            <p className={styles.fieldError} role="alert">{errorMessage}</p>
+          )}
 
           <button type="submit" className={styles.submitButton}>Create Account</button>
         </form>

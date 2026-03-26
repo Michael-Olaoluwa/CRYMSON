@@ -3,7 +3,7 @@ import CGPAHeader from '../components/CGPA/CGPAHeader';
 import CGPAControls from '../components/CGPA/CGPAControls';
 import CGPATable from '../components/CGPA/CGPATable';
 import CGPAResults from '../components/CGPA/CGPAResults';
-import styles from './CGPACalculator.module.css';
+import styles from './CGPATracker.module.css';
 
 const createCourse = (id) => ({
   id,
@@ -12,7 +12,7 @@ const createCourse = (id) => ({
   score: '',
 });
 
-function CGPACalculator({ onNavigateHome }) {
+function CGPATracker({ onNavigateHome }) {
   const [courses, setCourses] = useState([createCourse(1), createCourse(2)]);
   const [nextId, setNextId] = useState(3);
   const [cgpa, setCgpa] = useState(null);
@@ -124,7 +124,7 @@ function CGPACalculator({ onNavigateHome }) {
   };
 
   return (
-    <div className={styles.cgpaCalculator}>
+    <div className={styles.cgpaTracker}>
       <div className={styles.container}>
         <button type="button" onClick={onNavigateHome}>← Back To Landing</button>
         <CGPAHeader />
@@ -152,4 +152,4 @@ function CGPACalculator({ onNavigateHome }) {
   );
 }
 
-export default CGPACalculator;
+export default CGPATracker;

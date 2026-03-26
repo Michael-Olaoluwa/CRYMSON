@@ -133,6 +133,17 @@
   box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.13);
 }
 
+.inputError {
+  border-color: #c03333;
+  box-shadow: 0 0 0 2px rgba(192, 51, 51, 0.14);
+}
+
+.fieldError {
+  margin: -0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #b12c2c;
+}
+
 .submitButton {
   margin-top: 0.65rem;
   height: 2.8rem;

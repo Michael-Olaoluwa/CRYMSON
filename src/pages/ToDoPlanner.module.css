@@ -1,0 +1,303 @@
+.page {
+  min-height: 100vh;
+  padding: 2.2rem clamp(1rem, 4vw, 3rem);
+  background:
+    radial-gradient(circle at 10% 10%, rgba(85, 107, 47, 0.18), transparent 42%),
+    radial-gradient(circle at 90% 5%, rgba(128, 0, 32, 0.14), transparent 35%),
+    linear-gradient(135deg, #f9f6f2 0%, #f2efe9 100%);
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.backButton {
+  border: 1px solid rgba(128, 0, 32, 0.25);
+  border-radius: 999px;
+  background: #fff;
+  color: #5d0c25;
+  padding: 0.5rem 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.header {
+  margin-top: 1rem;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.72rem;
+  color: rgba(21, 21, 21, 0.58);
+}
+
+.title {
+  margin: 0.25rem 0 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #64041f;
+}
+
+.subtitle {
+  margin: 0.45rem 0 0;
+  color: rgba(21, 21, 21, 0.7);
+}
+
+.card,
+.listCard {
+  margin-top: 1rem;
+  border: 1px solid rgba(21, 21, 21, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(5px);
+  padding: 1.1rem;
+  box-shadow: 0 14px 30px rgba(20, 20, 20, 0.08);
+}
+
+.form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.68rem;
+  color: rgba(21, 21, 21, 0.56);
+}
+
+.row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.input {
+  flex: 1;
+  border: 1px solid rgba(21, 21, 21, 0.2);
+  border-radius: 12px;
+  padding: 0.72rem 0.85rem;
+}
+
+.textarea {
+  border: 1px solid rgba(21, 21, 21, 0.2);
+  border-radius: 12px;
+  padding: 0.72rem 0.85rem;
+  resize: vertical;
+}
+
+.primaryButton {
+  border: none;
+  border-radius: 12px;
+  background: #800020;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.72rem 1rem;
+  cursor: pointer;
+}
+
+.topActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.notificationButton {
+  border: 1px solid rgba(21, 21, 21, 0.2);
+  border-radius: 12px;
+  background: #fff;
+  color: #1b1b1b;
+  font-weight: 700;
+  padding: 0.72rem 1rem;
+  cursor: pointer;
+}
+
+.notificationButton:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.notificationHint {
+  margin: 0.75rem 0 0;
+  color: rgba(21, 21, 21, 0.64);
+  font-size: 0.84rem;
+}
+
+.stats {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  color: rgba(21, 21, 21, 0.75);
+  font-size: 0.92rem;
+}
+
+.filters {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.filterButton,
+.clearButton {
+  border: 1px solid rgba(21, 21, 21, 0.16);
+  background: #fff;
+  color: #1b1b1b;
+  border-radius: 999px;
+  padding: 0.4rem 0.82rem;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.filterButtonActive {
+  border-color: #556b2f;
+  background: #556b2f;
+  color: #fff;
+}
+
+.clearButton {
+  margin-left: auto;
+}
+
+.clearButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid rgba(21, 21, 21, 0.12);
+  border-radius: 12px;
+  padding: 0.72rem 0.8rem;
+  background: #fff;
+}
+
+.checkboxWrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.itemTitle,
+.itemDone {
+  display: inline-block;
+  overflow-wrap: anywhere;
+}
+
+.itemMeta {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(21, 21, 21, 0.56);
+}
+
+.itemDetails {
+  margin: 0.22rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(21, 21, 21, 0.72);
+}
+
+.itemDone {
+  text-decoration: line-through;
+  color: rgba(21, 21, 21, 0.45);
+}
+
+.deleteButton {
+  border: 1px solid rgba(128, 0, 32, 0.24);
+  background: #fff;
+  color: #800020;
+  border-radius: 8px;
+  padding: 0.4rem 0.72rem;
+  cursor: pointer;
+}
+
+.emptyState {
+  margin: 0;
+  color: rgba(21, 21, 21, 0.62);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: rgba(16, 16, 16, 0.28);
+  backdrop-filter: blur(5px);
+  padding: 1rem;
+}
+
+.modal {
+  width: min(520px, 96vw);
+  border-radius: 18px;
+  border: 1px solid rgba(21, 21, 21, 0.16);
+  background: #fff;
+  padding: 1.2rem;
+  box-shadow: 0 24px 40px rgba(16, 16, 16, 0.22);
+  position: relative;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(128, 0, 32, 0.22);
+  background: #fff;
+  color: #800020;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modalEyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.72rem;
+  color: rgba(21, 21, 21, 0.52);
+}
+
+.modalTitle {
+  margin: 0.25rem 0 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2rem;
+  color: #64041f;
+}
+
+.modalSubtext {
+  margin: 0.35rem 0 0.95rem;
+  color: rgba(21, 21, 21, 0.62);
+}
+
+@media (max-width: 760px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .clearButton {
+    margin-left: 0;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

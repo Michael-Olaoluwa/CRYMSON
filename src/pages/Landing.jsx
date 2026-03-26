@@ -19,11 +19,12 @@ const INITIAL_FORM_DATA = {
   confirmPassword: ''
 };
 
-function Landing({ onNavigateToCGPA }) {
+function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [generatedCrymsonId, setGeneratedCrymsonId] = useState('');
+  const [signupError, setSignupError] = useState('');
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [credentials, setCredentials] = useState({ crymsonId: '', password: '' });
 
@@ -64,6 +65,7 @@ function Landing({ onNavigateToCGPA }) {
 
   const handleSignUpClick = () => {
     setIsSignInOpen(false);
+    setSignupError('');
     setIsSignupOpen(true);
   };
 
@@ -74,12 +76,21 @@ function Landing({ onNavigateToCGPA }) {
 
   const handleSignInSubmit = (event) => {
     event.preventDefault();
+    const submittedUserId = credentials.crymsonId.trim();
     setIsSignInOpen(false);
+    setCredentials({ crymsonId: '', password: '' });
+    onLoginSuccess(submittedUserId);
   };
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+      if (signupError && (name === 'password' || name === 'confirmPassword')) {
+        setSignupError('');
+      }
+      return next;
+    });
   };
 
   const generateCrymsonId = () => {
@@ -91,6 +102,15 @@ function Landing({ onNavigateToCGPA }) {
   const handleSignupSubmit = (event) => {
     event.preventDefault();
 
+    const password = formData.password.trim();
+    const confirmPassword = formData.confirmPassword.trim();
+    if (password !== confirmPassword) {
+      setSignupError('Passwords do not match. Please make sure both fields are the same.');
+      return;
+    }
+
+    setSignupError('');
+
     const newId = generateCrymsonId();
     setGeneratedCrymsonId(newId);
     setIsSignupOpen(false);
@@ -99,6 +119,7 @@ function Landing({ onNavigateToCGPA }) {
   };
 
   const closeSignupModal = () => {
+    setSignupError('');
     setIsSignupOpen(false);
   };
 
@@ -117,7 +138,7 @@ function Landing({ onNavigateToCGPA }) {
       <main>
         <Hero />
         <div className={styles.line} />
-        <ToolsSection onNavigateToCGPA={onNavigateToCGPA} />
+        <ToolsSection onNavigateToCGPA={onNavigateToCGPA} onNavigateToTodo={onNavigateToTodo} />
         <IDSection />
         <DashboardSection />
         <AdvantagesSlideshow />
@@ -183,6 +204,7 @@ function Landing({ onNavigateToCGPA }) {
       {isSignupOpen && (
         <SignupModal
           formData={formData}
+          errorMessage={signupError}
           onChange={handleFormChange}
           onClose={closeSignupModal}
           onSubmit={handleSignupSubmit}

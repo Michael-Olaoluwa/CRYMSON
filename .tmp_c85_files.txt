@@ -9362,10 +9362,11 @@ src/components/CGPATracker/TrackerHeader.js
 src/components/ToolsSection.js
 src/context/CGPATrackerContext.js
 src/index.css
-src/pages/CGPACalculator.js
+src/pages/CGPATracker.js
 src/pages/Landing.js
 src/utils/apiClient.js
 src/utils/cgpaMath.js
 src/utils/localStore.js
 src/utils/report.js
 tailwind.config.js
+
