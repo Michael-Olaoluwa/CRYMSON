@@ -7,6 +7,13 @@ const authRoutes = require('./routes/authRoutes');
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+const explicitAllowedOrigins = [clientOrigin, ...(process.env.ALLOWED_ORIGINS || '').split(',')]
+  .map((value) => value.trim())
+  .filter(Boolean);
+
+function isPrivateNetworkOrigin(origin) {
+  return /^https?:\/\/(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})(:\d+)?$/i.test(origin);
+}
 
 app.use(cors({
   origin(origin, callback) {
@@ -15,7 +22,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    if (origin === clientOrigin) {
+    if (explicitAllowedOrigins.includes(origin) || isPrivateNetworkOrigin(origin)) {
       return callback(null, true);
     }
 

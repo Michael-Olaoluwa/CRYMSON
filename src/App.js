@@ -4,7 +4,8 @@ import CGPATracker from './pages/CGPATracker';
 import ToDoPlanner from './pages/ToDoPlanner';
 import UserHome from './pages/UserHome';
 
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || `${window.location.protocol}//${window.location.hostname}:5000`;
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'todo']);
