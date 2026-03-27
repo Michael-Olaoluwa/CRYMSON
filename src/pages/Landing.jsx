@@ -10,6 +10,8 @@ import SignupModal from '../components/SignupModal';
 import SuccessModal from '../components/SuccessModal';
 import styles from './Landing.module.css';
 
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
 const INITIAL_FORM_DATA = {
   fullName: '',
   email: '',
@@ -25,6 +27,9 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [generatedCrymsonId, setGeneratedCrymsonId] = useState('');
   const [signupError, setSignupError] = useState('');
+  const [signInError, setSignInError] = useState('');
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [credentials, setCredentials] = useState({ crymsonId: '', password: '' });
 
@@ -60,26 +65,68 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
   const handleSignInClick = () => {
     setIsSignupOpen(false);
     setIsSuccessOpen(false);
+    setSignInError('');
     setIsSignInOpen(true);
   };
 
   const handleSignUpClick = () => {
     setIsSignInOpen(false);
+    setSignInError('');
     setSignupError('');
     setIsSignupOpen(true);
   };
 
   const handleSignInInputChange = (event) => {
     const { name, value } = event.target;
+    if (signInError) {
+      setSignInError('');
+    }
     setCredentials((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSignInSubmit = (event) => {
+  const handleSignInSubmit = async (event) => {
     event.preventDefault();
+
     const submittedUserId = credentials.crymsonId.trim();
-    setIsSignInOpen(false);
-    setCredentials({ crymsonId: '', password: '' });
-    onLoginSuccess(submittedUserId);
+    const submittedPassword = credentials.password;
+
+    if (!submittedUserId || !submittedPassword) {
+      setSignInError('Crymson ID and password are required.');
+      return;
+    }
+
+    setIsSigningIn(true);
+    setSignInError('');
+
+    try {
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          crymsonId: submittedUserId,
+          password: submittedPassword
+        })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.message || 'Sign in failed. Please try again.');
+      }
+
+      const accountId = payload?.user?.crymsonId || submittedUserId;
+      const token = payload?.token;
+
+      setIsSignInOpen(false);
+      setCredentials({ crymsonId: '', password: '' });
+      onLoginSuccess(accountId, token);
+    } catch (error) {
+      setSignInError(error.message || 'Unable to sign in right now.');
+    } finally {
+      setIsSigningIn(false);
+    }
   };
 
   const handleFormChange = (event) => {
@@ -93,13 +140,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
     });
   };
 
-  const generateCrymsonId = () => {
-    const yearSuffix = String(new Date().getFullYear()).slice(-2);
-    const randomFourDigits = Math.floor(Math.random() * 9000) + 1000;
-    return `${yearSuffix}${randomFourDigits}S`;
-  };
-
-  const handleSignupSubmit = (event) => {
+  const handleSignupSubmit = async (event) => {
     event.preventDefault();
 
     const password = formData.password.trim();
@@ -110,12 +151,44 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
     }
 
     setSignupError('');
+    setIsSigningUp(true);
 
-    const newId = generateCrymsonId();
-    setGeneratedCrymsonId(newId);
-    setIsSignupOpen(false);
-    setIsSuccessOpen(true);
-    setFormData(INITIAL_FORM_DATA);
+    try {
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          department: formData.department,
+          level: formData.level,
+          password: formData.password
+        })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.message || 'Unable to create account.');
+      }
+
+      const newId = payload?.user?.crymsonId;
+      setGeneratedCrymsonId(newId || 'Unavailable');
+      setIsSignupOpen(false);
+      setIsSuccessOpen(true);
+      setFormData(INITIAL_FORM_DATA);
+    } catch (error) {
+      const isNetworkError = error instanceof TypeError;
+      setSignupError(
+        isNetworkError
+          ? 'Cannot reach the server. Please make sure the backend is running on port 5000.'
+          : (error.message || 'Unable to create account right now.')
+      );
+    } finally {
+      setIsSigningUp(false);
+    }
   };
 
   const closeSignupModal = () => {
@@ -124,6 +197,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
   };
 
   const closeSignInModal = () => {
+    setSignInError('');
     setIsSignInOpen(false);
   };
 
@@ -195,7 +269,13 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
                 required
               />
 
-              <button type="submit" className={styles.submitButton}>Continue</button>
+              {signInError && (
+                <p className={styles.fieldError} role="alert">{signInError}</p>
+              )}
+
+              <button type="submit" className={styles.submitButton} disabled={isSigningIn}>
+                {isSigningIn ? 'Signing In...' : 'Continue'}
+              </button>
             </form>
           </section>
         </div>
@@ -208,6 +288,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
           onChange={handleFormChange}
           onClose={closeSignupModal}
           onSubmit={handleSignupSubmit}
+          isSubmitting={isSigningUp}
         />
       )}
 

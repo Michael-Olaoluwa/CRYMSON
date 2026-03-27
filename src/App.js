@@ -4,10 +4,12 @@ import CGPATracker from './pages/CGPATracker';
 import ToDoPlanner from './pages/ToDoPlanner';
 import UserHome from './pages/UserHome';
 
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 const APP_STATE_KEY = 'crymson_app_state';
+const AUTH_SESSION_KEY = 'crymson_auth_session';
 const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'todo']);
 
-const getInitialAppState = () => {
+const getSavedAppState = () => {
   try {
     const raw = localStorage.getItem(APP_STATE_KEY);
     if (!raw) {
@@ -26,9 +28,80 @@ const getInitialAppState = () => {
   }
 };
 
+const getStoredToken = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_SESSION_KEY);
+    if (!raw) {
+      return '';
+    }
+
+    const parsed = JSON.parse(raw);
+    return typeof parsed.token === 'string' ? parsed.token : '';
+  } catch (error) {
+    return '';
+  }
+};
+
+const clearSessionStorage = () => {
+  localStorage.removeItem(AUTH_SESSION_KEY);
+  localStorage.removeItem(APP_STATE_KEY);
+};
+
 function App() {
-  const [currentPage, setCurrentPage] = useState(() => getInitialAppState().currentPage);
-  const [activeUserId, setActiveUserId] = useState(() => getInitialAppState().activeUserId);
+  const [currentPage, setCurrentPage] = useState('landing');
+  const [activeUserId, setActiveUserId] = useState('');
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const restoreFromValidSession = async () => {
+      const token = getStoredToken();
+      const savedState = getSavedAppState();
+
+      if (!token || !savedState.activeUserId) {
+        clearSessionStorage();
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/session`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload.message || 'Invalid session.');
+        }
+
+        if (isCancelled) {
+          return;
+        }
+
+        const restoredUserId = payload?.user?.crymsonId || savedState.activeUserId;
+        const restoredPage = savedState.currentPage === 'landing' ? 'home' : savedState.currentPage;
+        setActiveUserId(restoredUserId);
+        setCurrentPage(restoredPage);
+      } catch (error) {
+        if (isCancelled) {
+          return;
+        }
+
+        clearSessionStorage();
+        setActiveUserId('');
+        setCurrentPage('landing');
+      }
+    };
+
+    restoreFromValidSession();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(
@@ -45,7 +118,11 @@ function App() {
     setCurrentPage('todo');
   };
 
-  const navigateToUserHome = (userId) => {
+  const navigateToUserHome = (userId, token) => {
+    if (typeof token === 'string' && token) {
+      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
+    }
+
     setActiveUserId(userId);
     setCurrentPage('home');
   };
@@ -55,6 +132,7 @@ function App() {
   };
 
   const handleLogout = () => {
+    clearSessionStorage();
     setActiveUserId('');
     setCurrentPage('landing');
   };

@@ -1,8 +1,9 @@
 import React from 'react';
 import styles from '../pages/Landing.module.css';
 
-function SignupModal({ formData, errorMessage, onChange, onClose, onSubmit }) {
-  const hasPasswordMismatch = Boolean(errorMessage);
+function SignupModal({ formData, errorMessage, onChange, onClose, onSubmit, isSubmitting }) {
+  const normalizedError = String(errorMessage || '').toLowerCase();
+  const hasPasswordMismatch = normalizedError.includes('password');
 
   return (
     <div className={styles.modalOverlay} onMouseDown={onClose}>
@@ -104,7 +105,9 @@ function SignupModal({ formData, errorMessage, onChange, onClose, onSubmit }) {
             <p className={styles.fieldError} role="alert">{errorMessage}</p>
           )}
 
-          <button type="submit" className={styles.submitButton}>Create Account</button>
+          <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+            {isSubmitting ? 'Creating Account...' : 'Create Account'}
+          </button>
         </form>
       </section>
     </div>

@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
+backend/node_modules/
 
 # production build
 /build
@@ -19,6 +20,9 @@ yarn-error.log*
 .cache/
 .tmp_*
 *.tmp
+
+# backend runtime data
+backend/data/db.json
 
 # editor/system
 .DS_Store

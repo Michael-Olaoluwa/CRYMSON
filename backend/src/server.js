@@ -1,0 +1,52 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { initDb } = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+
+const app = express();
+const port = Number(process.env.PORT) || 5000;
+const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+
+app.use(cors({
+  origin(origin, callback) {
+    // Allow server-to-server requests and local dev frontends across ports.
+    if (!origin || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
+      return callback(null, true);
+    }
+
+    if (origin === clientOrigin) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
+  }
+}));
+app.use(express.json());
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+app.use('/api/auth', authRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({ message: 'Not found.' });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal server error.' });
+});
+
+async function startServer() {
+  await initDb();
+  app.listen(port, () => {
+    console.log(`Crymson backend running on port ${port}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error('Failed to start backend:', error);
+  process.exit(1);
+});
