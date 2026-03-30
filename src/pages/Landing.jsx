@@ -118,11 +118,12 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
       }
 
       const accountId = payload?.user?.crymsonId || submittedUserId;
+      const accountName = payload?.user?.fullName || '';
       const token = payload?.token;
 
       setIsSignInOpen(false);
       setCredentials({ crymsonId: '', password: '' });
-      onLoginSuccess(accountId, token);
+      onLoginSuccess(accountId, accountName, token);
     } catch (error) {
       setSignInError(error.message || 'Unable to sign in right now.');
     } finally {

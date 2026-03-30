@@ -14,7 +14,7 @@ const getSavedAppState = () => {
   try {
     const raw = localStorage.getItem(APP_STATE_KEY);
     if (!raw) {
-      return { currentPage: 'landing', activeUserId: '' };
+      return { currentPage: 'landing', activeUserId: '', activeUserName: '' };
     }
 
     const parsed = JSON.parse(raw);
@@ -22,10 +22,11 @@ const getSavedAppState = () => {
       ? parsed.currentPage
       : 'landing';
     const userId = typeof parsed.activeUserId === 'string' ? parsed.activeUserId : '';
+    const userName = typeof parsed.activeUserName === 'string' ? parsed.activeUserName : '';
 
-    return { currentPage: page, activeUserId: userId };
+    return { currentPage: page, activeUserId: userId, activeUserName: userName };
   } catch (error) {
-    return { currentPage: 'landing', activeUserId: '' };
+    return { currentPage: 'landing', activeUserId: '', activeUserName: '' };
   }
 };
 
@@ -51,6 +52,7 @@ const clearSessionStorage = () => {
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [activeUserId, setActiveUserId] = useState('');
+  const [activeUserName, setActiveUserName] = useState('');
 
   useEffect(() => {
     let isCancelled = false;
@@ -83,6 +85,7 @@ function App() {
         }
 
         const restoredUserId = payload?.user?.crymsonId || savedState.activeUserId;
+        const restoredUserName = payload?.user?.fullName || savedState.activeUserName;
         const restoredPage = savedState.currentPage && savedState.currentPage !== 'landing'
           ? savedState.currentPage
           : 'home';
@@ -92,6 +95,7 @@ function App() {
         }
 
         setActiveUserId(restoredUserId);
+        setActiveUserName(restoredUserName);
         setCurrentPage(restoredPage);
       } catch (error) {
         if (isCancelled) {
@@ -100,6 +104,7 @@ function App() {
 
         clearSessionStorage();
         setActiveUserId('');
+        setActiveUserName('');
         setCurrentPage('landing');
       }
     };
@@ -114,9 +119,9 @@ function App() {
   useEffect(() => {
     localStorage.setItem(
       APP_STATE_KEY,
-      JSON.stringify({ currentPage, activeUserId })
+      JSON.stringify({ currentPage, activeUserId, activeUserName })
     );
-  }, [currentPage, activeUserId]);
+  }, [currentPage, activeUserId, activeUserName]);
 
   const navigateToCGPA = () => {
     setCurrentPage('cgpa');
@@ -126,12 +131,13 @@ function App() {
     setCurrentPage('todo');
   };
 
-  const navigateToUserHome = (userId, token) => {
+  const navigateToUserHome = (userId, userName, token) => {
     if (typeof token === 'string' && token) {
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
     }
 
     setActiveUserId(userId);
+    setActiveUserName(userName || '');
     setCurrentPage('home');
   };
 
@@ -142,6 +148,7 @@ function App() {
   const handleLogout = () => {
     clearSessionStorage();
     setActiveUserId('');
+    setActiveUserName('');
     setCurrentPage('landing');
   };
 
@@ -158,6 +165,7 @@ function App() {
       {currentPage === 'home' && (
         <UserHome
           userId={activeUserId}
+          userName={activeUserName}
           onNavigateToCGPA={navigateToCGPA}
           onNavigateToTodo={navigateToTodo}
           onLogout={handleLogout}

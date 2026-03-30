@@ -1,7 +1,9 @@
 import React from 'react';
 import styles from './UserHome.module.css';
 
-function UserHome({ userId, onNavigateToCGPA, onNavigateToTodo, onLogout }) {
+function UserHome({ userId, userName, onNavigateToCGPA, onNavigateToTodo, onLogout }) {
+  const displayName = userName || userId || 'Student';
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -9,7 +11,7 @@ function UserHome({ userId, onNavigateToCGPA, onNavigateToTodo, onLogout }) {
           <p className={styles.eyebrow}>Welcome Back</p>
           <h1 className={styles.title}>Crymson User Home</h1>
           <p className={styles.subtitle}>
-            Signed in as <span className={styles.userId}>{userId || 'Student'}</span>
+            Signed in as <span className={styles.userId}>{displayName}</span>
           </p>
         </div>
 
