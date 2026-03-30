@@ -59,7 +59,7 @@ function App() {
       const token = getStoredToken();
       const savedState = getSavedAppState();
 
-      if (!token || !savedState.activeUserId) {
+      if (!token) {
         clearSessionStorage();
         return;
       }
@@ -83,7 +83,14 @@ function App() {
         }
 
         const restoredUserId = payload?.user?.crymsonId || savedState.activeUserId;
-        const restoredPage = savedState.currentPage === 'landing' ? 'home' : savedState.currentPage;
+        const restoredPage = savedState.currentPage && savedState.currentPage !== 'landing'
+          ? savedState.currentPage
+          : 'home';
+
+        if (!restoredUserId) {
+          throw new Error('Invalid session user.');
+        }
+
         setActiveUserId(restoredUserId);
         setCurrentPage(restoredPage);
       } catch (error) {
