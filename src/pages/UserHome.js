@@ -93,7 +93,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
             Jump directly into your academic tools and continue tracking your performance.
           </p>
           <button type="button" className={styles.primaryButton} onClick={onNavigateToUserCGPA}>
-            Open CGPA Calculator
+            Open CGPA Tracker
           </button>
         </section>
 

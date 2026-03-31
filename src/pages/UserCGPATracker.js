@@ -1,5 +1,5 @@
 import React from 'react';
-import UserCGPACalculator from '../components/UserCGPACalculator';
+import MyTrackerWidget from '../parts/grade-tools/MyTrackerWidget';
 import styles from './UserCGPATracker.module.css';
 
 function UserCGPATracker({ onNavigateHome }) {
@@ -15,7 +15,7 @@ function UserCGPATracker({ onNavigateHome }) {
           <p className={styles.subtitle}>Set targets, project outcomes, and plan your final result.</p>
         </header>
 
-        <UserCGPACalculator />
+        <MyTrackerWidget />
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import CGPAHeader from '../components/CGPA/CGPAHeader';
-import CGPAControls from '../components/CGPA/CGPAControls';
-import CGPATable from '../components/CGPA/CGPATable';
-import CGPAResults from '../components/CGPA/CGPAResults';
+import TitleBlock from '../parts/grade-tools/TitleBlock';
+import ActionButtons from '../parts/grade-tools/ActionButtons';
+import CourseTable from '../parts/grade-tools/CourseTable';
+import ResultCards from '../parts/grade-tools/ResultCards';
 import styles from './CGPATracker.module.css';
 
 const CGPA_TRACKER_STATE_KEY = 'crymson_cgpa_tracker_state_v1';
@@ -213,14 +213,14 @@ function CGPATracker({ onNavigateHome }) {
     <div className={styles.cgpaTracker}>
       <div className={styles.container}>
         <button type="button" onClick={onNavigateHome}>← Back To Landing</button>
-        <CGPAHeader />
-        <CGPAControls
+        <TitleBlock />
+        <ActionButtons
           onAddCourse={handleAddCourse}
           onCalculate={handleCalculate}
           onExport={handleExport}
           onReset={handleReset}
         />
-        <CGPATable
+        <CourseTable
           courses={courses}
           stats={stats}
           getGradePoint={getGradePoint}
@@ -229,7 +229,7 @@ function CGPATracker({ onNavigateHome }) {
           onRemoveCourse={handleRemoveCourse}
           onRemoveSelected={handleRemoveSelected}
         />
-        <CGPAResults cgpa={cgpa} classification={classification} />
+        <ResultCards cgpa={cgpa} classification={classification} />
       </div>
 
       <footer className={styles.footer}>

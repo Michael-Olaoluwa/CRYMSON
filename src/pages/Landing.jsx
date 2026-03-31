@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
-import ToolsSection from '../components/ToolsSection';
-import IDSection from '../components/IDSection';
-import DashboardSection from '../components/DashboardSection';
-import AdvantagesSlideshow from '../components/AdvantagesSlideshow';
-import Footer from '../components/Footer';
-import SignupModal from '../components/SignupModal';
-import SuccessModal from '../components/SuccessModal';
+import TopBar from '../parts/welcome-page/TopBar';
+import BigHero from '../parts/welcome-page/BigHero';
+import ToolCards from '../parts/welcome-page/ToolCards';
+import IdExplainer from '../parts/welcome-page/IdExplainer';
+import PreviewPanel from '../parts/welcome-page/PreviewPanel';
+import WhyUseCrymson from '../parts/welcome-page/WhyUseCrymson';
+import BottomBar from '../parts/welcome-page/BottomBar';
+import CreateAccountDialog from '../parts/welcome-page/CreateAccountDialog';
+import SignupSuccessDialog from '../parts/welcome-page/SignupSuccessDialog';
 import styles from './Landing.module.css';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
@@ -209,18 +209,18 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
 
   return (
     <div className={styles.landing}>
-      <Navbar onSignInClick={handleSignInClick} onSignUpClick={handleSignUpClick} />
+      <TopBar onSignInClick={handleSignInClick} onSignUpClick={handleSignUpClick} />
 
       <main>
-        <Hero />
+        <BigHero />
         <div className={styles.line} />
-        <ToolsSection onNavigateToCGPA={onNavigateToCGPA} onNavigateToTodo={onNavigateToTodo} />
-        <IDSection />
-        <DashboardSection />
-        <AdvantagesSlideshow />
+        <ToolCards onNavigateToCGPA={onNavigateToCGPA} onNavigateToTodo={onNavigateToTodo} />
+        <IdExplainer />
+        <PreviewPanel />
+        <WhyUseCrymson />
       </main>
 
-      <Footer />
+      <BottomBar />
 
       {isSignInOpen && (
         <div className={styles.modalOverlay} onMouseDown={closeSignInModal}>
@@ -284,7 +284,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
       )}
 
       {isSignupOpen && (
-        <SignupModal
+        <CreateAccountDialog
           formData={formData}
           errorMessage={signupError}
           onChange={handleFormChange}
@@ -295,7 +295,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
       )}
 
       {isSuccessOpen && (
-        <SuccessModal generatedCrymsonId={generatedCrymsonId} onClose={closeSuccessModal} />
+        <SignupSuccessDialog generatedCrymsonId={generatedCrymsonId} onClose={closeSuccessModal} />
       )}
     </div>
   );

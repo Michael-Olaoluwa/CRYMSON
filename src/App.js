@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Landing from './pages/Landing.jsx';
-import CGPATracker from './pages/CGPATracker';
-import ToDoPlanner from './pages/ToDoPlanner';
-import UserHome from './pages/UserHome';
-import UserCGPATracker from './pages/UserCGPATracker';
+import WelcomeScreen from './screens/WelcomeScreen.jsx';
+import GradeTrackerScreen from './screens/GradeTrackerScreen';
+import TaskPlannerScreen from './screens/TaskPlannerScreen';
+import HomeScreen from './screens/HomeScreen';
+import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -160,7 +160,7 @@ function App() {
   return (
     <div className="App">
       {currentPage === 'landing' && (
-        <Landing
+        <WelcomeScreen
           onNavigateToCGPA={navigateToCGPA}
           onNavigateToTodo={navigateToTodo}
           onLoginSuccess={navigateToUserHome}
@@ -168,7 +168,7 @@ function App() {
       )}
 
       {currentPage === 'home' && (
-        <UserHome
+        <HomeScreen
           userId={activeUserId}
           userName={activeUserName}
           onNavigateToUserCGPA={navigateToUserCGPA}
@@ -178,15 +178,15 @@ function App() {
       )}
 
       {currentPage === 'cgpa' && (
-        <CGPATracker onNavigateHome={navigateHome} />
+        <GradeTrackerScreen onNavigateHome={navigateHome} />
       )}
 
       {currentPage === 'user-cgpa' && (
-        <UserCGPATracker onNavigateHome={() => setCurrentPage('home')} />
+        <MyGradeTrackerScreen onNavigateHome={() => setCurrentPage('home')} />
       )}
 
       {currentPage === 'todo' && (
-        <ToDoPlanner onNavigateHome={navigateHome} />
+        <TaskPlannerScreen onNavigateHome={navigateHome} />
       )}
     </div>
   );
