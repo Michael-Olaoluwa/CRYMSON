@@ -3,12 +3,13 @@ import Landing from './pages/Landing.jsx';
 import CGPATracker from './pages/CGPATracker';
 import ToDoPlanner from './pages/ToDoPlanner';
 import UserHome from './pages/UserHome';
+import UserCGPATracker from './pages/UserCGPATracker';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'todo']);
+const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo']);
 
 const getSavedAppState = () => {
   try {
@@ -127,6 +128,10 @@ function App() {
     setCurrentPage('cgpa');
   };
 
+  const navigateToUserCGPA = () => {
+    setCurrentPage('user-cgpa');
+  };
+
   const navigateToTodo = () => {
     setCurrentPage('todo');
   };
@@ -166,6 +171,7 @@ function App() {
         <UserHome
           userId={activeUserId}
           userName={activeUserName}
+          onNavigateToUserCGPA={navigateToUserCGPA}
           onNavigateToTodo={navigateToTodo}
           onLogout={handleLogout}
         />
@@ -173,6 +179,10 @@ function App() {
 
       {currentPage === 'cgpa' && (
         <CGPATracker onNavigateHome={navigateHome} />
+      )}
+
+      {currentPage === 'user-cgpa' && (
+        <UserCGPATracker onNavigateHome={() => setCurrentPage('home')} />
       )}
 
       {currentPage === 'todo' && (

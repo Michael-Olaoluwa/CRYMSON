@@ -154,6 +154,132 @@ button {
   color: var(--burgundy);
 }
 
+.goalSection {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 1.5rem;
+}
+
+.goalTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--black);
+}
+
+.goalHint {
+  margin: 0.4rem 0 1rem;
+  color: #5e5e5e;
+  font-size: 0.92rem;
+}
+
+.goalInputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.goalField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.projectionCard {
+  border-radius: 10px;
+  padding: 1rem;
+  border: 1px solid transparent;
+}
+
+.projectionGood {
+  background: rgba(30, 122, 68, 0.08);
+  border-color: rgba(30, 122, 68, 0.25);
+}
+
+.projectionRisk {
+  background: rgba(178, 47, 47, 0.08);
+  border-color: rgba(178, 47, 47, 0.25);
+}
+
+.projectionLine {
+  margin: 0 0 0.45rem;
+  color: #2c2c2c;
+}
+
+.projectionStatus {
+  margin: 0.35rem 0 0;
+  font-weight: 600;
+}
+
+.chartSection {
+  margin-top: 1rem;
+  background: rgba(13, 45, 74, 0.04);
+  border: 1px solid rgba(13, 45, 74, 0.12);
+  border-radius: 10px;
+  padding: 0.9rem;
+}
+
+.chartTitle {
+  margin: 0 0 0.6rem;
+  font-weight: 700;
+  color: #24354f;
+}
+
+.chart {
+  width: 100%;
+  height: 160px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.targetLine {
+  stroke: #b22f2f;
+  stroke-width: 1.4;
+  stroke-dasharray: 2 2;
+}
+
+.progressLine {
+  fill: none;
+  stroke: #1f5f92;
+  stroke-width: 2.2;
+}
+
+.chartLegend {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.45rem;
+  font-size: 0.8rem;
+  color: #5d6776;
+}
+
+.semesterList {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.semesterItem {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.currentInfo {
+  margin: 0.75rem 0 0;
+  font-size: 0.84rem;
+  color: #334d71;
+}
+
 @media (max-width: 768px) {
   .widget {
     padding: 1.5rem;
@@ -183,5 +309,18 @@ button {
   .results {
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .goalInputs {
+    grid-template-columns: 1fr;
+  }
+
+  .chartLegend {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .semesterList {
+    grid-template-columns: 1fr;
   }
 }

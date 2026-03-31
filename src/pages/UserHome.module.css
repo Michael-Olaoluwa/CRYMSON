@@ -22,6 +22,10 @@
   box-shadow: 0 20px 40px rgba(18, 29, 56, 0.08);
 }
 
+.header > div {
+  text-align: left;
+}
+
 .eyebrow {
   margin: 0;
   letter-spacing: 0.1em;
@@ -123,16 +127,140 @@
   box-shadow: 0 10px 20px rgba(20, 35, 68, 0.14);
 }
 
-.calculatorSection {
+.dashboardSection {
   max-width: 1040px;
-  margin: 2rem auto 0;
-  scroll-margin-top: 1rem;
+  margin: 1.2rem auto 0;
 }
 
-.calculatorActions {
+.progressCard {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(24, 42, 77, 0.1);
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 30px rgba(14, 24, 48, 0.08);
+}
+
+.progressTitle {
+  margin: 0;
+  color: #142344;
+  font-size: 1.08rem;
+}
+
+.progressMeta {
+  margin: 0.65rem 0 0;
+  color: #405377;
+  line-height: 1.5;
+}
+
+.ringLayout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.1rem;
+  align-items: center;
+}
+
+.ringWrapper {
+  position: relative;
+  width: 188px;
+  height: 188px;
+  flex-shrink: 0;
+}
+
+.ringChart {
+  width: 100%;
+  height: 100%;
+}
+
+.goalTrack,
+.currentTrack {
+  fill: none;
+}
+
+.goalTrack {
+  stroke: rgba(232, 140, 55, 0.22);
+  stroke-width: 11;
+}
+
+.goalRing {
+  fill: none;
+  stroke: #e88c37;
+  stroke-width: 11;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 320ms ease;
+}
+
+.currentTrack {
+  stroke: rgba(36, 105, 174, 0.18);
+  stroke-width: 11;
+}
+
+.currentRing {
+  fill: none;
+  stroke: #2469ae;
+  stroke-width: 11;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 320ms ease;
+}
+
+.ringCenter {
+  position: absolute;
+  inset: 0;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.centerLabel {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5c6f90;
+  font-weight: 700;
+}
+
+.centerValue {
+  margin-top: 0.2rem;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #1f3961;
+}
+
+.ringLegend {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.legendItem {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #3c4f72;
+  font-size: 0.93rem;
+}
+
+.legendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.legendCurrent {
+  background: #2469ae;
+}
+
+.legendGoal {
+  background: #e88c37;
+}
+
+.progressCaption {
+  margin: 0.65rem 0 0;
+  color: #3e5075;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 760px) {
@@ -143,5 +271,11 @@
 
   .main {
     grid-template-columns: 1fr;
+  }
+
+  .ringLayout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
 }
