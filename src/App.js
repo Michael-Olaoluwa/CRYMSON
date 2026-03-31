@@ -166,7 +166,6 @@ function App() {
         <UserHome
           userId={activeUserId}
           userName={activeUserName}
-          onNavigateToCGPA={navigateToCGPA}
           onNavigateToTodo={navigateToTodo}
           onLogout={handleLogout}
         />

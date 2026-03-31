@@ -123,6 +123,18 @@
   box-shadow: 0 10px 20px rgba(20, 35, 68, 0.14);
 }
 
+.calculatorSection {
+  max-width: 1040px;
+  margin: 2rem auto 0;
+  scroll-margin-top: 1rem;
+}
+
+.calculatorActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
 @media (max-width: 760px) {
   .header {
     flex-direction: column;

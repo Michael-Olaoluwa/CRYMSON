@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from './CGPATable.module.css';
 
-function CGPATable({ courses, getGradePoint, calculateWeightedPoints, onUpdateCourse, onRemoveCourse, onRemoveSelected }) {
+function CGPATable({ courses, stats, getGradePoint, calculateWeightedPoints, onUpdateCourse, onRemoveCourse, onRemoveSelected }) {
   const [selectedCourses, setSelectedCourses] = useState([]);
 
   const handleCheckboxChange = (id) => {
@@ -63,6 +63,7 @@ function CGPATable({ courses, getGradePoint, calculateWeightedPoints, onUpdateCo
                       placeholder="e.g., 3"
                       value={course.creditUnits}
                       onChange={(e) => onUpdateCourse(course.id, 'creditUnits', e.target.value)}
+                      inputMode="decimal"
                     />
                   </td>
                   <td>
@@ -74,6 +75,7 @@ function CGPATable({ courses, getGradePoint, calculateWeightedPoints, onUpdateCo
                       placeholder="e.g., 75"
                       value={course.score}
                       onChange={(e) => onUpdateCourse(course.id, 'score', e.target.value)}
+                      inputMode="decimal"
                     />
                   </td>
                   <td>
@@ -96,6 +98,15 @@ function CGPATable({ courses, getGradePoint, calculateWeightedPoints, onUpdateCo
               );
             })}
           </tbody>
+          <tfoot>
+            <tr className={styles.summaryRow}>
+              <td colSpan="2">Totals</td>
+              <td>{stats.totalUnits.toFixed(2)}</td>
+              <td />
+              <td />
+              <td>{stats.totalWeighted.toFixed(2)}</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
 

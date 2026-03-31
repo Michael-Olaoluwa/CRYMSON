@@ -1,8 +1,36 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
+import UserCGPACalculator from '../components/UserCGPACalculator';
 
-function UserHome({ userId, userName, onNavigateToCGPA, onNavigateToTodo, onLogout }) {
+function UserHome({ userId, userName, onNavigateToTodo, onLogout }) {
   const displayName = userName || userId || 'Student';
+  const [isCalculatorVisible, setIsCalculatorVisible] = useState(false);
+  const calculatorSectionRef = useRef(null);
+
+  useEffect(() => {
+    if (!isCalculatorVisible || !calculatorSectionRef.current) {
+      return;
+    }
+
+    calculatorSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [isCalculatorVisible]);
+
+  const handleOpenUserCalculator = () => {
+    if (!isCalculatorVisible) {
+      setIsCalculatorVisible(true);
+      return;
+    }
+
+    if (!calculatorSectionRef.current) {
+      return;
+    }
+
+    calculatorSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleCloseUserCalculator = () => {
+    setIsCalculatorVisible(false);
+  };
 
   return (
     <div className={styles.page}>
@@ -26,8 +54,8 @@ function UserHome({ userId, userName, onNavigateToCGPA, onNavigateToTodo, onLogo
           <p className={styles.cardText}>
             Jump directly into your academic tools and continue tracking your performance.
           </p>
-          <button type="button" className={styles.primaryButton} onClick={onNavigateToCGPA}>
-            Open CGPA Tracker
+          <button type="button" className={styles.primaryButton} onClick={handleOpenUserCalculator}>
+            {isCalculatorVisible ? 'View CGPA Calculator' : 'Open CGPA Calculator'}
           </button>
         </section>
 
@@ -42,6 +70,17 @@ function UserHome({ userId, userName, onNavigateToCGPA, onNavigateToTodo, onLogo
           </button>
         </section>
       </main>
+
+      {isCalculatorVisible && (
+        <section ref={calculatorSectionRef} className={styles.calculatorSection}>
+          <div className={styles.calculatorActions}>
+            <button type="button" className={styles.secondaryButton} onClick={handleCloseUserCalculator}>
+              Close Calculator
+            </button>
+          </div>
+          <UserCGPACalculator />
+        </section>
+      )}
     </div>
   );
 }

@@ -30,6 +30,19 @@ td {
   border-bottom: 1px solid var(--grey);
 }
 
+tfoot td {
+  border-bottom: none;
+}
+
+.summaryRow td {
+  background: rgba(128, 0, 32, 0.08);
+  font-weight: 700;
+}
+
+.summaryRow td:first-child {
+  color: var(--burgundy);
+}
+
 input[type="text"],
 input[type="number"],
 input[type="checkbox"] {

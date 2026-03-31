@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CGPAHeader from '../components/CGPA/CGPAHeader';
 import CGPAControls from '../components/CGPA/CGPAControls';
 import CGPATable from '../components/CGPA/CGPATable';
 import CGPAResults from '../components/CGPA/CGPAResults';
 import styles from './CGPATracker.module.css';
+
+const CGPA_TRACKER_STATE_KEY = 'crymson_cgpa_tracker_state_v1';
 
 const createCourse = (id) => ({
   id,
@@ -12,11 +14,58 @@ const createCourse = (id) => ({
   score: '',
 });
 
+const getInitialTrackerState = () => {
+  try {
+    const raw = localStorage.getItem(CGPA_TRACKER_STATE_KEY);
+    if (!raw) {
+      return {
+        courses: [createCourse(1), createCourse(2)],
+        nextId: 3,
+        cgpa: null,
+        classification: null,
+      };
+    }
+
+    const parsed = JSON.parse(raw);
+    const parsedCourses = Array.isArray(parsed.courses)
+      ? parsed.courses
+          .filter((course) => Number.isInteger(course?.id))
+          .map((course) => ({
+            id: course.id,
+            courseName: String(course.courseName || ''),
+            creditUnits: String(course.creditUnits || ''),
+            score: String(course.score || ''),
+          }))
+      : [];
+
+    return {
+      courses: parsedCourses.length > 0 ? parsedCourses : [createCourse(1), createCourse(2)],
+      nextId: Number.isInteger(parsed.nextId) && parsed.nextId > 0 ? parsed.nextId : 3,
+      cgpa: Number.isFinite(parsed.cgpa) ? parsed.cgpa : null,
+      classification: typeof parsed.classification === 'string' ? parsed.classification : null,
+    };
+  } catch (error) {
+    return {
+      courses: [createCourse(1), createCourse(2)],
+      nextId: 3,
+      cgpa: null,
+      classification: null,
+    };
+  }
+};
+
+const escapeCsvCell = (value) => {
+  const raw = String(value ?? '');
+  const escaped = raw.replace(/"/g, '""');
+  return /[",\n]/.test(raw) ? `"${escaped}"` : escaped;
+};
+
 function CGPATracker({ onNavigateHome }) {
-  const [courses, setCourses] = useState([createCourse(1), createCourse(2)]);
-  const [nextId, setNextId] = useState(3);
-  const [cgpa, setCgpa] = useState(null);
-  const [classification, setClassification] = useState(null);
+  const initialState = useMemo(getInitialTrackerState, []);
+  const [courses, setCourses] = useState(initialState.courses);
+  const [nextId, setNextId] = useState(initialState.nextId);
+  const [cgpa, setCgpa] = useState(initialState.cgpa);
+  const [classification, setClassification] = useState(initialState.classification);
 
   const getGradePoint = (score) => {
     const numericScore = Number(score);
@@ -61,13 +110,41 @@ function CGPATracker({ onNavigateHome }) {
     return { totalUnits, totalWeighted };
   }, [courses]);
 
+  useEffect(() => {
+    localStorage.setItem(
+      CGPA_TRACKER_STATE_KEY,
+      JSON.stringify({ courses, nextId, cgpa, classification })
+    );
+  }, [courses, nextId, cgpa, classification]);
+
   const handleAddCourse = () => {
     setCourses((prev) => [...prev, createCourse(nextId)]);
     setNextId((prev) => prev + 1);
   };
 
   const handleUpdateCourse = (id, key, value) => {
-    setCourses((prev) => prev.map((course) => (course.id === id ? { ...course, [key]: value } : course)));
+    let nextValue = value;
+
+    if (key === 'creditUnits' || key === 'score') {
+      if (value === '') {
+        nextValue = '';
+      } else {
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) {
+          return;
+        }
+
+        if (key === 'creditUnits') {
+          const clampedUnits = Math.min(10, Math.max(0, numericValue));
+          nextValue = String(clampedUnits);
+        } else {
+          const clampedScore = Math.min(100, Math.max(0, numericValue));
+          nextValue = String(clampedScore);
+        }
+      }
+    }
+
+    setCourses((prev) => prev.map((course) => (course.id === id ? { ...course, [key]: nextValue } : course)));
   };
 
   const handleRemoveCourse = (id) => {
@@ -98,6 +175,8 @@ function CGPATracker({ onNavigateHome }) {
   };
 
   const handleExport = () => {
+    const computedCgpa = stats.totalUnits > 0 ? stats.totalWeighted / stats.totalUnits : null;
+
     const rows = [
       ['Course Name', 'Credit Units', 'Score', 'Grade Point', 'Weighted Points'],
       ...courses.map((course) => {
@@ -111,9 +190,16 @@ function CGPATracker({ onNavigateHome }) {
           weighted ?? '',
         ];
       }),
+      [],
+      ['Total Credit Units', stats.totalUnits.toFixed(2)],
+      ['Total Weighted Points', stats.totalWeighted.toFixed(2)],
+      ['CGPA', computedCgpa !== null ? computedCgpa.toFixed(2) : ''],
+      ['Classification', computedCgpa !== null ? resolveClassification(computedCgpa) || '' : ''],
     ];
 
-    const csv = rows.map((row) => row.join(',')).join('\n');
+    const csv = rows
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(','))
+      .join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -136,6 +222,7 @@ function CGPATracker({ onNavigateHome }) {
         />
         <CGPATable
           courses={courses}
+          stats={stats}
           getGradePoint={getGradePoint}
           calculateWeightedPoints={calculateWeightedPoints}
           onUpdateCourse={handleUpdateCourse}
