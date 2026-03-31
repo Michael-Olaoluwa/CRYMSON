@@ -1,0 +1,248 @@
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.modal {
+	background: white;
+	border-radius: 12px;
+	padding: 40px;
+	max-width: 500px;
+	width: 90%;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+	animation: slideUp 0.4s ease-out;
+	position: relative;
+}
+
+@keyframes slideUp {
+	from {
+		transform: translateY(30px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.step {
+	min-height: 300px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.step h2 {
+	font-size: 24px;
+	font-weight: 600;
+	color: #222;
+	margin: 0;
+}
+
+.step p {
+	font-size: 15px;
+	color: #666;
+	margin: 0;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.field span {
+	font-size: 14px;
+	font-weight: 500;
+	color: #333;
+}
+
+.input {
+	padding: 10px 12px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 14px;
+	font-family: inherit;
+	transition: border-color 0.2s;
+}
+
+.input:focus {
+	outline: none;
+	border-color: #007acc;
+	box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.1);
+}
+
+.hint {
+	font-size: 12px;
+	color: #999;
+	font-weight: 400;
+}
+
+.goalNote {
+	background: #f0f8ff;
+	border-left: 4px solid #007acc;
+	padding: 12px;
+	border-radius: 4px;
+	font-size: 13px;
+	color: #333;
+	margin: 10px 0 0 0;
+}
+
+.goalNote strong {
+	color: #007acc;
+}
+
+.buttonGroup {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+	margin-top: 20px;
+}
+
+.btnYes,
+.btnNo,
+.btnNext,
+.btnBack,
+.btnConfirm {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	flex: 1;
+}
+
+.btnYes,
+.btnConfirm,
+.btnNext {
+	background: #007acc;
+	color: white;
+}
+
+.btnYes:hover,
+.btnConfirm:hover,
+.btnNext:hover {
+	background: #005a9e;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(0, 122, 204, 0.3);
+}
+
+.btnNo {
+	background: #f0f0f0;
+	color: #333;
+	border: 1px solid #ddd;
+}
+
+.btnNo:hover {
+	background: #e8e8e8;
+}
+
+.btnBack {
+	background: #f0f0f0;
+	color: #333;
+	flex: 0.5;
+}
+
+.btnBack:hover {
+	background: #e8e8e8;
+}
+
+.semesterList {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.semesterField {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.semesterField span {
+	font-size: 14px;
+	font-weight: 500;
+	color: #333;
+}
+
+.error {
+	padding: 10px;
+	background: #fee;
+	color: #c33;
+	border-radius: 4px;
+	font-size: 13px;
+	margin: 0;
+}
+
+.summary {
+	background: #f9f9f9;
+	border: 1px solid #eee;
+	border-radius: 6px;
+	padding: 15px;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.summary p {
+	margin: 8px 0;
+	color: #333;
+}
+
+.summary strong {
+	color: #007acc;
+}
+
+.confirmNote {
+	font-size: 13px;
+	color: #666;
+	text-align: center;
+	margin-top: 10px;
+}
+
+.progress {
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+	margin-top: 30px;
+}
+
+.progress span {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #f0f0f0;
+	color: #999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 600;
+	transition: all 0.2s;
+}
+
+.progress span.active {
+	background: #007acc;
+	color: white;
+}

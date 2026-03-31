@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './MyTrackerWidget.module.css';
+import OnboardingWizard from './OnboardingWizard';
 
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
 
@@ -7,7 +8,9 @@ const createCourse = (id) => ({
 	id,
 	courseName: '',
 	creditUnits: '',
-	score: '',
+	test1Score: '',
+	test2Score: '',
+	examScore: '',
 });
 
 const getInitialState = () => {
@@ -19,6 +22,10 @@ const getInitialState = () => {
 				nextId: 2,
 				goalCgpa: '',
 				remainingUnits: '',
+				onboardingCompleted: false,
+				currentSemester: 1,
+				totalSemesters: 8,
+				previousSemesters: [],
 			};
 		}
 
@@ -30,7 +37,9 @@ const getInitialState = () => {
 						id: course.id,
 						courseName: String(course.courseName || ''),
 						creditUnits: String(course.creditUnits || ''),
-						score: String(course.score || ''),
+						test1Score: String(course.test1Score || ''),
+						test2Score: String(course.test2Score || ''),
+						examScore: String(course.examScore || ''),
 					}))
 			: [];
 
@@ -39,6 +48,10 @@ const getInitialState = () => {
 			nextId: Number.isInteger(parsed.nextId) ? parsed.nextId : 2,
 			goalCgpa: typeof parsed.goalCgpa === 'string' ? parsed.goalCgpa : '',
 			remainingUnits: typeof parsed.remainingUnits === 'string' ? parsed.remainingUnits : '',
+			onboardingCompleted: Boolean(parsed.onboardingCompleted),
+			currentSemester: Number.isInteger(parsed.currentSemester) ? parsed.currentSemester : 1,
+			totalSemesters: Number.isInteger(parsed.totalSemesters) ? parsed.totalSemesters : 8,
+			previousSemesters: Array.isArray(parsed.previousSemesters) ? parsed.previousSemesters : [],
 		};
 	} catch (error) {
 		return {
@@ -46,6 +59,10 @@ const getInitialState = () => {
 			nextId: 2,
 			goalCgpa: '',
 			remainingUnits: '',
+			onboardingCompleted: false,
+			currentSemester: 1,
+			totalSemesters: 8,
+			previousSemesters: [],
 		};
 	}
 };
@@ -71,6 +88,18 @@ function MyTrackerWidget() {
 	const [remainingUnits, setRemainingUnits] = useState(initialState.remainingUnits);
 	const [cgpa, setCgpa] = useState(null);
 	const [classification, setClassification] = useState(null);
+	const [onboardingCompleted, setOnboardingCompleted] = useState(initialState.onboardingCompleted);
+	const [currentSemester, setCurrentSemester] = useState(initialState.currentSemester);
+	const [totalSemesters, setTotalSemesters] = useState(initialState.totalSemesters);
+	const [previousSemesters, setPreviousSemesters] = useState(initialState.previousSemesters);
+
+	const handleOnboardingComplete = (onboardingData) => {
+		setOnboardingCompleted(true);
+		setGoalCgpa(String(onboardingData.goalCgpa));
+		setCurrentSemester(onboardingData.currentSemester);
+		setTotalSemesters(onboardingData.totalSemesters);
+		setPreviousSemesters(onboardingData.previousSemesters);
+	};
 
 	const getGradePoint = (score) => {
 		const numericScore = Number(score);
@@ -83,9 +112,22 @@ function MyTrackerWidget() {
 		return 0;
 	};
 
-	const calculateWeightedPoints = (creditUnits, score) => {
+	const calculateFinalScore = (test1, test2, exam) => {
+		const t1 = Number(test1);
+		const t2 = Number(test2);
+		const e = Number(exam);
+
+		if (!Number.isFinite(t1) || !Number.isFinite(t2) || !Number.isFinite(e)) {
+			return null;
+		}
+
+		return t1 + t2 + e;
+	};
+
+	const calculateWeightedPoints = (creditUnits, test1Score, test2Score, examScore) => {
 		const units = Number(creditUnits);
-		const gradePoint = getGradePoint(score);
+		const finalScore = calculateFinalScore(test1Score, test2Score, examScore);
+		const gradePoint = getGradePoint(finalScore);
 		if (!Number.isFinite(units) || units <= 0 || gradePoint === null) return null;
 		return units * gradePoint;
 	};
@@ -105,7 +147,7 @@ function MyTrackerWidget() {
 
 		courses.forEach((course) => {
 			const units = Number(course.creditUnits);
-			const weighted = calculateWeightedPoints(units, course.score);
+			const weighted = calculateWeightedPoints(units, course.test1Score, course.test2Score, course.examScore);
 			if (Number.isFinite(units) && units > 0 && Number.isFinite(weighted)) {
 				totalUnits += units;
 				totalWeighted += weighted;
@@ -199,9 +241,18 @@ function MyTrackerWidget() {
 	useEffect(() => {
 		localStorage.setItem(
 			USER_CGPA_STATE_KEY,
-			JSON.stringify({ courses, nextId, goalCgpa, remainingUnits })
+			JSON.stringify({
+				courses,
+				nextId,
+				goalCgpa,
+				remainingUnits,
+				onboardingCompleted,
+				currentSemester,
+				totalSemesters,
+				previousSemesters,
+			})
 		);
-	}, [courses, nextId, goalCgpa, remainingUnits]);
+	}, [courses, nextId, goalCgpa, remainingUnits, onboardingCompleted, currentSemester, totalSemesters, previousSemesters]);
 
 	const handleAddCourse = () => {
 		setCourses((prev) => [...prev, createCourse(nextId)]);
@@ -211,7 +262,7 @@ function MyTrackerWidget() {
 	const handleUpdateCourse = (id, key, value) => {
 		let nextValue = value;
 
-		if (key === 'creditUnits' || key === 'score') {
+		if (key === 'creditUnits' || key === 'test1Score' || key === 'test2Score' || key === 'examScore') {
 			if (value === '') {
 				nextValue = '';
 			} else {
@@ -223,8 +274,13 @@ function MyTrackerWidget() {
 				if (key === 'creditUnits') {
 					const clampedUnits = Math.min(10, Math.max(0, numericValue));
 					nextValue = String(clampedUnits);
-				} else {
-					const clampedScore = Math.min(100, Math.max(0, numericValue));
+				} else if (key === 'test1Score' || key === 'test2Score') {
+					// Test 1 and Test 2: max 15
+					const clampedScore = Math.min(15, Math.max(0, numericValue));
+					nextValue = String(clampedScore);
+				} else if (key === 'examScore') {
+					// Exam: max 70
+					const clampedScore = Math.min(70, Math.max(0, numericValue));
 					nextValue = String(clampedScore);
 				}
 			}
@@ -286,10 +342,25 @@ function MyTrackerWidget() {
 		setRemainingUnits(String(Math.min(300, Math.max(0, numeric))));
 	};
 
+	if (!onboardingCompleted) {
+		return <OnboardingWizard onComplete={handleOnboardingComplete} />;
+	}
+
 	return (
 		<div className={styles.widget}>
 			<h2 className={styles.title}>CGPA Tracker</h2>
 			<p className={styles.subtitle}>Track your academic performance</p>
+
+			<div className={styles.semesterInfo}>
+				<p className={styles.semesterText}>
+					Semester <strong>{currentSemester}</strong> of <strong>{totalSemesters}</strong>
+				</p>
+				{previousSemesters.length > 0 && (
+					<p className={styles.historyText}>
+						Previous CGPA: {previousSemesters.map((s) => s.cgpa).join(' → ')}
+					</p>
+				)}
+			</div>
 
 			<div className={styles.tableWrapper}>
 				<table className={styles.table}>
@@ -297,14 +368,18 @@ function MyTrackerWidget() {
 						<tr>
 							<th>Course Name</th>
 							<th>Credit Units</th>
-							<th>Score</th>
+							<th>Test 1</th>
+							<th>Test 2</th>
+							<th>Exam</th>
+							<th>Final Score</th>
 							<th>Grade</th>
 							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody>
 						{courses.map((course) => {
-							const gradePoint = getGradePoint(course.score);
+							const finalScore = calculateFinalScore(course.test1Score, course.test2Score, course.examScore);
+							const gradePoint = getGradePoint(finalScore);
 
 							return (
 								<tr key={course.id}>
@@ -334,15 +409,42 @@ function MyTrackerWidget() {
 										<input
 											type="number"
 											min="0"
-											max="100"
+											max="15"
 											step="0.1"
-											placeholder="e.g., 75"
-											value={course.score}
-											onChange={(e) => handleUpdateCourse(course.id, 'score', e.target.value)}
+											placeholder="e.g., 12"
+											value={course.test1Score}
+											onChange={(e) => handleUpdateCourse(course.id, 'test1Score', e.target.value)}
 											className={styles.input}
 											inputMode="decimal"
 										/>
 									</td>
+									<td>
+										<input
+											type="number"
+											min="0"
+											max="15"
+											step="0.1"
+											placeholder="e.g., 10"
+											value={course.test2Score}
+											onChange={(e) => handleUpdateCourse(course.id, 'test2Score', e.target.value)}
+											className={styles.input}
+											inputMode="decimal"
+										/>
+									</td>
+									<td>
+										<input
+											type="number"
+											min="0"
+											max="70"
+											step="0.1"
+											placeholder="e.g., 50"
+											value={course.examScore}
+											onChange={(e) => handleUpdateCourse(course.id, 'examScore', e.target.value)}
+											className={styles.input}
+											inputMode="decimal"
+										/>
+									</td>
+									<td className={styles.gradeCell}>{finalScore !== null ? finalScore.toFixed(1) : '—'}</td>
 									<td className={styles.gradeCell}>{gradePoint !== null ? gradePoint.toFixed(1) : '—'}</td>
 									<td>
 										<button

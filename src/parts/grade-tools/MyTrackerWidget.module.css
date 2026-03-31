@@ -21,6 +21,31 @@
   margin: 0 0 1.5rem 0;
 }
 
+.semesterInfo {
+  background: rgba(0, 122, 204, 0.06);
+  border-left: 4px solid #007acc;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.semesterText {
+  margin: 0 0 6px 0;
+  color: #333;
+}
+
+.semesterText strong {
+  color: #007acc;
+  font-weight: 600;
+}
+
+.historyText {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
 .tableWrapper {
   overflow-x: auto;
   margin-bottom: 1.5rem;
