@@ -77,7 +77,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
           <p className={styles.eyebrow}>Welcome Back</p>
           <h1 className={styles.title}>Hello {displayName}</h1>
           <p className={styles.subtitle}>
-            Welcome to your cryson dashboard, hope you're having a great day
+            Welcome to your crymson dashboard, hope you're having a great day
           </p>
         </div>
 
