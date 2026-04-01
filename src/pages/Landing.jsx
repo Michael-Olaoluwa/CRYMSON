@@ -34,6 +34,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [credentials, setCredentials] = useState({ crymsonId: '', password: '' });
 
+  const [pendingSignupCredentials, setPendingSignupCredentials] = useState({ crymsonId: '', password: '' });
   useEffect(() => {
     const isModalOpen = isSignInOpen || isSignupOpen || isSuccessOpen;
 
@@ -62,6 +63,19 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [isSignInOpen, isSignupOpen, isSuccessOpen]);
+
+  const handleContinueToSignIn = () => {
+    if (pendingSignupCredentials.crymsonId && pendingSignupCredentials.password) {
+      setCredentials({
+        crymsonId: pendingSignupCredentials.crymsonId,
+        password: pendingSignupCredentials.password
+      });
+    }
+
+    setIsSuccessOpen(false);
+    setSignInError('');
+    setIsSignInOpen(true);
+  };
 
   const handleSignInClick = () => {
     setIsSignupOpen(false);
@@ -123,6 +137,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
 
       setIsSignInOpen(false);
       setCredentials({ crymsonId: '', password: '' });
+      setPendingSignupCredentials({ crymsonId: '', password: '' });
       onLoginSuccess(accountId, accountName, token);
     } catch (error) {
       setSignInError(error.message || 'Unable to sign in right now.');
@@ -178,6 +193,8 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
 
       const newId = payload?.user?.crymsonId;
       setGeneratedCrymsonId(newId || 'Unavailable');
+      const submittedPassword = formData.password;
+      setPendingSignupCredentials({ crymsonId: newId || '', password: submittedPassword });
       setIsSignupOpen(false);
       setIsSuccessOpen(true);
       setFormData(INITIAL_FORM_DATA);
@@ -205,6 +222,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
 
   const closeSuccessModal = () => {
     setIsSuccessOpen(false);
+    setPendingSignupCredentials({ crymsonId: '', password: '' });
   };
 
   return (
@@ -295,7 +313,11 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onLoginSuccess }) {
       )}
 
       {isSuccessOpen && (
-        <SignupSuccessDialog generatedCrymsonId={generatedCrymsonId} onClose={closeSuccessModal} />
+        <SignupSuccessDialog
+          generatedCrymsonId={generatedCrymsonId}
+          onClose={closeSuccessModal}
+          onContinueToSignIn={handleContinueToSignIn}
+        />
       )}
     </div>
   );

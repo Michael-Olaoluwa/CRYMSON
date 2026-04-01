@@ -27,7 +27,7 @@ function CreateAccountDialog({ formData, errorMessage, onChange, onClose, onSubm
 				<h2 className={styles.modalTitle}>Sign Up</h2>
 				<p className={styles.modalSubtext}>Set up your Crymson account in a few steps.</p>
 
-				<form className={styles.form} onSubmit={onSubmit}>
+				<form className={styles.form} onSubmit={onSubmit} autoComplete="off">
 					<label className={styles.fieldLabel} htmlFor="fullName">Full Name</label>
 					<input
 						id="fullName"
@@ -48,6 +48,7 @@ function CreateAccountDialog({ formData, errorMessage, onChange, onClose, onSubm
 						onChange={onChange}
 						className={styles.input}
 						placeholder="e.g. michael@school.edu"
+						autoComplete="off"
 					/>
 
 					<label className={styles.fieldLabel} htmlFor="department">Department</label>
@@ -84,6 +85,7 @@ function CreateAccountDialog({ formData, errorMessage, onChange, onClose, onSubm
 						onChange={onChange}
 						className={`${styles.input} ${hasPasswordMismatch ? styles.inputError : ''}`}
 						placeholder="••••••••"
+						autoComplete="new-password"
 						required
 						aria-invalid={hasPasswordMismatch}
 					/>
@@ -97,6 +99,7 @@ function CreateAccountDialog({ formData, errorMessage, onChange, onClose, onSubm
 						onChange={onChange}
 						className={`${styles.input} ${hasPasswordMismatch ? styles.inputError : ''}`}
 						placeholder="••••••••"
+						autoComplete="new-password"
 						required
 						aria-invalid={hasPasswordMismatch}
 					/>

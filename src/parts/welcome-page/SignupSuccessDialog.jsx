@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../../pages/Landing.module.css';
 
-function SignupSuccessDialog({ generatedCrymsonId, onClose }) {
+function SignupSuccessDialog({ generatedCrymsonId, onClose, onContinueToSignIn }) {
 	return (
 		<div className={styles.modalOverlay} onMouseDown={onClose}>
 			<section
@@ -24,8 +24,9 @@ function SignupSuccessDialog({ generatedCrymsonId, onClose }) {
 				<p className={styles.successText}>Your Crymson ID has been generated</p>
 				<p className={styles.generatedId}>{generatedCrymsonId}</p>
 				<p className={styles.successHint}>Save this ID - you'll need it to log in later</p>
+				
 
-				<button type="button" className={styles.submitButton} onClick={onClose}>Close</button>
+				<button type="button" className={styles.submitButton} onClick={onContinueToSignIn}>Continue To Sign In</button>
 			</section>
 		</div>
 	);
