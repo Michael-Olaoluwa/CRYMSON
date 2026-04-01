@@ -188,6 +188,18 @@
   background: #fff;
 }
 
+.priorityHigh {
+  border-left: 4px solid #b42318;
+}
+
+.priorityMedium {
+  border-left: 4px solid #b54708;
+}
+
+.priorityLow {
+  border-left: 4px solid #027a48;
+}
+
 .checkboxWrap {
   display: flex;
   align-items: flex-start;
@@ -227,9 +239,126 @@
   cursor: pointer;
 }
 
+.editButton {
+  border: 1px solid rgba(85, 107, 47, 0.28);
+  background: #fff;
+  color: #556b2f;
+  border-radius: 8px;
+  padding: 0.4rem 0.72rem;
+  cursor: pointer;
+}
+
 .emptyState {
   margin: 0;
   color: rgba(21, 21, 21, 0.62);
+}
+
+.calendarTitle {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.6rem;
+  color: #64041f;
+}
+
+.calendarHint {
+  margin: 0.35rem 0 0.9rem;
+  color: rgba(21, 21, 21, 0.65);
+  font-size: 0.9rem;
+}
+
+.calendarGroups {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.calendarGroup {
+  border: 1px solid rgba(21, 21, 21, 0.12);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.75rem 0.8rem;
+}
+
+.calendarDate {
+  margin: 0;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(21, 21, 21, 0.58);
+}
+
+.calendarItems {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.calendarItem {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  border: 1px solid rgba(21, 21, 21, 0.1);
+  border-radius: 10px;
+  padding: 0.55rem 0.6rem;
+  background: rgba(249, 246, 242, 0.7);
+}
+
+.calendarBadge {
+  border-radius: 999px;
+  background: rgba(128, 0, 32, 0.1);
+  color: #800020;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.22rem 0.5rem;
+  white-space: nowrap;
+}
+
+.calendarContent {
+  min-width: 0;
+}
+
+.calendarTaskTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1b1b1b;
+  font-weight: 700;
+}
+
+.calendarMeta {
+  margin: 0.2rem 0 0;
+  color: rgba(21, 21, 21, 0.62);
+  font-size: 0.8rem;
+}
+
+.priorityTag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.08rem 0.42rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.priorityTag.priorityHigh {
+  background: rgba(180, 35, 24, 0.12);
+  color: #b42318;
+  border-left: none;
+}
+
+.priorityTag.priorityMedium {
+  background: rgba(181, 71, 8, 0.12);
+  color: #b54708;
+  border-left: none;
+}
+
+.priorityTag.priorityLow {
+  background: rgba(2, 122, 72, 0.12);
+  color: #027a48;
+  border-left: none;
 }
 
 .modalOverlay {

@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { initDb } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const academicRoutes = require('./routes/academicRoutes');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -36,6 +37,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/academic-events', academicRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found.' });

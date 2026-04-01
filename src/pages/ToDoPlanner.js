@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ToDoPlanner.module.css';
 
-const STORAGE_KEY = 'crymson_todo_tasks';
-const NOTIFIED_TASKS_KEY = 'crymson_todo_notified_tasks';
+const STORAGE_KEY_BASE = 'crymson_todo_tasks';
+const NOTIFIED_TASKS_KEY_BASE = 'crymson_todo_notified_tasks';
+const APP_STATE_KEY = 'crymson_app_state';
+const AUTH_SESSION_KEY = 'crymson_auth_session';
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const ACADEMIC_REMINDER_DELAY_MINUTES = 60;
 const REMINDER_WINDOW_MS = 10 * 60 * 1000;
 const REMINDER_CHECK_INTERVAL_MS = 30 * 1000;
 
@@ -10,62 +15,96 @@ const INITIAL_DRAFT = {
   title: '',
   dueAt: '',
   details: '',
+  courseTag: '',
+  priority: 'medium',
+  taskType: 'general',
 };
 
-const createTask = ({ title, dueAt, details }) => ({
+const createTask = ({ title, dueAt, details, taskType, courseTag, priority }) => ({
   id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
   title,
   dueAt,
   details,
+  taskType,
+  courseTag,
+  priority,
   completed: false,
   createdAt: new Date().toISOString(),
 });
+
+const getStoredToken = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_SESSION_KEY);
+    if (!raw) {
+      return '';
+    }
+
+    const parsed = JSON.parse(raw);
+    return typeof parsed.token === 'string' ? parsed.token : '';
+  } catch (error) {
+    return '';
+  }
+};
+
+const getActiveUserId = () => {
+  try {
+    const raw = localStorage.getItem(APP_STATE_KEY);
+    if (!raw) {
+      return 'guest';
+    }
+
+    const parsed = JSON.parse(raw);
+    const userId = String(parsed?.activeUserId || '').trim().toUpperCase();
+    return userId || 'guest';
+  } catch (error) {
+    return 'guest';
+  }
+};
+
+const buildScopedKey = (baseKey) => `${baseKey}:${getActiveUserId()}`;
 
 function ToDoPlanner({ onNavigateHome }) {
   const [tasks, setTasks] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draftTask, setDraftTask] = useState(INITIAL_DRAFT);
+  const [editingTaskId, setEditingTaskId] = useState('');
+  const [saveStatus, setSaveStatus] = useState('');
   const [notificationPermission, setNotificationPermission] = useState(
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported'
   );
   const notifiedTaskIdsRef = useRef(new Set());
-
-  const isIOSLikeDevice = useMemo(() => {
-    if (typeof navigator === 'undefined') return false;
-    return /iPad|iPhone|iPod/i.test(navigator.userAgent)
-      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }, []);
-
-  const isStandaloneApp = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    const mediaMatch = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-    const legacyStandalone = window.navigator.standalone === true;
-    return mediaMatch || legacyStandalone;
-  }, []);
-
-  const needsIOSInstallForNotifications = isIOSLikeDevice && !isStandaloneApp;
+  const scopedTasksKey = useMemo(() => buildScopedKey(STORAGE_KEY_BASE), []);
+  const scopedNotifiedTasksKey = useMemo(() => buildScopedKey(NOTIFIED_TASKS_KEY_BASE), []);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(scopedTasksKey) || localStorage.getItem(STORAGE_KEY_BASE);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        setTasks(parsed);
+        // Keep backward compatibility with earlier task shape.
+        const normalized = parsed.map((task) => ({
+          ...task,
+          courseTag: String(task.courseTag || task.subject || ''),
+          priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
+            ? String(task.priority).toLowerCase()
+            : 'medium',
+        }));
+        setTasks(normalized);
       }
     } catch (error) {
       setTasks([]);
     }
-  }, []);
+  }, [scopedTasksKey]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
+    localStorage.setItem(scopedTasksKey, JSON.stringify(tasks));
+  }, [tasks, scopedTasksKey]);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(NOTIFIED_TASKS_KEY);
+      const raw = localStorage.getItem(scopedNotifiedTasksKey) || localStorage.getItem(NOTIFIED_TASKS_KEY_BASE);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
@@ -74,7 +113,7 @@ function ToDoPlanner({ onNavigateHome }) {
     } catch (error) {
       notifiedTaskIdsRef.current = new Set();
     }
-  }, []);
+  }, [scopedNotifiedTasksKey]);
 
   useEffect(() => {
     if (notificationPermission !== 'granted') return undefined;
@@ -103,7 +142,7 @@ function ToDoPlanner({ onNavigateHome }) {
         notifiedTaskIdsRef.current.add(task.id);
       });
 
-      localStorage.setItem(NOTIFIED_TASKS_KEY, JSON.stringify([...notifiedTaskIdsRef.current]));
+      localStorage.setItem(scopedNotifiedTasksKey, JSON.stringify([...notifiedTaskIdsRef.current]));
     };
 
     maybeNotifyNearDueTasks();
@@ -111,7 +150,7 @@ function ToDoPlanner({ onNavigateHome }) {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [tasks, notificationPermission]);
+  }, [tasks, notificationPermission, scopedNotifiedTasksKey]);
 
   const visibleTasks = useMemo(() => {
     if (activeFilter === 'active') {
@@ -119,6 +158,9 @@ function ToDoPlanner({ onNavigateHome }) {
     }
     if (activeFilter === 'completed') {
       return tasks.filter((task) => task.completed);
+    }
+    if (activeFilter === 'academic') {
+      return tasks.filter((task) => task.taskType && task.taskType !== 'general');
     }
     return tasks;
   }, [tasks, activeFilter]);
@@ -131,6 +173,48 @@ function ToDoPlanner({ onNavigateHome }) {
       active: tasks.length - completed,
     };
   }, [tasks]);
+
+  const academicCalendar = useMemo(() => {
+    const academicTasks = tasks
+      .filter((task) => task.taskType && task.taskType !== 'general' && task.dueAt)
+      .map((task) => ({
+        ...task,
+        dueDate: new Date(task.dueAt),
+      }))
+      .filter((task) => !Number.isNaN(task.dueDate.getTime()))
+      .sort((left, right) => left.dueDate.getTime() - right.dueDate.getTime());
+
+    const grouped = academicTasks.reduce((acc, task) => {
+      const dateKey = task.dueDate.toISOString().slice(0, 10);
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(task);
+      return acc;
+    }, {});
+
+    return Object.entries(grouped).map(([dateKey, items]) => ({
+      dateKey,
+      displayDate: new Date(`${dateKey}T00:00:00`).toLocaleDateString(undefined, {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }),
+      items,
+    }));
+  }, [tasks]);
+
+  const formatTaskTypeLabel = (taskType) => {
+    const labels = {
+      'test-1': 'Test 1',
+      'test-2': 'Test 2',
+      'submission-deadline': 'Submission Deadline',
+      'exam-timetable': 'Exam Timetable',
+    };
+
+    return labels[taskType] || taskType;
+  };
 
   useEffect(() => {
     if (!isModalOpen) return undefined;
@@ -148,23 +232,151 @@ function ToDoPlanner({ onNavigateHome }) {
   }, [isModalOpen]);
 
   const handleOpenModal = () => {
+    setEditingTaskId('');
     setDraftTask(INITIAL_DRAFT);
+    setSaveStatus('');
     setIsModalOpen(true);
   };
 
-  const handleAddTask = (event) => {
+  const handleEditTask = (task) => {
+    setEditingTaskId(task.id);
+    setDraftTask({
+      title: task.title || '',
+      dueAt: task.dueAt || '',
+      details: task.details || '',
+      courseTag: task.courseTag || '',
+      priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
+        ? String(task.priority).toLowerCase()
+        : 'medium',
+      taskType: task.taskType || 'general',
+    });
+    setSaveStatus('');
+    setIsModalOpen(true);
+  };
+
+  const removeAcademicEventBySourceTaskId = async (token, sourceTaskId) => {
+    if (!token || !sourceTaskId) return;
+
+    const listResponse = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!listResponse.ok) return;
+
+    const listPayload = await listResponse.json().catch(() => ({}));
+    const events = Array.isArray(listPayload.events) ? listPayload.events : [];
+    const linked = events.find((event) => String(event.sourceTaskId || '') === String(sourceTaskId));
+
+    if (!linked) return;
+
+    await fetch(`${AUTH_API_BASE_URL}/api/academic-events/${linked.id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  };
+
+  const createAcademicEventFromTask = async (token, task) => {
+    if (!token || !task || task.taskType === 'general') return;
+
+    const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        subject: task.courseTag,
+        title: task.title,
+        taskType: task.taskType,
+        dueAt: task.dueAt,
+        reminderDelayMinutes: ACADEMIC_REMINDER_DELAY_MINUTES,
+        sourceTaskId: task.id,
+        notes: task.details,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Academic reminder sync failed.');
+    }
+  };
+
+  const handleAddTask = async (event) => {
     event.preventDefault();
     const cleanedTitle = draftTask.title.trim();
-    if (!cleanedTitle || !draftTask.dueAt) return;
+    const cleanedCourseTag = draftTask.courseTag.trim();
+    const normalizedPriority = ['high', 'medium', 'low'].includes(String(draftTask.priority).toLowerCase())
+      ? String(draftTask.priority).toLowerCase()
+      : 'medium';
+    const isAcademicTask = draftTask.taskType !== 'general';
 
-    setTasks((prev) => [
-      createTask({
-        title: cleanedTitle,
-        dueAt: draftTask.dueAt,
-        details: draftTask.details.trim(),
-      }),
-      ...prev,
-    ]);
+    if (!cleanedTitle || !draftTask.dueAt) return;
+    if (isAcademicTask && !cleanedCourseTag) {
+      setSaveStatus('Please enter a course tag for academic calendar entries.');
+      return;
+    }
+
+    setSaveStatus('');
+
+    const baseTask = {
+      title: cleanedTitle,
+      dueAt: draftTask.dueAt,
+      details: draftTask.details.trim(),
+      taskType: draftTask.taskType,
+      courseTag: cleanedCourseTag,
+      priority: normalizedPriority,
+    };
+
+    const task = editingTaskId
+      ? {
+          ...baseTask,
+          id: editingTaskId,
+          completed: tasks.find((item) => item.id === editingTaskId)?.completed || false,
+          createdAt: tasks.find((item) => item.id === editingTaskId)?.createdAt || new Date().toISOString(),
+        }
+      : createTask(baseTask);
+
+    if (editingTaskId) {
+      setTasks((prev) => prev.map((item) => (item.id === editingTaskId ? task : item)));
+    } else {
+      setTasks((prev) => [task, ...prev]);
+    }
+
+    const token = getStoredToken();
+
+    if (token && editingTaskId) {
+      try {
+        await removeAcademicEventBySourceTaskId(token, editingTaskId);
+      } catch (error) {
+        // Ignore soft sync failures and keep local task update.
+      }
+    }
+
+    if (isAcademicTask) {
+
+      if (token) {
+        try {
+          await createAcademicEventFromTask(token, task);
+
+          setSaveStatus(editingTaskId
+            ? 'Task updated and academic reminder synced.'
+            : 'Academic reminder saved for shared tracker alerts.');
+        } catch (error) {
+          setSaveStatus(editingTaskId
+            ? 'Task updated locally, but reminder sync failed.'
+            : 'Saved locally, but could not sync the academic reminder to the shared backend yet.');
+        }
+      } else {
+        setSaveStatus('Saved locally. Sign in to sync academic reminders across devices.');
+      }
+    } else if (token && editingTaskId) {
+      setSaveStatus('Task updated successfully.');
+    }
+
+    setEditingTaskId('');
     setDraftTask(INITIAL_DRAFT);
     setIsModalOpen(false);
   };
@@ -184,11 +396,6 @@ function ToDoPlanner({ onNavigateHome }) {
   };
 
   const handleEnableNotifications = async () => {
-    if (needsIOSInstallForNotifications) {
-      setNotificationPermission('unsupported');
-      return;
-    }
-
     if (!('Notification' in window)) {
       setNotificationPermission('unsupported');
       return;
@@ -203,6 +410,13 @@ function ToDoPlanner({ onNavigateHome }) {
     const parsed = new Date(dueAt);
     if (Number.isNaN(parsed.getTime())) return 'No due time set';
     return parsed.toLocaleString();
+  };
+
+  const getPriorityClass = (priority) => {
+    const normalized = String(priority || 'medium').toLowerCase();
+    if (normalized === 'high') return styles.priorityHigh;
+    if (normalized === 'low') return styles.priorityLow;
+    return styles.priorityMedium;
   };
 
   return (
@@ -233,26 +447,23 @@ function ToDoPlanner({ onNavigateHome }) {
               disabled={
                 notificationPermission === 'granted'
                 || notificationPermission === 'unsupported'
-                || needsIOSInstallForNotifications
               }
             >
               {notificationPermission === 'granted'
                 ? 'Notifications Enabled'
-                : needsIOSInstallForNotifications
-                  ? 'Install the Crymson app to enable push notifications on iOS devices'
-                  : 'Enable Device Alerts'}
+                : 'Enable Device Alerts'}
             </button>
           </div>
 
           <p className={styles.notificationHint}>
-            {needsIOSInstallForNotifications
-              ? 'On iPad/iPhone, add this app to your Home Screen from Safari, then open it from the Home Screen to enable device alerts.'
-              : notificationPermission === 'unsupported'
-                ? 'This device/browser does not support system notifications.'
-                : notificationPermission === 'denied'
-                  ? 'Notification permission is blocked. Enable notifications for this site in your browser/device settings.'
-                  : 'You will receive a system alert about 10 minutes before a task is due while this app is open.'}
+            {notificationPermission === 'unsupported'
+              ? 'This device/browser does not support system notifications.'
+              : notificationPermission === 'denied'
+                ? 'Notification permission is blocked. Enable notifications for this site in your browser settings.'
+                : 'You will receive a system alert about 10 minutes before a task is due while this app is open.'}
           </p>
+
+          {saveStatus && <p className={styles.notificationHint}>{saveStatus}</p>}
 
           <div className={styles.stats}>
             <span>Total: {stats.total}</span>
@@ -282,6 +493,13 @@ function ToDoPlanner({ onNavigateHome }) {
             >
               Completed
             </button>
+            <button
+              type="button"
+              className={`${styles.filterButton} ${activeFilter === 'academic' ? styles.filterButtonActive : ''}`}
+              onClick={() => setActiveFilter('academic')}
+            >
+              Academic
+            </button>
 
             <button
               type="button"
@@ -295,12 +513,44 @@ function ToDoPlanner({ onNavigateHome }) {
         </section>
 
         <section className={styles.listCard}>
+          <h2 className={styles.calendarTitle}>Academic Calendar</h2>
+          <p className={styles.calendarHint}>Tests, submissions, and exam timetable entries grouped by date.</p>
+
+          {academicCalendar.length === 0 ? (
+            <p className={styles.emptyState}>No academic calendar entries yet. Add one from Add Task.</p>
+          ) : (
+            <div className={styles.calendarGroups}>
+              {academicCalendar.map((group) => (
+                <article key={group.dateKey} className={styles.calendarGroup}>
+                  <h3 className={styles.calendarDate}>{group.displayDate}</h3>
+                  <ul className={styles.calendarItems}>
+                    {group.items.map((item) => (
+                      <li key={item.id} className={`${styles.calendarItem} ${getPriorityClass(item.priority)}`}>
+                        <span className={styles.calendarBadge}>{formatTaskTypeLabel(item.taskType)}</span>
+                        <div className={styles.calendarContent}>
+                          <p className={styles.calendarTaskTitle}>{item.title}</p>
+                          <p className={styles.calendarMeta}>
+                            {item.courseTag || 'No course tag'} {' | '}
+                            {item.dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {' | '} Priority: <span className={`${styles.priorityTag} ${getPriorityClass(item.priority)}`}>{(item.priority || 'medium').toUpperCase()}</span>
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className={styles.listCard}>
           {visibleTasks.length === 0 ? (
             <p className={styles.emptyState}>No tasks in this view yet. Add one to get started.</p>
           ) : (
             <ul className={styles.list}>
               {visibleTasks.map((task) => (
-                <li key={task.id} className={styles.item}>
+                <li key={task.id} className={`${styles.item} ${getPriorityClass(task.priority)}`}>
                   <label className={styles.checkboxWrap}>
                     <input
                       type="checkbox"
@@ -310,9 +560,32 @@ function ToDoPlanner({ onNavigateHome }) {
                     <div>
                       <span className={task.completed ? styles.itemDone : styles.itemTitle}>{task.title}</span>
                       <p className={styles.itemMeta}>Due: {getDueLabel(task.dueAt)}</p>
+                      {task.courseTag ? (
+                        <p className={styles.itemMeta}>
+                          Course: {task.courseTag} {' | '} Priority: <span className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}>{(task.priority || 'medium').toUpperCase()}</span>
+                        </p>
+                      ) : (
+                        <p className={styles.itemMeta}>
+                          Priority: <span className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}>{(task.priority || 'medium').toUpperCase()}</span>
+                        </p>
+                      )}
+                      {task.taskType && task.taskType !== 'general' && (
+                        <p className={styles.itemDetails}>
+                          Academic event: {task.taskType.replace('-', ' ')}{task.courseTag ? ` for ${task.courseTag}` : ''}
+                        </p>
+                      )}
                       {task.details && <p className={styles.itemDetails}>{task.details}</p>}
                     </div>
                   </label>
+
+                  <button
+                    type="button"
+                    className={styles.editButton}
+                    onClick={() => handleEditTask(task)}
+                    aria-label={`Edit ${task.title}`}
+                  >
+                    Edit
+                  </button>
 
                   <button
                     type="button"
@@ -347,10 +620,60 @@ function ToDoPlanner({ onNavigateHome }) {
               </button>
 
               <p className={styles.modalEyebrow}>Planner</p>
-              <h2 className={styles.modalTitle}>Add New Task</h2>
-              <p className={styles.modalSubtext}>Set your task, completion time, and any useful details.</p>
+              <h2 className={styles.modalTitle}>{editingTaskId ? 'Edit Task' : 'Add New Task'}</h2>
+              <p className={styles.modalSubtext}>
+                {editingTaskId
+                  ? 'Update your task details, due date, and priority.'
+                  : 'Set your task, completion time, and any useful details.'}
+              </p>
 
               <form className={styles.form} onSubmit={handleAddTask}>
+                <label className={styles.label} htmlFor="newTaskType">Task Type</label>
+                <select
+                  id="newTaskType"
+                  className={styles.input}
+                  value={draftTask.taskType}
+                  onChange={(event) => setDraftTask((prev) => ({ ...prev, taskType: event.target.value }))}
+                >
+                  <option value="general">General task</option>
+                  <option value="test-1">Test 1</option>
+                  <option value="test-2">Test 2</option>
+                  <option value="submission-deadline">Submission Deadline</option>
+                  <option value="exam-timetable">Exam Timetable</option>
+                </select>
+
+                <label className={styles.label} htmlFor="newTaskCourseTag">Course Tag (Academic only)</label>
+                <input
+                  id="newTaskCourseTag"
+                  type="text"
+                  className={styles.input}
+                  value={draftTask.courseTag}
+                  onChange={(event) => setDraftTask((prev) => ({ ...prev, courseTag: event.target.value }))}
+                  placeholder="Optional for general tasks (e.g. CSC 205)"
+                />
+
+                <label className={styles.label} htmlFor="newTaskPriority">Priority</label>
+                <select
+                  id="newTaskPriority"
+                  className={styles.input}
+                  value={draftTask.priority}
+                  onChange={(event) => setDraftTask((prev) => ({ ...prev, priority: event.target.value }))}
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+
+                <label className={styles.label} htmlFor="newTaskTime">Due Date</label>
+                <input
+                  id="newTaskTime"
+                  type="datetime-local"
+                  className={styles.input}
+                  value={draftTask.dueAt}
+                  onChange={(event) => setDraftTask((prev) => ({ ...prev, dueAt: event.target.value }))}
+                  required
+                />
+
                 <label className={styles.label} htmlFor="newTaskTitle">Task</label>
                 <input
                   id="newTaskTitle"
@@ -359,16 +682,6 @@ function ToDoPlanner({ onNavigateHome }) {
                   value={draftTask.title}
                   onChange={(event) => setDraftTask((prev) => ({ ...prev, title: event.target.value }))}
                   placeholder="e.g. Revise CST 305 notes"
-                  required
-                />
-
-                <label className={styles.label} htmlFor="newTaskTime">Completion Time</label>
-                <input
-                  id="newTaskTime"
-                  type="datetime-local"
-                  className={styles.input}
-                  value={draftTask.dueAt}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, dueAt: event.target.value }))}
                   required
                 />
 
@@ -382,7 +695,8 @@ function ToDoPlanner({ onNavigateHome }) {
                   rows={4}
                 />
 
-                <button type="submit" className={styles.primaryButton}>Save Task</button>
+                <button type="submit" className={styles.primaryButton}>{editingTaskId ? 'Save Changes' : 'Save Task'}</button>
+                {saveStatus && <p className={styles.notificationHint}>{saveStatus}</p>}
               </form>
             </section>
           </div>

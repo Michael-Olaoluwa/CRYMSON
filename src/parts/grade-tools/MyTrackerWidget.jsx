@@ -1,8 +1,26 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './MyTrackerWidget.module.css';
 import OnboardingWizard from './OnboardingWizard';
 
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
+const AUTH_SESSION_KEY = 'crymson_auth_session';
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const ACADEMIC_REMINDER_DELAY_MINUTES = 60;
+
+const getStoredToken = () => {
+	try {
+		const raw = localStorage.getItem(AUTH_SESSION_KEY);
+		if (!raw) {
+			return '';
+		}
+
+		const parsed = JSON.parse(raw);
+		return typeof parsed.token === 'string' ? parsed.token : '';
+	} catch (error) {
+		return '';
+	}
+};
 
 const createCourse = (id) => ({
 	id,
@@ -92,6 +110,10 @@ function MyTrackerWidget() {
 	const [currentSemester, setCurrentSemester] = useState(initialState.currentSemester);
 	const [totalSemesters, setTotalSemesters] = useState(initialState.totalSemesters);
 	const [previousSemesters, setPreviousSemesters] = useState(initialState.previousSemesters);
+	const [academicEvents, setAcademicEvents] = useState([]);
+	const [academicNotice, setAcademicNotice] = useState('');
+	const [clockTick, setClockTick] = useState(Date.now());
+	const notifiedAcademicEventIdsRef = useRef(new Set());
 
 	const handleOnboardingComplete = (onboardingData) => {
 		setOnboardingCompleted(true);
@@ -100,6 +122,45 @@ function MyTrackerWidget() {
 		setTotalSemesters(onboardingData.totalSemesters);
 		setPreviousSemesters(onboardingData.previousSemesters);
 	};
+
+	const loadAcademicEvents = async () => {
+		const token = getStoredToken();
+		if (!token) {
+			setAcademicEvents([]);
+			setAcademicNotice('Sign in to sync academic reminders across devices.');
+			return;
+		}
+
+		try {
+			const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			const payload = await response.json().catch(() => ({}));
+			if (!response.ok) {
+				throw new Error(payload.message || 'Unable to load academic reminders.');
+			}
+
+			setAcademicEvents(Array.isArray(payload.events) ? payload.events : []);
+			setAcademicNotice('');
+		} catch (error) {
+			setAcademicNotice(error.message || 'Unable to load academic reminders right now.');
+		}
+	};
+
+	useEffect(() => {
+		loadAcademicEvents();
+		const intervalId = window.setInterval(() => {
+			setClockTick(Date.now());
+			loadAcademicEvents();
+		}, 60000);
+
+		return () => {
+			window.clearInterval(intervalId);
+		};
+	}, []);
 
 	const getGradePoint = (score) => {
 		const numericScore = Number(score);
@@ -238,6 +299,74 @@ function MyTrackerWidget() {
 		return 100 - (Math.min(5, Math.max(0, goalProjection.target)) / 5) * 100;
 	}, [goalProjection]);
 
+	const academicReminders = useMemo(() => {
+		const now = clockTick;
+		const scoreEntryTypes = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
+
+		return academicEvents
+			.filter((event) => scoreEntryTypes.has(String(event.taskType || '').toLowerCase()))
+			.filter((event) => !event.acknowledgedAt)
+			.map((event) => {
+				const dueTime = new Date(event.dueAt).getTime();
+				const reminderAt = dueTime + (Number(event.reminderDelayMinutes) || ACADEMIC_REMINDER_DELAY_MINUTES) * 60000;
+				return {
+					...event,
+					dueTime,
+					reminderAt,
+					isDue: Number.isFinite(reminderAt) && now >= reminderAt,
+				};
+			})
+			.filter((event) => event.isDue)
+			.sort((left, right) => left.reminderAt - right.reminderAt);
+	}, [academicEvents, clockTick]);
+
+	useEffect(() => {
+		if (!('Notification' in window) || Notification.permission !== 'granted') {
+			return undefined;
+		}
+
+		academicReminders.forEach((event) => {
+			if (notifiedAcademicEventIdsRef.current.has(event.id)) {
+				return;
+			}
+
+			new Notification('Crymson score reminder', {
+				body: `${event.subject} ${event.taskType.replace('-', ' ')} is ready. Open the CGPA tracker and enter the score.`,
+				tag: `academic-${event.id}`,
+			});
+			notifiedAcademicEventIdsRef.current.add(event.id);
+		});
+
+		return undefined;
+	}, [academicReminders]);
+
+	const handleAcknowledgeAcademicEvent = async (eventId) => {
+		const token = getStoredToken();
+		if (!token) {
+			setAcademicEvents((prev) => prev.filter((event) => event.id !== eventId));
+			return;
+		}
+
+		try {
+			const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events/${eventId}/acknowledge`, {
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			});
+
+			const payload = await response.json().catch(() => ({}));
+			if (!response.ok) {
+				throw new Error(payload.message || 'Unable to update the reminder.');
+			}
+
+			setAcademicEvents((prev) => prev.filter((event) => event.id !== eventId));
+		} catch (error) {
+			setAcademicNotice(error.message || 'Unable to update the reminder right now.');
+		}
+	};
+
 	useEffect(() => {
 		localStorage.setItem(
 			USER_CGPA_STATE_KEY,
@@ -361,6 +490,39 @@ function MyTrackerWidget() {
 					</p>
 				)}
 			</div>
+
+			<section className={styles.reminderSection}>
+				<h3 className={styles.reminderTitle}>Academic Score Reminders</h3>
+				<p className={styles.reminderHint}>
+					Tests and exams added in the To-Do Planner appear here after their reminder time, so you can enter the score into the tracker.
+				</p>
+				{academicNotice && <p className={styles.reminderNotice}>{academicNotice}</p>}
+				{academicReminders.length === 0 ? (
+					<p className={styles.reminderEmpty}>No score reminders are due right now.</p>
+				) : (
+					<div className={styles.reminderList}>
+						{academicReminders.map((event) => (
+							<article key={event.id} className={styles.reminderCard}>
+								<div>
+									<p className={styles.reminderBadge}>{event.taskType.replace('-', ' ')}</p>
+									<h4 className={styles.reminderSubject}>{event.subject}</h4>
+									<p className={styles.reminderMeta}>{event.title}</p>
+									<p className={styles.reminderMeta}>
+										Reminder time: {new Date(event.reminderAt).toLocaleString()}
+									</p>
+								</div>
+								<button
+									type="button"
+									className={styles.reminderButton}
+									onClick={() => handleAcknowledgeAcademicEvent(event.id)}
+								>
+									I entered this score
+								</button>
+							</article>
+						))}
+					</div>
+				)}
+			</section>
 
 			<div className={styles.tableWrapper}>
 				<table className={styles.table}>
