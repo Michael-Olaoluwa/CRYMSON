@@ -186,7 +186,7 @@ function App() {
       )}
 
       {currentPage === 'todo' && (
-        <TaskPlannerScreen onNavigateHome={navigateHome} />
+        <TaskPlannerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
       )}
     </div>
   );

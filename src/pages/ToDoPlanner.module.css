@@ -69,6 +69,14 @@
   color: rgba(21, 21, 21, 0.56);
 }
 
+.labelHint {
+  font-size: 0.65rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: rgba(21, 21, 21, 0.42);
+}
+
 .row {
   display: flex;
   gap: 0.6rem;

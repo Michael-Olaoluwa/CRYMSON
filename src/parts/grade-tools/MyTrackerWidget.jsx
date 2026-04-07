@@ -98,6 +98,19 @@ const getScoreHintFromRequiredGpa = (requiredGpa) => {
 	return 'Requires performance above current grading scale';
 };
 
+const formatTaskTypePromptLabel = (taskType) => {
+	const normalized = String(taskType || '').toLowerCase();
+	if (normalized === 'test-1' || normalized === 'test-2') return 'CA';
+	if (normalized === 'exam' || normalized === 'exam-timetable') return 'exam';
+	return normalized.replace('-', ' ') || 'assessment';
+};
+
+const formatScoreUpdatePrompt = (event) => {
+	const subject = String(event?.subject || 'course').trim();
+	const taskLabel = formatTaskTypePromptLabel(event?.taskType);
+	return `You said your ${subject} ${taskLabel} was today - how'd it go?`;
+};
+
 function MyTrackerWidget() {
 	const initialState = useMemo(getInitialState, []);
 	const [courses, setCourses] = useState(initialState.courses);
@@ -331,7 +344,7 @@ function MyTrackerWidget() {
 			}
 
 			new Notification('Crymson score reminder', {
-				body: `${event.subject} ${event.taskType.replace('-', ' ')} is ready. Open the CGPA tracker and enter the score.`,
+				body: formatScoreUpdatePrompt(event),
 				tag: `academic-${event.id}`,
 			});
 			notifiedAcademicEventIdsRef.current.add(event.id);
@@ -507,6 +520,7 @@ function MyTrackerWidget() {
 									<p className={styles.reminderBadge}>{event.taskType.replace('-', ' ')}</p>
 									<h4 className={styles.reminderSubject}>{event.subject}</h4>
 									<p className={styles.reminderMeta}>{event.title}</p>
+									<p className={styles.reminderMeta}>{formatScoreUpdatePrompt(event)}</p>
 									<p className={styles.reminderMeta}>
 										Reminder time: {new Date(event.reminderAt).toLocaleString()}
 									</p>

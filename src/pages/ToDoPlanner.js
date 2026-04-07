@@ -3,7 +3,6 @@ import styles from './ToDoPlanner.module.css';
 
 const STORAGE_KEY_BASE = 'crymson_todo_tasks';
 const NOTIFIED_TASKS_KEY_BASE = 'crymson_todo_notified_tasks';
-const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -17,10 +16,11 @@ const INITIAL_DRAFT = {
   details: '',
   courseTag: '',
   priority: 'medium',
+  recurrence: 'none',
   taskType: 'general',
 };
 
-const createTask = ({ title, dueAt, details, taskType, courseTag, priority }) => ({
+const createTask = ({ title, dueAt, details, taskType, courseTag, priority, recurrence }) => ({
   id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
   title,
   dueAt,
@@ -28,9 +28,37 @@ const createTask = ({ title, dueAt, details, taskType, courseTag, priority }) =>
   taskType,
   courseTag,
   priority,
+  recurrence,
   completed: false,
   createdAt: new Date().toISOString(),
 });
+
+const VALID_RECURRENCE = new Set(['none', 'daily', 'weekly', 'monthly']);
+
+const normalizeRecurrence = (value) => {
+  const normalized = String(value || 'none').toLowerCase();
+  return VALID_RECURRENCE.has(normalized) ? normalized : 'none';
+};
+
+const toLocalDateTimeInputValue = (date) => {
+  const offsetMs = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
+};
+
+const getNextDueAt = (dueAt, recurrence) => {
+  const parsed = new Date(dueAt);
+  if (Number.isNaN(parsed.getTime())) return '';
+
+  const next = new Date(parsed);
+  const normalized = normalizeRecurrence(recurrence);
+
+  if (normalized === 'daily') next.setDate(next.getDate() + 1);
+  if (normalized === 'weekly') next.setDate(next.getDate() + 7);
+  if (normalized === 'monthly') next.setMonth(next.getMonth() + 1);
+
+  if (normalized === 'none') return '';
+  return toLocalDateTimeInputValue(next);
+};
 
 const getStoredToken = () => {
   try {
@@ -46,24 +74,22 @@ const getStoredToken = () => {
   }
 };
 
-const getActiveUserId = () => {
+const getCGPACourses = () => {
   try {
-    const raw = localStorage.getItem(APP_STATE_KEY);
-    if (!raw) {
-      return 'guest';
-    }
-
+    const raw = localStorage.getItem('crymson_cgpa_tracker_state_v1');
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    const userId = String(parsed?.activeUserId || '').trim().toUpperCase();
-    return userId || 'guest';
+    if (!Array.isArray(parsed.courses)) return [];
+    return parsed.courses
+      .filter((course) => course?.courseName && String(course.courseName).trim())
+      .map((course) => String(course.courseName).trim())
+      .sort();
   } catch (error) {
-    return 'guest';
+    return [];
   }
 };
 
-const buildScopedKey = (baseKey) => `${baseKey}:${getActiveUserId()}`;
-
-function ToDoPlanner({ onNavigateHome }) {
+function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   const [tasks, setTasks] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,9 +99,10 @@ function ToDoPlanner({ onNavigateHome }) {
   const [notificationPermission, setNotificationPermission] = useState(
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported'
   );
+  const [cgpaCourses, setCgpaCourses] = useState([]);
   const notifiedTaskIdsRef = useRef(new Set());
-  const scopedTasksKey = useMemo(() => buildScopedKey(STORAGE_KEY_BASE), []);
-  const scopedNotifiedTasksKey = useMemo(() => buildScopedKey(NOTIFIED_TASKS_KEY_BASE), []);
+  const scopedTasksKey = useMemo(() => `${STORAGE_KEY_BASE}:${activeUserId}`, [activeUserId]);
+  const scopedNotifiedTasksKey = useMemo(() => `${NOTIFIED_TASKS_KEY_BASE}:${activeUserId}`, [activeUserId]);
 
   useEffect(() => {
     try {
@@ -90,6 +117,7 @@ function ToDoPlanner({ onNavigateHome }) {
           priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
             ? String(task.priority).toLowerCase()
             : 'medium',
+          recurrence: normalizeRecurrence(task.recurrence),
         }));
         setTasks(normalized);
       }
@@ -114,6 +142,12 @@ function ToDoPlanner({ onNavigateHome }) {
       notifiedTaskIdsRef.current = new Set();
     }
   }, [scopedNotifiedTasksKey]);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setCgpaCourses(getCGPACourses());
+    }
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (notificationPermission !== 'granted') return undefined;
@@ -248,6 +282,7 @@ function ToDoPlanner({ onNavigateHome }) {
       priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
         ? String(task.priority).toLowerCase()
         : 'medium',
+      recurrence: normalizeRecurrence(task.recurrence),
       taskType: task.taskType || 'general',
     });
     setSaveStatus('');
@@ -311,6 +346,7 @@ function ToDoPlanner({ onNavigateHome }) {
     const normalizedPriority = ['high', 'medium', 'low'].includes(String(draftTask.priority).toLowerCase())
       ? String(draftTask.priority).toLowerCase()
       : 'medium';
+    const normalizedRecurrence = normalizeRecurrence(draftTask.recurrence);
     const isAcademicTask = draftTask.taskType !== 'general';
 
     if (!cleanedTitle || !draftTask.dueAt) return;
@@ -328,6 +364,7 @@ function ToDoPlanner({ onNavigateHome }) {
       taskType: draftTask.taskType,
       courseTag: cleanedCourseTag,
       priority: normalizedPriority,
+      recurrence: normalizedRecurrence,
     };
 
     const task = editingTaskId
@@ -381,10 +418,59 @@ function ToDoPlanner({ onNavigateHome }) {
     setIsModalOpen(false);
   };
 
-  const handleToggleTask = (id) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task))
-    );
+  const handleToggleTask = async (id) => {
+    const targetTask = tasks.find((task) => task.id === id);
+    if (!targetTask) return;
+
+    const isCompleting = !targetTask.completed;
+    let generatedRecurringTask = null;
+
+    setTasks((prev) => {
+      const next = prev.map((task) => {
+        if (task.id !== id) return task;
+        return { ...task, completed: !task.completed };
+      });
+
+      if (isCompleting && normalizeRecurrence(targetTask.recurrence) !== 'none') {
+        const nextDueAt = getNextDueAt(targetTask.dueAt, targetTask.recurrence);
+        if (nextDueAt) {
+          generatedRecurringTask = createTask({
+            title: targetTask.title,
+            dueAt: nextDueAt,
+            details: targetTask.details || '',
+            taskType: targetTask.taskType || 'general',
+            courseTag: targetTask.courseTag || '',
+            priority: ['high', 'medium', 'low'].includes(String(targetTask.priority || '').toLowerCase())
+              ? String(targetTask.priority).toLowerCase()
+              : 'medium',
+            recurrence: normalizeRecurrence(targetTask.recurrence),
+          });
+
+          return [generatedRecurringTask, ...next];
+        }
+      }
+
+      return next;
+    });
+
+    const token = getStoredToken();
+    if (!token || !isCompleting) return;
+
+    if (targetTask.taskType && targetTask.taskType !== 'general') {
+      try {
+        await removeAcademicEventBySourceTaskId(token, targetTask.id);
+      } catch (error) {
+        // Keep local completion even if sync removal fails.
+      }
+    }
+
+    if (generatedRecurringTask && generatedRecurringTask.taskType !== 'general') {
+      try {
+        await createAcademicEventFromTask(token, generatedRecurringTask);
+      } catch (error) {
+        // Keep local recurring task even if sync creation fails.
+      }
+    }
   };
 
   const handleDeleteTask = (id) => {
@@ -423,7 +509,7 @@ function ToDoPlanner({ onNavigateHome }) {
     <div className={styles.page}>
       <div className={styles.container}>
         <button type="button" className={styles.backButton} onClick={onNavigateHome}>
-          ← Back To Landing
+          ← Back To Home
         </button>
 
         <header className={styles.header}>
@@ -569,6 +655,9 @@ function ToDoPlanner({ onNavigateHome }) {
                           Priority: <span className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}>{(task.priority || 'medium').toUpperCase()}</span>
                         </p>
                       )}
+                      {normalizeRecurrence(task.recurrence) !== 'none' && (
+                        <p className={styles.itemMeta}>Repeats: {normalizeRecurrence(task.recurrence)}</p>
+                      )}
                       {task.taskType && task.taskType !== 'general' && (
                         <p className={styles.itemDetails}>
                           Academic event: {task.taskType.replace('-', ' ')}{task.courseTag ? ` for ${task.courseTag}` : ''}
@@ -642,15 +731,26 @@ function ToDoPlanner({ onNavigateHome }) {
                   <option value="exam-timetable">Exam Timetable</option>
                 </select>
 
-                <label className={styles.label} htmlFor="newTaskCourseTag">Course Tag (Academic only)</label>
+                <label className={styles.label} htmlFor="newTaskCourseTag">
+                  Course Tag (Academic only)
+                  {cgpaCourses.length > 0 && <span className={styles.labelHint}> — Select from your CGPA courses</span>}
+                </label>
                 <input
                   id="newTaskCourseTag"
                   type="text"
                   className={styles.input}
+                  list="cgpaCoursesList"
                   value={draftTask.courseTag}
                   onChange={(event) => setDraftTask((prev) => ({ ...prev, courseTag: event.target.value }))}
                   placeholder="Optional for general tasks (e.g. CSC 205)"
                 />
+                {cgpaCourses.length > 0 && (
+                  <datalist id="cgpaCoursesList">
+                    {cgpaCourses.map((course) => (
+                      <option key={course} value={course} />
+                    ))}
+                  </datalist>
+                )}
 
                 <label className={styles.label} htmlFor="newTaskPriority">Priority</label>
                 <select
@@ -662,6 +762,19 @@ function ToDoPlanner({ onNavigateHome }) {
                   <option value="high">High</option>
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
+                </select>
+
+                <label className={styles.label} htmlFor="newTaskRecurrence">Recurrence</label>
+                <select
+                  id="newTaskRecurrence"
+                  className={styles.input}
+                  value={draftTask.recurrence}
+                  onChange={(event) => setDraftTask((prev) => ({ ...prev, recurrence: event.target.value }))}
+                >
+                  <option value="none">Does not repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
                 </select>
 
                 <label className={styles.label} htmlFor="newTaskTime">Due Date</label>
