@@ -1,10 +1,17 @@
 .page {
+  --slate-500: #5f6f87;
+  --ink-900: #131722;
+  --royal: #3478f6;
+  --coral: #ff6f61;
+  --mint: #2ccfa3;
+  --ease-premium: cubic-bezier(0.22, 0.76, 0.2, 1);
   min-height: 100vh;
   padding: 2.2rem clamp(1rem, 4vw, 3rem);
   background:
-    radial-gradient(circle at 10% 10%, rgba(85, 107, 47, 0.18), transparent 42%),
-    radial-gradient(circle at 90% 5%, rgba(128, 0, 32, 0.14), transparent 35%),
-    linear-gradient(135deg, #f9f6f2 0%, #f2efe9 100%);
+    radial-gradient(circle at 10% 10%, rgba(52, 120, 246, 0.15), transparent 42%),
+    radial-gradient(circle at 90% 5%, rgba(255, 111, 97, 0.12), transparent 35%),
+    radial-gradient(circle at 82% 76%, rgba(44, 207, 163, 0.1), transparent 38%),
+    linear-gradient(135deg, #ffffff 0%, #f5f8fe 100%);
 }
 
 .container {
@@ -13,13 +20,20 @@
 }
 
 .backButton {
-  border: 1px solid rgba(128, 0, 32, 0.25);
+  border: 1px solid rgba(95, 111, 135, 0.25);
   border-radius: 999px;
   background: #fff;
-  color: #5d0c25;
+  color: #2b3a56;
   padding: 0.5rem 0.95rem;
   font-weight: 700;
   cursor: pointer;
+  transition: transform 240ms var(--ease-premium), box-shadow 240ms var(--ease-premium), border-color 240ms var(--ease-premium);
+}
+
+.backButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(52, 120, 246, 0.38);
+  box-shadow: 0 10px 20px rgba(18, 18, 18, 0.1);
 }
 
 .header {
@@ -29,7 +43,7 @@
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   font-size: 0.72rem;
   color: rgba(21, 21, 21, 0.58);
 }
@@ -38,23 +52,35 @@
   margin: 0.25rem 0 0;
   font-family: "Cormorant Garamond", serif;
   font-size: clamp(2rem, 5vw, 3rem);
-  color: #64041f;
+  line-height: 1.12;
+  letter-spacing: 0.01em;
+  color: var(--ink-900);
 }
 
 .subtitle {
   margin: 0.45rem 0 0;
-  color: rgba(21, 21, 21, 0.7);
+  color: rgba(19, 23, 34, 0.72);
+  line-height: 1.65;
+  max-width: 64ch;
 }
 
 .card,
 .listCard {
   margin-top: 1rem;
-  border: 1px solid rgba(21, 21, 21, 0.1);
+  border: 1px solid rgba(95, 111, 135, 0.14);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.84);
   backdrop-filter: blur(5px);
   padding: 1.1rem;
   box-shadow: 0 14px 30px rgba(20, 20, 20, 0.08);
+  transition: transform 280ms var(--ease-premium), box-shadow 280ms var(--ease-premium), border-color 280ms var(--ease-premium);
+}
+
+.card:hover,
+.listCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(52, 120, 246, 0.22);
+  box-shadow: 0 20px 34px rgba(20, 20, 20, 0.12);
 }
 
 .form {
@@ -67,6 +93,7 @@
   letter-spacing: 0.12em;
   font-size: 0.68rem;
   color: rgba(21, 21, 21, 0.56);
+  line-height: 1.4;
 }
 
 .labelHint {
@@ -87,6 +114,7 @@
   border: 1px solid rgba(21, 21, 21, 0.2);
   border-radius: 12px;
   padding: 0.72rem 0.85rem;
+  transition: border-color 220ms cubic-bezier(0.22, 0.76, 0.2, 1), box-shadow 220ms cubic-bezier(0.22, 0.76, 0.2, 1);
 }
 
 .textarea {
@@ -94,16 +122,31 @@
   border-radius: 12px;
   padding: 0.72rem 0.85rem;
   resize: vertical;
+  transition: border-color 220ms cubic-bezier(0.22, 0.76, 0.2, 1), box-shadow 220ms cubic-bezier(0.22, 0.76, 0.2, 1);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: 0;
+  border-color: rgba(128, 0, 32, 0.48);
+  box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12);
 }
 
 .primaryButton {
   border: none;
   border-radius: 12px;
-  background: #800020;
+  background: linear-gradient(130deg, var(--royal) 0%, #5f6cff 100%);
   color: #fff;
   font-weight: 700;
   padding: 0.72rem 1rem;
   cursor: pointer;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), filter 220ms var(--ease-premium);
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(52, 120, 246, 0.28);
+  filter: saturate(1.04);
 }
 
 .topActions {
@@ -113,13 +156,20 @@
 }
 
 .notificationButton {
-  border: 1px solid rgba(21, 21, 21, 0.2);
+  border: 1px solid rgba(95, 111, 135, 0.22);
   border-radius: 12px;
   background: #fff;
   color: #1b1b1b;
   font-weight: 700;
   padding: 0.72rem 1rem;
   cursor: pointer;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
+}
+
+.notificationButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(52, 120, 246, 0.32);
+  box-shadow: 0 8px 18px rgba(18, 18, 18, 0.1);
 }
 
 .notificationButton:disabled {
@@ -131,6 +181,7 @@
   margin: 0.75rem 0 0;
   color: rgba(21, 21, 21, 0.64);
   font-size: 0.84rem;
+  line-height: 1.55;
 }
 
 .stats {
@@ -151,7 +202,7 @@
 
 .filterButton,
 .clearButton {
-  border: 1px solid rgba(21, 21, 21, 0.16);
+  border: 1px solid rgba(95, 111, 135, 0.18);
   background: #fff;
   color: #1b1b1b;
   border-radius: 999px;
@@ -160,11 +211,19 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   cursor: pointer;
+  transition: transform 220ms var(--ease-premium), border-color 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), background 220ms var(--ease-premium);
+}
+
+.filterButton:hover,
+.clearButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(52, 120, 246, 0.28);
+  box-shadow: 0 6px 14px rgba(18, 18, 18, 0.08);
 }
 
 .filterButtonActive {
-  border-color: #556b2f;
-  background: #556b2f;
+  border-color: var(--royal);
+  background: var(--royal);
   color: #fff;
 }
 
@@ -190,22 +249,29 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.9rem;
-  border: 1px solid rgba(21, 21, 21, 0.12);
+  border: 1px solid rgba(95, 111, 135, 0.16);
   border-radius: 12px;
   padding: 0.72rem 0.8rem;
   background: #fff;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
+}
+
+.item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(52, 120, 246, 0.24);
+  box-shadow: 0 10px 20px rgba(18, 18, 18, 0.08);
 }
 
 .priorityHigh {
-  border-left: 4px solid #b42318;
+  border-left: 4px solid var(--coral);
 }
 
 .priorityMedium {
-  border-left: 4px solid #b54708;
+  border-left: 4px solid var(--royal);
 }
 
 .priorityLow {
-  border-left: 4px solid #027a48;
+  border-left: 4px solid var(--mint);
 }
 
 .checkboxWrap {
@@ -231,6 +297,7 @@
   margin: 0.22rem 0 0;
   font-size: 0.85rem;
   color: rgba(21, 21, 21, 0.72);
+  line-height: 1.55;
 }
 
 .itemDone {
@@ -239,21 +306,35 @@
 }
 
 .deleteButton {
-  border: 1px solid rgba(128, 0, 32, 0.24);
+  border: 1px solid rgba(255, 111, 97, 0.4);
   background: #fff;
-  color: #800020;
+  color: #b24338;
   border-radius: 8px;
   padding: 0.4rem 0.72rem;
   cursor: pointer;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
+}
+
+.deleteButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 111, 97, 0.55);
+  box-shadow: 0 8px 16px rgba(255, 111, 97, 0.16);
 }
 
 .editButton {
-  border: 1px solid rgba(85, 107, 47, 0.28);
+  border: 1px solid rgba(95, 111, 135, 0.3);
   background: #fff;
-  color: #556b2f;
+  color: #1f1f1f;
   border-radius: 8px;
   padding: 0.4rem 0.72rem;
   cursor: pointer;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
+}
+
+.editButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(52, 120, 246, 0.38);
+  box-shadow: 0 8px 16px rgba(18, 18, 18, 0.12);
 }
 
 .emptyState {
@@ -265,13 +346,14 @@
   margin: 0;
   font-family: "Cormorant Garamond", serif;
   font-size: 1.6rem;
-  color: #64041f;
+  color: var(--ink-900);
 }
 
 .calendarHint {
   margin: 0.35rem 0 0.9rem;
   color: rgba(21, 21, 21, 0.65);
   font-size: 0.9rem;
+  line-height: 1.58;
 }
 
 .calendarGroups {
@@ -290,7 +372,7 @@
   margin: 0;
   font-size: 0.92rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: rgba(21, 21, 21, 0.58);
 }
 
@@ -314,8 +396,8 @@
 
 .calendarBadge {
   border-radius: 999px;
-  background: rgba(128, 0, 32, 0.1);
-  color: #800020;
+  background: rgba(52, 120, 246, 0.12);
+  color: #2d4a82;
   font-size: 0.66rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -339,6 +421,7 @@
   margin: 0.2rem 0 0;
   color: rgba(21, 21, 21, 0.62);
   font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .priorityTag {
@@ -352,20 +435,20 @@
 }
 
 .priorityTag.priorityHigh {
-  background: rgba(180, 35, 24, 0.12);
-  color: #b42318;
+  background: rgba(255, 111, 97, 0.16);
+  color: #c04e41;
   border-left: none;
 }
 
 .priorityTag.priorityMedium {
-  background: rgba(181, 71, 8, 0.12);
-  color: #b54708;
+  background: rgba(52, 120, 246, 0.14);
+  color: #2d4a82;
   border-left: none;
 }
 
 .priorityTag.priorityLow {
-  background: rgba(2, 122, 72, 0.12);
-  color: #027a48;
+  background: rgba(44, 207, 163, 0.16);
+  color: #1f8f73;
   border-left: none;
 }
 
@@ -383,7 +466,7 @@
 .modal {
   width: min(520px, 96vw);
   border-radius: 18px;
-  border: 1px solid rgba(21, 21, 21, 0.16);
+  border: 1px solid rgba(95, 111, 135, 0.2);
   background: #fff;
   padding: 1.2rem;
   box-shadow: 0 24px 40px rgba(16, 16, 16, 0.22);
@@ -397,11 +480,18 @@
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  border: 1px solid rgba(128, 0, 32, 0.22);
+  border: 1px solid rgba(95, 111, 135, 0.24);
   background: #fff;
-  color: #800020;
+  color: #2d4a82;
   font-size: 1.2rem;
   cursor: pointer;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
+}
+
+.closeButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(52, 120, 246, 0.38);
+  box-shadow: 0 8px 16px rgba(18, 18, 18, 0.12);
 }
 
 .modalEyebrow {
@@ -416,12 +506,25 @@
   margin: 0.25rem 0 0;
   font-family: "Cormorant Garamond", serif;
   font-size: 2rem;
-  color: #64041f;
+  color: var(--ink-900);
 }
 
 .modalSubtext {
   margin: 0.35rem 0 0.95rem;
   color: rgba(21, 21, 21, 0.62);
+  line-height: 1.58;
+}
+
+.backButton:focus-visible,
+.primaryButton:focus-visible,
+.notificationButton:focus-visible,
+.filterButton:focus-visible,
+.clearButton:focus-visible,
+.deleteButton:focus-visible,
+.editButton:focus-visible,
+.closeButton:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(52, 120, 246, 0.2);
 }
 
 @media (max-width: 760px) {

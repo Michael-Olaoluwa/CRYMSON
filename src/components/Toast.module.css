@@ -1,8 +1,8 @@
 .toast {
   padding: 1rem 1.5rem;
   border-radius: 8px;
-  background: #4caf50;
-  color: white;
+  background: #800020;
+  color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-weight: 500;
   animation: slideIn 0.3s ease forwards;
@@ -20,13 +20,13 @@
 }
 
 .toast.error {
-  background: #f44336;
+  background: #5a0a1c;
 }
 
 .toast.success {
-  background: #4caf50;
+  background: #800020;
 }
 
 .toast.warning {
-  background: #ff9800;
+  background: #1f1f1f;
 }

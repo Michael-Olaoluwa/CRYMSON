@@ -55,12 +55,15 @@
 	font-weight: 600;
 	color: #222;
 	margin: 0;
+	line-height: 1.2;
+	letter-spacing: 0.01em;
 }
 
 .step p {
 	font-size: 15px;
 	color: #666;
 	margin: 0;
+	line-height: 1.62;
 }
 
 .field {
@@ -73,6 +76,7 @@
 	font-size: 14px;
 	font-weight: 500;
 	color: #333;
+	line-height: 1.45;
 }
 
 .input {
@@ -86,28 +90,30 @@
 
 .input:focus {
 	outline: none;
-	border-color: #007acc;
-	box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.1);
+	border-color: var(--burgundy);
+	box-shadow: 0 0 0 2px rgba(128, 0, 32, 0.12);
 }
 
 .hint {
 	font-size: 12px;
 	color: #999;
 	font-weight: 400;
+	line-height: 1.5;
 }
 
 .goalNote {
-	background: #f0f8ff;
-	border-left: 4px solid #007acc;
+	background: rgba(128, 0, 32, 0.06);
+	border-left: 4px solid var(--burgundy);
 	padding: 12px;
 	border-radius: 4px;
 	font-size: 13px;
 	color: #333;
 	margin: 10px 0 0 0;
+	line-height: 1.55;
 }
 
 .goalNote strong {
-	color: #007acc;
+	color: var(--burgundy);
 }
 
 .buttonGroup {
@@ -135,16 +141,16 @@
 .btnYes,
 .btnConfirm,
 .btnNext {
-	background: #007acc;
+	background: var(--burgundy);
 	color: white;
 }
 
 .btnYes:hover,
 .btnConfirm:hover,
 .btnNext:hover {
-	background: #005a9e;
+	background: #a00028;
 	transform: translateY(-1px);
-	box-shadow: 0 4px 8px rgba(0, 122, 204, 0.3);
+	box-shadow: 0 4px 10px rgba(128, 0, 32, 0.28);
 }
 
 .btnNo {
@@ -202,7 +208,7 @@
 	border-radius: 6px;
 	padding: 15px;
 	font-size: 14px;
-	line-height: 1.6;
+	line-height: 1.65;
 }
 
 .summary p {
@@ -211,7 +217,7 @@
 }
 
 .summary strong {
-	color: #007acc;
+	color: var(--burgundy);
 }
 
 .confirmNote {
@@ -219,6 +225,7 @@
 	color: #666;
 	text-align: center;
 	margin-top: 10px;
+	line-height: 1.55;
 }
 
 .progress {
@@ -243,6 +250,6 @@
 }
 
 .progress span.active {
-	background: #007acc;
+	background: var(--burgundy);
 	color: white;
 }

@@ -5,6 +5,12 @@
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 280ms cubic-bezier(0.22, 0.76, 0.2, 1), border-color 280ms cubic-bezier(0.22, 0.76, 0.2, 1);
+}
+
+.widget:hover {
+  border-color: rgba(128, 0, 32, 0.18);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.1);
 }
 
 .title {
@@ -12,6 +18,8 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
+  line-height: 1.18;
+  letter-spacing: 0.01em;
   color: var(--black);
 }
 
@@ -19,11 +27,31 @@
   font-size: 0.95rem;
   color: #666;
   margin: 0 0 1.5rem 0;
+  line-height: 1.62;
+}
+
+.preferenceRow {
+  margin: 0 0 1rem;
+}
+
+.preferenceToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2f2f33;
+  line-height: 1.45;
+}
+
+.preferenceToggle input {
+  width: 16px;
+  height: 16px;
 }
 
 .semesterInfo {
-  background: rgba(0, 122, 204, 0.06);
-  border-left: 4px solid #007acc;
+  background: rgba(128, 0, 32, 0.06);
+  border-left: 4px solid var(--burgundy);
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 1.5rem;
@@ -36,7 +64,7 @@
 }
 
 .semesterText strong {
-  color: #007acc;
+  color: var(--burgundy);
   font-weight: 600;
 }
 
@@ -50,20 +78,22 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(13, 45, 74, 0.12);
-  background: rgba(13, 45, 74, 0.04);
+  border: 1px solid rgba(128, 0, 32, 0.12);
+  background: rgba(128, 0, 32, 0.04);
 }
 
 .reminderTitle {
   margin: 0;
   font-size: 1.05rem;
-  color: #24354f;
+  color: var(--black);
+  line-height: 1.28;
 }
 
 .reminderHint {
   margin: 0.35rem 0 0;
   color: #5e5e5e;
   font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .reminderNotice {
@@ -94,6 +124,13 @@
   background: #fff;
   border: 1px solid rgba(128, 0, 32, 0.12);
   box-shadow: 0 10px 18px rgba(0, 0, 0, 0.04);
+  transition: transform 220ms cubic-bezier(0.22, 0.76, 0.2, 1), box-shadow 220ms cubic-bezier(0.22, 0.76, 0.2, 1), border-color 220ms cubic-bezier(0.22, 0.76, 0.2, 1);
+}
+
+.reminderCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(128, 0, 32, 0.24);
+  box-shadow: 0 14px 22px rgba(0, 0, 0, 0.08);
 }
 
 .reminderBadge {
@@ -119,6 +156,7 @@
   margin: 0.2rem 0 0;
   color: #666;
   font-size: 0.84rem;
+  line-height: 1.55;
 }
 
 .reminderButton {
@@ -173,6 +211,7 @@
 
 .input:focus {
   border-color: var(--burgundy);
+  box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12);
 }
 
 .gradeCell {
@@ -211,7 +250,7 @@ button {
   font-weight: 600;
   font-family: inherit;
   font-size: 0.9rem;
-  transition: all 0.2s;
+  transition: transform 220ms cubic-bezier(0.22, 0.76, 0.2, 1), box-shadow 220ms cubic-bezier(0.22, 0.76, 0.2, 1), background 220ms cubic-bezier(0.22, 0.76, 0.2, 1), border-color 220ms cubic-bezier(0.22, 0.76, 0.2, 1);
 }
 
 .btnAdd,
@@ -224,16 +263,32 @@ button {
 .btnCalculate:hover {
   background: #a00028;
   box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
+  transform: translateY(-1px);
 }
 
 .btnReset {
-  background: var(--olive);
+  background: var(--black);
   color: var(--white);
 }
 
 .btnReset:hover {
-  background: #556a1b;
-  box-shadow: 0 4px 12px rgba(107, 112, 88, 0.2);
+  background: #2a2a2a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  transform: translateY(-1px);
+}
+
+.btnAdd:active,
+.btnCalculate:active,
+.btnReset:active,
+.reminderButton:active {
+  transform: translateY(0);
+}
+
+button:focus-visible,
+.input:focus-visible,
+.removeBtn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.14);
 }
 
 .results {
@@ -255,6 +310,7 @@ button {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: #666;
   margin-bottom: 0.5rem;
 }
@@ -281,6 +337,7 @@ button {
   margin: 0.4rem 0 1rem;
   color: #5e5e5e;
   font-size: 0.92rem;
+  line-height: 1.6;
 }
 
 .goalInputs {
@@ -297,6 +354,7 @@ button {
   font-size: 0.84rem;
   font-weight: 600;
   color: #444;
+  line-height: 1.45;
 }
 
 .projectionCard {
@@ -306,8 +364,8 @@ button {
 }
 
 .projectionGood {
-  background: rgba(30, 122, 68, 0.08);
-  border-color: rgba(30, 122, 68, 0.25);
+  background: rgba(128, 0, 32, 0.05);
+  border-color: rgba(128, 0, 32, 0.22);
 }
 
 .projectionRisk {
@@ -318,6 +376,7 @@ button {
 .projectionLine {
   margin: 0 0 0.45rem;
   color: #2c2c2c;
+  line-height: 1.55;
 }
 
 .projectionStatus {
@@ -327,8 +386,8 @@ button {
 
 .chartSection {
   margin-top: 1rem;
-  background: rgba(13, 45, 74, 0.04);
-  border: 1px solid rgba(13, 45, 74, 0.12);
+  background: rgba(128, 0, 32, 0.04);
+  border: 1px solid rgba(128, 0, 32, 0.12);
   border-radius: 10px;
   padding: 0.9rem;
 }
@@ -336,7 +395,7 @@ button {
 .chartTitle {
   margin: 0 0 0.6rem;
   font-weight: 700;
-  color: #24354f;
+  color: var(--black);
 }
 
 .chart {
@@ -355,7 +414,7 @@ button {
 
 .progressLine {
   fill: none;
-  stroke: #1f5f92;
+  stroke: var(--black);
   stroke-width: 2.2;
 }
 
@@ -366,6 +425,7 @@ button {
   margin-top: 0.45rem;
   font-size: 0.8rem;
   color: #5d6776;
+  line-height: 1.5;
 }
 
 .semesterList {
@@ -388,7 +448,8 @@ button {
 .currentInfo {
   margin: 0.75rem 0 0;
   font-size: 0.84rem;
-  color: #334d71;
+  color: rgba(0, 0, 0, 0.72);
+  line-height: 1.5;
 }
 
 @media (max-width: 768px) {

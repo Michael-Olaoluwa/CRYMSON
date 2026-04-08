@@ -30,12 +30,12 @@ button {
 }
 
 .btnSecondary {
-  background: var(--olive);
+  background: var(--black);
   color: var(--white);
 }
 
 .btnSecondary:hover {
-  background: #556a1b;
-  box-shadow: 0 8px 20px rgba(107, 112, 88, 0.25);
+  background: #2a2a2a;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
   transform: translateY(-2px);
 }

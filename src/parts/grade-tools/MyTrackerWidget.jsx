@@ -40,6 +40,10 @@ const getInitialState = () => {
 				nextId: 2,
 				goalCgpa: '',
 				remainingUnits: '',
+				cgpa: null,
+				classification: null,
+				showDashboardCard: true,
+				showDashboardClassification: true,
 				onboardingCompleted: false,
 				currentSemester: 1,
 				totalSemesters: 8,
@@ -66,6 +70,12 @@ const getInitialState = () => {
 			nextId: Number.isInteger(parsed.nextId) ? parsed.nextId : 2,
 			goalCgpa: typeof parsed.goalCgpa === 'string' ? parsed.goalCgpa : '',
 			remainingUnits: typeof parsed.remainingUnits === 'string' ? parsed.remainingUnits : '',
+			cgpa: Number.isFinite(parsed.cgpa) ? parsed.cgpa : null,
+			classification: typeof parsed.classification === 'string' ? parsed.classification : null,
+			showDashboardCard: typeof parsed.showDashboardCard === 'boolean' ? parsed.showDashboardCard : true,
+			showDashboardClassification: typeof parsed.showDashboardClassification === 'boolean'
+				? parsed.showDashboardClassification
+				: true,
 			onboardingCompleted: Boolean(parsed.onboardingCompleted),
 			currentSemester: Number.isInteger(parsed.currentSemester) ? parsed.currentSemester : 1,
 			totalSemesters: Number.isInteger(parsed.totalSemesters) ? parsed.totalSemesters : 8,
@@ -77,6 +87,10 @@ const getInitialState = () => {
 			nextId: 2,
 			goalCgpa: '',
 			remainingUnits: '',
+			cgpa: null,
+			classification: null,
+			showDashboardCard: true,
+			showDashboardClassification: true,
 			onboardingCompleted: false,
 			currentSemester: 1,
 			totalSemesters: 8,
@@ -117,8 +131,10 @@ function MyTrackerWidget() {
 	const [nextId, setNextId] = useState(initialState.nextId);
 	const [goalCgpa, setGoalCgpa] = useState(initialState.goalCgpa);
 	const [remainingUnits, setRemainingUnits] = useState(initialState.remainingUnits);
-	const [cgpa, setCgpa] = useState(null);
-	const [classification, setClassification] = useState(null);
+	const [cgpa, setCgpa] = useState(initialState.cgpa);
+	const [classification, setClassification] = useState(initialState.classification);
+	const [showDashboardCard, setShowDashboardCard] = useState(initialState.showDashboardCard);
+	const [showDashboardClassification, setShowDashboardClassification] = useState(initialState.showDashboardClassification);
 	const [onboardingCompleted, setOnboardingCompleted] = useState(initialState.onboardingCompleted);
 	const [currentSemester, setCurrentSemester] = useState(initialState.currentSemester);
 	const [totalSemesters, setTotalSemesters] = useState(initialState.totalSemesters);
@@ -388,13 +404,30 @@ function MyTrackerWidget() {
 				nextId,
 				goalCgpa,
 				remainingUnits,
+				cgpa,
+				classification,
+				showDashboardCard,
+				showDashboardClassification,
 				onboardingCompleted,
 				currentSemester,
 				totalSemesters,
 				previousSemesters,
 			})
 		);
-	}, [courses, nextId, goalCgpa, remainingUnits, onboardingCompleted, currentSemester, totalSemesters, previousSemesters]);
+	}, [
+		courses,
+		nextId,
+		goalCgpa,
+		remainingUnits,
+		cgpa,
+		classification,
+		showDashboardCard,
+		showDashboardClassification,
+		onboardingCompleted,
+		currentSemester,
+		totalSemesters,
+		previousSemesters,
+	]);
 
 	const handleAddCourse = () => {
 		setCourses((prev) => [...prev, createCourse(nextId)]);
@@ -484,6 +517,14 @@ function MyTrackerWidget() {
 		setRemainingUnits(String(Math.min(300, Math.max(0, numeric))));
 	};
 
+	const handleDashboardCardToggle = (value) => {
+		setShowDashboardCard(value);
+	};
+
+	const handleDashboardClassToggle = (value) => {
+		setShowDashboardClassification(value);
+	};
+
 	if (!onboardingCompleted) {
 		return <OnboardingWizard onComplete={handleOnboardingComplete} />;
 	}
@@ -492,6 +533,25 @@ function MyTrackerWidget() {
 		<div className={styles.widget}>
 			<h2 className={styles.title}>CGPA Tracker</h2>
 			<p className={styles.subtitle}>Track your academic performance</p>
+
+			<div className={styles.preferenceRow}>
+				<label className={styles.preferenceToggle}>
+					<input
+						type="checkbox"
+						checked={showDashboardCard}
+						onChange={(event) => handleDashboardCardToggle(event.target.checked)}
+					/>
+					<span>Show CGPA widget on dashboard</span>
+				</label>
+				<label className={styles.preferenceToggle}>
+					<input
+						type="checkbox"
+						checked={showDashboardClassification}
+						onChange={(event) => handleDashboardClassToggle(event.target.checked)}
+					/>
+					<span>Show class label on dashboard</span>
+				</label>
+			</div>
 
 			<div className={styles.semesterInfo}>
 				<p className={styles.semesterText}>
