@@ -1,10 +1,6 @@
-const { db } = require('../config/db');
+const AcademicEvent = require('../models/AcademicEvent');
 
 const DEFAULT_REMINDER_DELAY_MINUTES = 60;
-
-function ensureAcademicEvents() {
-	db.data.academicEvents = Array.isArray(db.data.academicEvents) ? db.data.academicEvents : [];
-}
 
 function normalizeEvent(event) {
 	return {
@@ -13,11 +9,11 @@ function normalizeEvent(event) {
 		subject: event.subject,
 		title: event.title,
 		taskType: event.taskType,
-		dueAt: event.dueAt,
+		dueAt: new Date(event.dueAt).toISOString(),
 		reminderDelayMinutes: event.reminderDelayMinutes,
-		acknowledgedAt: event.acknowledgedAt || '',
-		createdAt: event.createdAt,
-		updatedAt: event.updatedAt,
+		acknowledgedAt: event.acknowledgedAt ? new Date(event.acknowledgedAt).toISOString() : '',
+		createdAt: event.createdAt ? new Date(event.createdAt).toISOString() : '',
+		updatedAt: event.updatedAt ? new Date(event.updatedAt).toISOString() : '',
 		sourceTaskId: event.sourceTaskId || '',
 		notes: event.notes || ''
 	};
@@ -46,15 +42,11 @@ async function listAcademicEvents(req, res) {
 		return res.status(401).json({ message: 'Invalid session.' });
 	}
 
-	await db.read();
-	ensureAcademicEvents();
+	const events = await AcademicEvent.find({ userId })
+		.sort({ dueAt: 1 })
+		.lean();
 
-	const events = db.data.academicEvents
-		.filter((event) => String(event.userId || '').toUpperCase() === userId)
-		.sort((left, right) => new Date(left.dueAt).getTime() - new Date(right.dueAt).getTime())
-		.map(normalizeEvent);
-
-	return res.status(200).json({ events });
+	return res.status(200).json({ events: events.map(normalizeEvent) });
 }
 
 async function createAcademicEvent(req, res) {
@@ -88,26 +80,20 @@ async function createAcademicEvent(req, res) {
 		return res.status(400).json({ message: 'taskType must be test-1, test-2, submission-deadline, or exam-timetable.' });
 	}
 
-	await db.read();
-	ensureAcademicEvents();
-
-	const event = {
+	const event = await AcademicEvent.create({
 		id: buildEventId(),
 		userId,
 		subject,
 		title,
 		taskType,
-		dueAt: new Date(dueAt).toISOString(),
+		dueAt: new Date(dueAt),
 		reminderDelayMinutes,
-		acknowledgedAt: '',
-		createdAt: new Date().toISOString(),
-		updatedAt: new Date().toISOString(),
+		acknowledgedAt: null,
+		createdAt: new Date(),
+		updatedAt: new Date(),
 		sourceTaskId,
 		notes
-	};
-
-	db.data.academicEvents.push(event);
-	await db.write();
+	});
 
 	return res.status(201).json({
 		message: 'Academic reminder saved.',
@@ -127,17 +113,14 @@ async function acknowledgeAcademicEvent(req, res) {
 		return res.status(400).json({ message: 'eventId is required.' });
 	}
 
-	await db.read();
-	ensureAcademicEvents();
-
-	const event = db.data.academicEvents.find((item) => item.id === eventId && String(item.userId || '').toUpperCase() === userId);
+	const event = await AcademicEvent.findOne({ id: eventId, userId });
 	if (!event) {
 		return res.status(404).json({ message: 'Academic reminder not found.' });
 	}
 
-	event.acknowledgedAt = new Date().toISOString();
-	event.updatedAt = new Date().toISOString();
-	await db.write();
+	event.acknowledgedAt = new Date();
+	event.updatedAt = new Date();
+	await event.save();
 
 	return res.status(200).json({
 		message: 'Academic reminder acknowledged.',
@@ -157,19 +140,11 @@ async function deleteAcademicEvent(req, res) {
 		return res.status(400).json({ message: 'eventId is required.' });
 	}
 
-	await db.read();
-	ensureAcademicEvents();
+	const deleted = await AcademicEvent.findOneAndDelete({ id: eventId, userId }).lean();
 
-	const previousLength = db.data.academicEvents.length;
-	db.data.academicEvents = db.data.academicEvents.filter(
-		(item) => !(item.id === eventId && String(item.userId || '').toUpperCase() === userId)
-	);
-
-	if (db.data.academicEvents.length === previousLength) {
+	if (!deleted) {
 		return res.status(404).json({ message: 'Academic reminder not found.' });
 	}
-
-	await db.write();
 	return res.status(200).json({ message: 'Academic reminder deleted.' });
 }
 

@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const { initDb } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const academicRoutes = require('./routes/academicRoutes');
+const userStateRoutes = require('./routes/userStateRoutes');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -33,11 +35,20 @@ app.use(cors({
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  const dbConnected = mongoose.connection.readyState === 1;
+  res.status(200).json({
+    status: 'ok',
+    db: {
+      connected: dbConnected,
+      name: mongoose.connection.name || '',
+      host: mongoose.connection.host || '',
+    },
+  });
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/academic-events', academicRoutes);
+app.use('/api/user-state', userStateRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found.' });

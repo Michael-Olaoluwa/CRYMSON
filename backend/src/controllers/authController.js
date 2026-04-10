@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { db } = require('../config/db');
+const User = require('../models/User');
 const { generateUniqueCrymsonId } = require('../utils/crymsonId');
 
 const REQUIRED_SIGNUP_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
@@ -38,29 +38,25 @@ async function signup(req, res) {
     return res.status(400).json({ message: 'Password must be at least 6 characters.' });
   }
 
-  await db.read();
-  const users = db.data.users;
-  const emailAlreadyUsed = users.some((user) => String(user.email).toLowerCase() === email);
+  const emailAlreadyUsed = await User.exists({ email });
 
   if (emailAlreadyUsed) {
     return res.status(409).json({ message: 'Email already in use. Please sign in instead.' });
   }
 
-  const crymsonId = generateUniqueCrymsonId(users);
+  const existingUsers = await User.find({}, { crymsonId: 1, _id: 0 }).lean();
+  const crymsonId = generateUniqueCrymsonId(existingUsers);
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const user = {
+  const user = await User.create({
     crymsonId,
     fullName: String(payload.fullName).trim(),
     email,
     department: String(payload.department).trim(),
     level: String(payload.level).trim(),
     passwordHash,
-    createdAt: new Date().toISOString()
-  };
-
-  users.push(user);
-  await db.write();
+    createdAt: new Date(),
+  });
 
   return res.status(201).json({
     message: 'Account created successfully.',
@@ -76,10 +72,7 @@ async function login(req, res) {
     return res.status(400).json({ message: 'Crymson ID and password are required.' });
   }
 
-  await db.read();
-  const user = db.data.users.find(
-    (item) => String(item.crymsonId || '').toUpperCase() === crymsonId
-  );
+  const user = await User.findOne({ crymsonId }).lean();
 
   if (!user) {
     return res.status(401).json({ message: 'Invalid Crymson ID or password.' });
@@ -105,10 +98,7 @@ async function getSession(req, res) {
     return res.status(401).json({ message: 'Invalid session.' });
   }
 
-  await db.read();
-  const user = db.data.users.find(
-    (item) => String(item.crymsonId || '').toUpperCase() === crymsonId
-  );
+  const user = await User.findOne({ crymsonId }).lean();
 
   if (!user) {
     return res.status(401).json({ message: 'Session user not found.' });

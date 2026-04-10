@@ -100,6 +100,8 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported'
   );
   const [cgpaCourses, setCgpaCourses] = useState([]);
+  const hasHydratedTaskStateRef = useRef(false);
+  const taskSyncTimeoutRef = useRef(null);
   const notifiedTaskIdsRef = useRef(new Set());
   const scopedTasksKey = useMemo(() => `${STORAGE_KEY_BASE}:${activeUserId}`, [activeUserId]);
   const scopedNotifiedTasksKey = useMemo(() => `${NOTIFIED_TASKS_KEY_BASE}:${activeUserId}`, [activeUserId]);
@@ -127,8 +129,88 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   }, [scopedTasksKey]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadRemoteTasks = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        hasHydratedTaskStateRef.current = true;
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          hasHydratedTaskStateRef.current = true;
+          return;
+        }
+
+        if (cancelled) return;
+
+        const remoteTasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+        if (remoteTasks.length > 0) {
+          const normalized = remoteTasks.map((task) => ({
+            ...task,
+            courseTag: String(task.courseTag || task.subject || ''),
+            priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
+              ? String(task.priority).toLowerCase()
+              : 'medium',
+            recurrence: normalizeRecurrence(task.recurrence),
+          }));
+          setTasks(normalized);
+        }
+      } catch (error) {
+        // Keep local tasks if remote read fails.
+      } finally {
+        hasHydratedTaskStateRef.current = true;
+      }
+    };
+
+    loadRemoteTasks();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeUserId]);
+
+  useEffect(() => {
     localStorage.setItem(scopedTasksKey, JSON.stringify(tasks));
   }, [tasks, scopedTasksKey]);
+
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token || !hasHydratedTaskStateRef.current) return undefined;
+
+    if (taskSyncTimeoutRef.current) {
+      window.clearTimeout(taskSyncTimeoutRef.current);
+    }
+
+    taskSyncTimeoutRef.current = window.setTimeout(async () => {
+      try {
+        await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ tasks }),
+        });
+      } catch (error) {
+        // Keep local save even if remote sync fails.
+      }
+    }, 300);
+
+    return () => {
+      if (taskSyncTimeoutRef.current) {
+        window.clearTimeout(taskSyncTimeoutRef.current);
+      }
+    };
+  }, [tasks]);
 
   useEffect(() => {
     try {

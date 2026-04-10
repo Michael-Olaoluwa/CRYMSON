@@ -143,6 +143,83 @@ function MyTrackerWidget() {
 	const [academicNotice, setAcademicNotice] = useState('');
 	const [clockTick, setClockTick] = useState(Date.now());
 	const notifiedAcademicEventIdsRef = useRef(new Set());
+	const hasHydratedCgpaStateRef = useRef(false);
+	const cgpaSyncTimeoutRef = useRef(null);
+
+	const applyCgpaState = (state) => {
+		if (!state || typeof state !== 'object') return;
+
+		const parsedCourses = Array.isArray(state.courses)
+			? state.courses
+					.filter((course) => Number.isInteger(course?.id))
+					.map((course) => ({
+						id: course.id,
+						courseName: String(course.courseName || ''),
+						creditUnits: String(course.creditUnits || ''),
+						test1Score: String(course.test1Score || ''),
+						test2Score: String(course.test2Score || ''),
+						examScore: String(course.examScore || ''),
+					}))
+			: [];
+
+		setCourses(parsedCourses.length > 0 ? parsedCourses : [createCourse(1)]);
+		setNextId(Number.isInteger(state.nextId) ? state.nextId : 2);
+		setGoalCgpa(typeof state.goalCgpa === 'string' ? state.goalCgpa : '');
+		setRemainingUnits(typeof state.remainingUnits === 'string' ? state.remainingUnits : '');
+		setCgpa(Number.isFinite(state.cgpa) ? state.cgpa : null);
+		setClassification(typeof state.classification === 'string' ? state.classification : null);
+		setShowDashboardCard(typeof state.showDashboardCard === 'boolean' ? state.showDashboardCard : true);
+		setShowDashboardClassification(
+			typeof state.showDashboardClassification === 'boolean'
+				? state.showDashboardClassification
+				: true
+		);
+		setOnboardingCompleted(Boolean(state.onboardingCompleted));
+		setCurrentSemester(Number.isInteger(state.currentSemester) ? state.currentSemester : 1);
+		setTotalSemesters(Number.isInteger(state.totalSemesters) ? state.totalSemesters : 8);
+		setPreviousSemesters(Array.isArray(state.previousSemesters) ? state.previousSemesters : []);
+	};
+
+	useEffect(() => {
+		let cancelled = false;
+
+		const loadRemoteCgpaState = async () => {
+			const token = getStoredToken();
+			if (!token) {
+				hasHydratedCgpaStateRef.current = true;
+				return;
+			}
+
+			try {
+				const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/cgpa`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				const payload = await response.json().catch(() => ({}));
+				if (!response.ok) {
+					hasHydratedCgpaStateRef.current = true;
+					return;
+				}
+
+				if (cancelled) return;
+
+				if (payload.state && typeof payload.state === 'object') {
+					applyCgpaState(payload.state);
+				}
+			} catch (error) {
+				// Keep local state if remote load fails.
+			} finally {
+				hasHydratedCgpaStateRef.current = true;
+			}
+		};
+
+		loadRemoteCgpaState();
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	const handleOnboardingComplete = (onboardingData) => {
 		setOnboardingCompleted(true);
@@ -414,6 +491,64 @@ function MyTrackerWidget() {
 				previousSemesters,
 			})
 		);
+	}, [
+		courses,
+		nextId,
+		goalCgpa,
+		remainingUnits,
+		cgpa,
+		classification,
+		showDashboardCard,
+		showDashboardClassification,
+		onboardingCompleted,
+		currentSemester,
+		totalSemesters,
+		previousSemesters,
+	]);
+
+	useEffect(() => {
+		const token = getStoredToken();
+		if (!token || !hasHydratedCgpaStateRef.current) return undefined;
+
+		if (cgpaSyncTimeoutRef.current) {
+			window.clearTimeout(cgpaSyncTimeoutRef.current);
+		}
+
+		cgpaSyncTimeoutRef.current = window.setTimeout(async () => {
+			const state = {
+				courses,
+				nextId,
+				goalCgpa,
+				remainingUnits,
+				cgpa,
+				classification,
+				showDashboardCard,
+				showDashboardClassification,
+				onboardingCompleted,
+				currentSemester,
+				totalSemesters,
+				previousSemesters,
+			};
+
+			try {
+				await fetch(`${AUTH_API_BASE_URL}/api/user-state/cgpa`, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ state }),
+				});
+			} catch (error) {
+				// Keep local save even if remote sync fails.
+			}
+		}, 300);
+
+		return () => {
+			if (cgpaSyncTimeoutRef.current) {
+				window.clearTimeout(cgpaSyncTimeoutRef.current);
+			}
+		};
 	}, [
 		courses,
 		nextId,

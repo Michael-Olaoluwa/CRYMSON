@@ -180,7 +180,6 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
   const [bootQuote, setBootQuote] = useState(BOOT_QUOTES[0]);
   const [activePanel, setActivePanel] = useState(0);
   const [expandedGauge, setExpandedGauge] = useState(null);
-  const [showSemesterWrapped, setShowSemesterWrapped] = useState(false);
   const [aiToasts, setAiToasts] = useState([]);
   const [contextCard, setContextCard] = useState(null);
   const [mood, setMood] = useState('focused');
@@ -248,15 +247,10 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       ]);
     }, 4200);
 
-    const wrappedTimer = window.setTimeout(() => {
-      setShowSemesterWrapped(true);
-    }, 5200);
-
     return () => {
       window.clearInterval(intervalId);
       window.clearTimeout(aiSuggestionTimer);
       window.clearTimeout(reminderTimer);
-      window.clearTimeout(wrappedTimer);
     };
   }, []);
 
@@ -676,20 +670,6 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
             <button type="button" className={styles.secondaryButton} onClick={() => setExpandedGauge(null)}>
               Close
             </button>
-          </article>
-        </div>
-      )}
-
-      {showSemesterWrapped && (
-        <div className={styles.modalOverlay} onClick={() => setShowSemesterWrapped(false)}>
-          <article className={`${styles.analyticsModal} ${styles.confettiCard}`} onClick={(event) => event.stopPropagation()}>
-            <h3>New Semester Wrapped Available</h3>
-            <p>Your semester story is ready with growth highlights and milestone moments.</p>
-            <div className={styles.confettiLayer} />
-            <div className={styles.wrappedActions}>
-              <button type="button" className={styles.primaryButton}>Share Your Semester Wrapped</button>
-              <button type="button" className={styles.secondaryButton} onClick={() => setShowSemesterWrapped(false)}>Maybe Later</button>
-            </div>
           </article>
         </div>
       )}
