@@ -27,8 +27,10 @@
   inset: 0;
   background: rgba(24, 20, 18, 0.26);
   backdrop-filter: blur(12px);
-  display: grid;
-  place-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
   z-index: 100;
   padding: 1.2rem;
 }
@@ -37,11 +39,15 @@
   width: min(420px, 94vw);
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(128, 0, 32, 0.2);
-  border-radius: 22px;
+  border-radius: 20px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
   padding: 1.6rem 1.4rem 1.4rem;
   position: relative;
   animation: modalIn 220ms ease-out;
+  max-height: calc(100dvh - 2.4rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: auto 0;
 }
 
 .successModal {
@@ -190,8 +196,13 @@
 }
 
 @media (max-width: 768px) {
+  .modalOverlay {
+    padding: 0.75rem;
+  }
+
   .modal {
     padding: 1.35rem 1.1rem 1.15rem;
+    max-height: calc(100dvh - 1.5rem);
   }
 
   .modalTitle {
