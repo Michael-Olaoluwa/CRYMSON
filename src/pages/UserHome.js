@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
 
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
+const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
+const TIME_TRACKER_STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const DASHBOARD_USAGE_KEY = 'crymson_dashboard_usage_v1';
+const AUTH_SESSION_KEY = 'crymson_auth_session';
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const TEST_TASK_TYPES = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
 
 const BOOT_QUOTES = [
   'Let\'s make today count.',
@@ -171,6 +177,34 @@ const getRingTone = (progress) => {
   return 'building';
 };
 
+const getStoredToken = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_SESSION_KEY);
+    if (!raw) return '';
+    const parsed = JSON.parse(raw);
+    return typeof parsed.token === 'string' ? parsed.token : '';
+  } catch (error) {
+    return '';
+  }
+};
+
+const normalizeTask = (task) => ({
+  ...task,
+  courseTag: String(task?.courseTag || task?.subject || '').trim(),
+  priority: ['high', 'medium', 'low'].includes(String(task?.priority || '').toLowerCase())
+    ? String(task.priority).toLowerCase()
+    : 'medium',
+  recurrence: ['none', 'daily', 'weekly', 'monthly'].includes(String(task?.recurrence || '').toLowerCase())
+    ? String(task.recurrence).toLowerCase()
+    : 'none',
+});
+
+const normalizeSession = (session) => ({
+  ...session,
+  courseTag: String(session?.courseTag || 'General Study').trim() || 'General Study',
+  durationSeconds: Number(session?.durationSeconds) || 0,
+});
+
 function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, onNavigateToTime, onLogout }) {
   const displayName = userName || userId || 'Michael';
   const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary());
@@ -180,14 +214,11 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
   const [bootQuote, setBootQuote] = useState(BOOT_QUOTES[0]);
   const [activePanel, setActivePanel] = useState(0);
   const [expandedGauge, setExpandedGauge] = useState(null);
-  const [aiToasts, setAiToasts] = useState([]);
   const [contextCard, setContextCard] = useState(null);
   const [mood, setMood] = useState('focused');
   const [isMoodBouncing, setIsMoodBouncing] = useState(false);
-  const [tasks, setTasks] = useState([
-    { id: 't1', title: 'Review Algorithms quiz pack', done: false },
-    { id: 't2', title: 'Finalize ECON group brief', done: false },
-  ]);
+  const [dashboardTasks, setDashboardTasks] = useState([]);
+  const [studySessions, setStudySessions] = useState([]);
 
   const touchStartRef = useRef(0);
   const longPressTimerRef = useRef(null);
@@ -201,12 +232,6 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
 
   const ringTone = getRingTone(cgpaSummary.progress);
 
-  const crymsonScore = useMemo(() => {
-    const cgpaScore = cgpaSummary.currentCgpa !== null ? (cgpaSummary.currentCgpa / 5) * 80 : 34;
-    const taskBonus = tasks.filter((task) => task.done).length * 10;
-    return Math.min(100, Math.max(0, cgpaScore + taskBonus));
-  }, [cgpaSummary.currentCgpa, tasks]);
-
   const orderedPanels = useMemo(() => {
     return [...PANEL_IDS].sort((left, right) => (usage[right] || 0) - (usage[left] || 0));
   }, [usage]);
@@ -216,6 +241,68 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
   useEffect(() => {
     localStorage.setItem(DASHBOARD_USAGE_KEY, JSON.stringify(usage));
   }, [usage]);
+
+  useEffect(() => {
+    const scopedTaskKey = `${TODO_STORAGE_KEY_BASE}:${userId || 'guest'}`;
+    const scopedSessionKey = `${TIME_TRACKER_STORAGE_KEY_BASE}:${userId || 'guest'}`;
+
+    try {
+      const rawTasks = localStorage.getItem(scopedTaskKey) || localStorage.getItem(TODO_STORAGE_KEY_BASE);
+      if (rawTasks) {
+        const parsedTasks = JSON.parse(rawTasks);
+        setDashboardTasks(Array.isArray(parsedTasks) ? parsedTasks.map(normalizeTask) : []);
+      } else {
+        setDashboardTasks([]);
+      }
+    } catch (error) {
+      setDashboardTasks([]);
+    }
+
+    try {
+      const rawSessions = localStorage.getItem(scopedSessionKey) || localStorage.getItem(TIME_TRACKER_STORAGE_KEY_BASE);
+      if (rawSessions) {
+        const parsedSessions = JSON.parse(rawSessions);
+        setStudySessions(Array.isArray(parsedSessions) ? parsedSessions.map(normalizeSession) : []);
+      } else {
+        setStudySessions([]);
+      }
+    } catch (error) {
+      setStudySessions([]);
+    }
+
+    let cancelled = false;
+
+    const loadRemoteTasks = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const remoteTasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+        setDashboardTasks(remoteTasks.map(normalizeTask));
+      } catch (error) {
+        // Keep local dashboard data when remote fetch fails.
+      }
+    };
+
+    loadRemoteTasks();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   useEffect(() => {
     const quote = BOOT_QUOTES[Math.floor(Math.random() * BOOT_QUOTES.length)];
@@ -233,40 +320,10 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       }
     }, 45);
 
-    const aiSuggestionTimer = window.setTimeout(() => {
-      setAiToasts((prev) => [
-        ...prev,
-        { id: `toast-${Date.now()}`, title: 'AI Suggestion Detected', body: 'Detected new assignment in uploaded syllabus.' }
-      ]);
-    }, 2400);
-
-    const reminderTimer = window.setTimeout(() => {
-      setAiToasts((prev) => [
-        ...prev,
-        { id: `toast-${Date.now()}-2`, title: 'Smart Reminder', body: 'You have not logged study time today. Start now?' }
-      ]);
-    }, 4200);
-
     return () => {
       window.clearInterval(intervalId);
-      window.clearTimeout(aiSuggestionTimer);
-      window.clearTimeout(reminderTimer);
     };
   }, []);
-
-  useEffect(() => {
-    if (aiToasts.length === 0) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setAiToasts((prev) => prev.slice(1));
-    }, 3600);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [aiToasts]);
 
   const goalPercent = isBooting ? 0 : targetGoalPercent;
   const currentPercent = isBooting ? 0 : targetCurrentPercent;
@@ -339,25 +396,142 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
     window.clearTimeout(longPressTimerRef.current);
   };
 
-  const toggleTask = (taskId) => {
-    setTasks((prev) => prev.map((task) => (task.id === taskId ? { ...task, done: !task.done } : task)));
-    if (navigator.vibrate) {
-      navigator.vibrate(14);
-    }
-  };
-
   const handleMoodTap = (nextMood) => {
     setMood(nextMood);
     setIsMoodBouncing(true);
     window.setTimeout(() => setIsMoodBouncing(false), 340);
   };
+  const now = Date.now();
+  const weekStart = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - date.getDay());
+    return date.getTime();
+  }, []);
 
-  const completionRate = Math.round((tasks.filter((task) => task.done).length / tasks.length) * 100);
+  const dashboardTaskStats = useMemo(() => {
+    const openTasks = dashboardTasks.filter((task) => !task.completed);
+    const completedTasks = dashboardTasks.filter((task) => task.completed);
+
+    const parseDueAt = (task) => new Date(task.dueAt || '').getTime();
+    const overdueTasks = openTasks.filter((task) => Number.isFinite(parseDueAt(task)) && parseDueAt(task) < now);
+    const dueSoonTasks = openTasks.filter((task) => {
+      const dueAt = parseDueAt(task);
+      return Number.isFinite(dueAt) && dueAt >= now && dueAt <= now + (7 * 24 * 60 * 60 * 1000);
+    });
+    const upcomingTests = dueSoonTasks.filter((task) => TEST_TASK_TYPES.has(String(task.taskType || '').toLowerCase()));
+
+    const nextTask = [...openTasks]
+      .filter((task) => Number.isFinite(parseDueAt(task)))
+      .sort((left, right) => parseDueAt(left) - parseDueAt(right))[0] || null;
+
+    return {
+      total: dashboardTasks.length,
+      completed: completedTasks.length,
+      open: openTasks.length,
+      overdue: overdueTasks.length,
+      dueSoon: dueSoonTasks.length,
+      upcomingTests: upcomingTests.length,
+      completionRate: dashboardTasks.length > 0 ? Math.round((completedTasks.length / dashboardTasks.length) * 100) : 0,
+      nextTask,
+    };
+  }, [dashboardTasks, now]);
+
+  const dashboardStudyStats = useMemo(() => {
+    const weekSessions = studySessions.filter((session) => {
+      const startedAt = new Date(session.startedAt || '').getTime();
+      return Number.isFinite(startedAt) && startedAt >= weekStart;
+    });
+
+    const weekSeconds = weekSessions.reduce((sum, session) => sum + (Number(session.durationSeconds) || 0), 0);
+    const todayString = new Date().toDateString();
+    const todaySeconds = studySessions.reduce((sum, session) => {
+      const startedAt = new Date(session.startedAt || '');
+      if (startedAt.toDateString() !== todayString) return sum;
+      return sum + (Number(session.durationSeconds) || 0);
+    }, 0);
+
+    return {
+      weekSeconds,
+      todaySeconds,
+      sessionCount: weekSessions.length,
+    };
+  }, [studySessions, weekStart]);
+
+  const crymsonScore = useMemo(() => {
+    const cgpaScore = cgpaSummary.currentCgpa !== null ? (cgpaSummary.currentCgpa / 5) * 55 : 0;
+    const taskScore = dashboardTaskStats.completionRate * 0.25;
+    const studyScore = Math.min(25, Math.round(dashboardStudyStats.weekSeconds / 1800) * 4);
+    return Math.min(100, Math.round(cgpaScore + taskScore + studyScore));
+  }, [cgpaSummary.currentCgpa, dashboardTaskStats.completionRate, dashboardStudyStats.weekSeconds]);
+
+  const realSummaryCards = [
+    {
+      id: 'cgpa',
+      label: 'Current CGPA',
+      value: cgpaSummary.currentCgpa !== null ? cgpaSummary.currentCgpa.toFixed(2) : '—',
+      note: cgpaSummary.currentCgpa !== null ? (cgpaSummary.classification || 'Tracked from CGPA tool') : 'Open CGPA Tracker to enter scores',
+    },
+    {
+      id: 'tasks',
+      label: 'Task Progress',
+      value: dashboardTasks.length > 0 ? `${dashboardTaskStats.completionRate}%` : '—',
+      note: dashboardTasks.length > 0
+        ? `${dashboardTaskStats.completed}/${dashboardTaskStats.total} complete`
+        : 'Add tasks in To-Do Planner',
+    },
+    {
+      id: 'study',
+      label: 'Study Time This Week',
+      value: dashboardStudyStats.weekSeconds > 0 ? `${Math.round(dashboardStudyStats.weekSeconds / 60)}m` : '0m',
+      note: dashboardStudyStats.sessionCount > 0
+        ? `${dashboardStudyStats.sessionCount} session${dashboardStudyStats.sessionCount === 1 ? '' : 's'} logged`
+        : 'Track time in Time Tracker',
+    },
+    {
+      id: 'tests',
+      label: 'Upcoming Tests',
+      value: String(dashboardTaskStats.upcomingTests),
+      note: dashboardTaskStats.upcomingTests > 0
+        ? (dashboardTaskStats.nextTask ? dashboardTaskStats.nextTask.title : 'Tests scheduled in calendar')
+        : 'No tests due in the next 7 days',
+    },
+  ];
+
+  const summaryCards = realSummaryCards;
+
+  const realLifeStats = [
+    {
+      label: 'Open Tasks',
+      value: dashboardTaskStats.open > 0 ? String(dashboardTaskStats.open) : '0',
+      note: dashboardTaskStats.overdue > 0
+        ? `${dashboardTaskStats.overdue} overdue`
+        : 'No overdue tasks',
+    },
+    {
+      label: 'Due Soon',
+      value: dashboardTaskStats.dueSoon > 0 ? String(dashboardTaskStats.dueSoon) : '0',
+      note: dashboardTaskStats.nextTask ? dashboardTaskStats.nextTask.title : 'Nothing urgent in the next 7 days',
+    },
+    {
+      label: 'Study Today',
+      value: dashboardStudyStats.todaySeconds > 0 ? `${Math.round(dashboardStudyStats.todaySeconds / 60)}m` : '0m',
+      note: dashboardStudyStats.todaySeconds > 0 ? 'Logged in Time Tracker' : 'Start a study session to build momentum',
+    },
+    {
+      label: 'Study This Week',
+      value: dashboardStudyStats.weekSeconds > 0 ? formatClock(dashboardStudyStats.weekSeconds) : '00:00:00',
+      note: dashboardStudyStats.sessionCount > 0
+        ? `${dashboardStudyStats.sessionCount} session${dashboardStudyStats.sessionCount === 1 ? '' : 's'}`
+        : 'No sessions logged this week',
+    },
+  ];
 
   const toolHubItems = [
     {
       id: 'cgpa',
       name: 'CGPA Tracker',
+      icon: '🎓',
       summary: 'Track grades, CGPA trend, and semester movement.',
       status: 'Live',
       isLive: true,
@@ -370,6 +544,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
     {
       id: 'todo',
       name: 'Task Manager',
+      icon: '✅',
       summary: 'Manage assignments, reminders, and deadlines.',
       status: 'Live',
       isLive: true,
@@ -382,6 +557,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
     {
       id: 'time',
       name: 'Time Tracker',
+      icon: '⏱️',
       summary: 'Log study sessions and focus blocks.',
       status: 'Live',
       isLive: true,
@@ -394,34 +570,37 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
     {
       id: 'focus',
       name: 'Focus Analytics',
+      icon: '📊',
       summary: 'See productivity trends and deep-work patterns.',
-      status: 'Coming Soon',
+      status: 'Pending',
       isLive: false,
       actionLabel: 'Coming Soon',
     },
     {
       id: 'finance',
       name: 'Finance Tracker',
+      icon: '💳',
       summary: 'Track spending for school and personal budgets.',
-      status: 'Coming Soon',
+      status: 'Pending',
       isLive: false,
       actionLabel: 'Coming Soon',
     },
     {
       id: 'social',
       name: 'Social Layer',
+      icon: '👥',
       summary: 'Connect with classmates and study groups.',
-      status: 'Coming Soon',
+      status: 'Pending',
       isLive: false,
       actionLabel: 'Coming Soon',
     },
   ];
 
   const pendingModules = [
-    { name: 'AI Study Planner', status: 'Coming Soon' },
-    { name: 'Finance Tracker', status: 'Data Sync Pending' },
-    { name: 'Social Layer', status: 'Activation Pending' },
-    { name: 'Semester Wrapped', status: 'Locked for Current Term' },
+    { name: 'AI Study Planner', status: 'Pending' },
+    { name: 'Finance Tracker', status: 'Pending' },
+    { name: 'Social Layer', status: 'Pending' },
+    { name: 'Semester Wrapped', status: 'Pending' },
   ];
 
   const panelClasses = `${styles.panelTrack} ${styles[`panel${activePanel}`]}`;
@@ -460,6 +639,9 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
           </div>
 
           <div className={styles.heroActions}>
+            <button type="button" className={styles.primaryButton} onClick={onNavigateToTime}>
+              Resume Study
+            </button>
             <button type="button" className={styles.secondaryButton} onClick={onLogout}>
               Log Out
             </button>
@@ -493,6 +675,16 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
           </div>
         </div>
 
+        <section className={`${styles.summaryStrip} ${styles.startupReveal} ${styles.revealDelay2}`} aria-label="Quick status summary">
+          {summaryCards.map((item) => (
+            <article key={item.id} className={styles.summaryCard}>
+              <p className={styles.summaryLabel}>{item.label}</p>
+              <p className={styles.summaryValue}>{item.value}</p>
+              <p className={styles.summaryNote}>{item.note}</p>
+            </article>
+          ))}
+        </section>
+
         <section className={`${styles.toolsHubCard} ${styles.startupReveal} ${styles.revealDelay2}`}>
           <div className={styles.toolsHubHeader}>
             <h2 className={styles.sectionTitle}>Tools Launcher</h2>
@@ -503,6 +695,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
             {toolHubItems.map((tool) => (
               <article key={tool.id} className={styles.toolHubItem}>
                 <div className={styles.toolHubMeta}>
+                  <div className={styles.toolHubIcon}>{tool.icon}</div>
                   <h3 className={styles.toolHubName}>{tool.name}</h3>
                   <p className={styles.toolHubSummary}>{tool.summary}</p>
                   <span className={`${styles.toolHubStatus} ${tool.isLive ? styles.toolHubStatusLive : styles.toolHubStatusPending}`}>
@@ -564,11 +757,11 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
                   className={`${styles.gaugeCard} ${styles.tooltipHost}`}
                   onClick={() => setExpandedGauge('score')}
                 >
-                  <span className={styles.tooltipText}>Pulse reflects recent updates</span>
+                  <span className={styles.tooltipText}>Pulse reflects current task and study data</span>
                   <div className={`${styles.gaugeCircle} ${styles.scorePulse}`} style={{ '--value': `${crymsonScore}%` }}>
                     <span>{Math.round(crymsonScore)}</span>
                   </div>
-                  <p>Crymson Score</p>
+                  <p>Momentum Score</p>
                 </button>
               </div>
 
@@ -583,10 +776,10 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
 
                 <div className={styles.metricRow}>
                   <span>Task Completion</span>
-                  <strong>{completionRate}%</strong>
+                  <strong>{dashboardTaskStats.total > 0 ? `${dashboardTaskStats.completionRate}%` : '—'}</strong>
                 </div>
                 <div className={styles.metricTrack}>
-                  <span className={styles.metricFillDark} style={{ width: `${Math.max(3, completionRate)}%` }} />
+                  <span className={styles.metricFillDark} style={{ width: `${Math.max(3, dashboardTaskStats.completionRate || 0)}%` }} />
                 </div>
               </div>
             </section>
@@ -638,18 +831,17 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
 
             <section className={styles.panel}>
               <h2 className={styles.sectionTitle}>Life & Stats</h2>
-              <p className={styles.sectionLead}>{PANEL_META.life.insight}</p>
+              <p className={styles.sectionLead}>
+                Real dashboard signals from your built tools. Pending items remain marked separately.
+              </p>
 
-              <div className={styles.taskList}>
-                {tasks.map((task) => (
-                  <label key={task.id} className={styles.taskItem}>
-                    <input
-                      type="checkbox"
-                      checked={task.done}
-                      onChange={() => toggleTask(task.id)}
-                    />
-                    <span className={task.done ? styles.taskDone : ''}>{task.title}</span>
-                  </label>
+              <div className={styles.lifeStatsGrid}>
+                {realLifeStats.map((item) => (
+                  <article key={item.label} className={styles.lifeStatCard}>
+                    <p className={styles.lifeStatLabel}>{item.label}</p>
+                    <p className={styles.lifeStatValue}>{item.value}</p>
+                    <p className={styles.lifeStatNote}>{item.note}</p>
+                  </article>
                 ))}
               </div>
 
@@ -766,15 +958,6 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
           </article>
         </div>
       )}
-
-      <div className={styles.toastStack}>
-        {aiToasts.map((toast) => (
-          <article key={toast.id} className={styles.aiToast}>
-            <strong>{toast.title}</strong>
-            <p>{toast.body}</p>
-          </article>
-        ))}
-      </div>
     </div>
   );
 }

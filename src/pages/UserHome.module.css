@@ -158,6 +158,10 @@
 
 .heroActions {
   flex-shrink: 0;
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .moodBar {
@@ -180,6 +184,46 @@
 .moodActions {
   display: flex;
   gap: 0.36rem;
+  justify-content: center;
+  margin-left: auto;
+  min-width: 8.5rem;
+}
+
+.summaryStrip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.summaryCard {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.78rem 0.82rem;
+  box-shadow: 0 12px 28px rgba(20, 26, 37, 0.06);
+}
+
+.summaryLabel {
+  margin: 0;
+  font-size: 0.69rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(19, 23, 34, 0.56);
+}
+
+.summaryValue {
+  margin: 0.32rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--ink-900);
+}
+
+.summaryNote {
+  margin: 0.26rem 0 0;
+  color: rgba(19, 23, 34, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .toolsHubCard {
@@ -212,6 +256,16 @@
 .toolHubMeta {
   display: grid;
   gap: 0.35rem;
+}
+
+.toolHubIcon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, rgba(52, 120, 246, 0.12), rgba(44, 207, 163, 0.12));
+  font-size: 1.05rem;
 }
 
 .toolHubName {
@@ -508,6 +562,44 @@
   margin-top: 0.8rem;
   display: grid;
   gap: 0.42rem;
+}
+
+.lifeStatsGrid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.lifeStatCard {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.lifeStatLabel {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(19, 23, 34, 0.54);
+}
+
+.lifeStatValue {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.lifeStatNote {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(19, 23, 34, 0.68);
 }
 
 .taskItem {
@@ -885,6 +977,14 @@
   .toolsHubGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .summaryStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lifeStatsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -903,6 +1003,10 @@
   }
 
   .toolsHubGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryStrip {
     grid-template-columns: 1fr;
   }
 
