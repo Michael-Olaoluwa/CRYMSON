@@ -6,7 +6,22 @@ const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
-const ACADEMIC_REMINDER_DELAY_MINUTES = 60;
+const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
+	'test-1': 24 * 60,
+	'test-2': 24 * 60,
+	exam: 24 * 60,
+	'exam-timetable': 24 * 60,
+};
+
+const getAcademicReminderDelayMinutes = (taskType, reminderDelayMinutes) => {
+	const explicitDelay = Number(reminderDelayMinutes);
+	if (Number.isFinite(explicitDelay) && explicitDelay > 0) {
+		return explicitDelay;
+	}
+
+	const normalizedType = String(taskType || '').toLowerCase();
+	return ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE[normalizedType] || 24 * 60;
+};
 
 const getStoredToken = () => {
 	try {
@@ -31,6 +46,20 @@ const createCourse = (id) => ({
 	examScore: '',
 });
 
+const normalizeSemesterMeta = (currentSemester, totalSemesters) => {
+	const safeCurrent = Number.isInteger(currentSemester) && currentSemester > 0 ? currentSemester : 1;
+	let safeTotal = Number.isInteger(totalSemesters) && totalSemesters > 0 ? totalSemesters : 8;
+
+	if (safeTotal < safeCurrent) {
+		safeTotal = safeCurrent;
+	}
+
+	return {
+		safeCurrent,
+		safeTotal,
+	};
+};
+
 const getInitialState = () => {
 	try {
 		const raw = localStorage.getItem(USER_CGPA_STATE_KEY);
@@ -52,6 +81,7 @@ const getInitialState = () => {
 		}
 
 		const parsed = JSON.parse(raw);
+		const { safeCurrent, safeTotal } = normalizeSemesterMeta(parsed.currentSemester, parsed.totalSemesters);
 		const parsedCourses = Array.isArray(parsed.courses)
 			? parsed.courses
 					.filter((course) => Number.isInteger(course?.id))
@@ -77,8 +107,8 @@ const getInitialState = () => {
 				? parsed.showDashboardClassification
 				: true,
 			onboardingCompleted: Boolean(parsed.onboardingCompleted),
-			currentSemester: Number.isInteger(parsed.currentSemester) ? parsed.currentSemester : 1,
-			totalSemesters: Number.isInteger(parsed.totalSemesters) ? parsed.totalSemesters : 8,
+			currentSemester: safeCurrent,
+			totalSemesters: safeTotal,
 			previousSemesters: Array.isArray(parsed.previousSemesters) ? parsed.previousSemesters : [],
 		};
 	} catch (error) {
@@ -112,6 +142,15 @@ const getScoreHintFromRequiredGpa = (requiredGpa) => {
 	return 'Requires performance above current grading scale';
 };
 
+const getTargetFinalScoreFromRequiredGpa = (requiredGpa) => {
+	if (!Number.isFinite(requiredGpa)) return 40;
+	if (requiredGpa <= 1) return 40;
+	if (requiredGpa <= 2) return 45;
+	if (requiredGpa <= 3) return 50;
+	if (requiredGpa <= 4) return 60;
+	return 70;
+};
+
 const formatTaskTypePromptLabel = (taskType) => {
 	const normalized = String(taskType || '').toLowerCase();
 	if (normalized === 'test-1' || normalized === 'test-2') return 'CA';
@@ -141,6 +180,7 @@ function MyTrackerWidget() {
 	const [previousSemesters, setPreviousSemesters] = useState(initialState.previousSemesters);
 	const [academicEvents, setAcademicEvents] = useState([]);
 	const [academicNotice, setAcademicNotice] = useState('');
+	const [semesterTransitionNotice, setSemesterTransitionNotice] = useState('');
 	const [clockTick, setClockTick] = useState(Date.now());
 	const notifiedAcademicEventIdsRef = useRef(new Set());
 	const hasHydratedCgpaStateRef = useRef(false);
@@ -148,6 +188,7 @@ function MyTrackerWidget() {
 
 	const applyCgpaState = (state) => {
 		if (!state || typeof state !== 'object') return;
+		const { safeCurrent, safeTotal } = normalizeSemesterMeta(state.currentSemester, state.totalSemesters);
 
 		const parsedCourses = Array.isArray(state.courses)
 			? state.courses
@@ -175,8 +216,8 @@ function MyTrackerWidget() {
 				: true
 		);
 		setOnboardingCompleted(Boolean(state.onboardingCompleted));
-		setCurrentSemester(Number.isInteger(state.currentSemester) ? state.currentSemester : 1);
-		setTotalSemesters(Number.isInteger(state.totalSemesters) ? state.totalSemesters : 8);
+		setCurrentSemester(safeCurrent);
+		setTotalSemesters(safeTotal);
 		setPreviousSemesters(Array.isArray(state.previousSemesters) ? state.previousSemesters : []);
 	};
 
@@ -222,10 +263,14 @@ function MyTrackerWidget() {
 	}, []);
 
 	const handleOnboardingComplete = (onboardingData) => {
+		const { safeCurrent, safeTotal } = normalizeSemesterMeta(
+			onboardingData.currentSemester,
+			onboardingData.totalSemesters
+		);
 		setOnboardingCompleted(true);
 		setGoalCgpa(String(onboardingData.goalCgpa));
-		setCurrentSemester(onboardingData.currentSemester);
-		setTotalSemesters(onboardingData.totalSemesters);
+		setCurrentSemester(safeCurrent);
+		setTotalSemesters(safeTotal);
 		setPreviousSemesters(onboardingData.previousSemesters);
 	};
 
@@ -332,6 +377,88 @@ function MyTrackerWidget() {
 		return stats.totalWeighted / stats.totalUnits;
 	}, [stats.totalUnits, stats.totalWeighted]);
 
+	const semesterHistory = useMemo(() => {
+		const points = Array.isArray(previousSemesters)
+			? previousSemesters
+					.map((semester, index) => {
+						const semesterNumber = Number(semester?.semester);
+						const numericCgpa = Number(semester?.cgpa);
+						if (!Number.isFinite(numericCgpa)) return null;
+
+						return {
+							semester: Number.isInteger(semesterNumber) && semesterNumber > 0 ? semesterNumber : index + 1,
+							cgpa: Math.min(5, Math.max(0, numericCgpa)),
+						};
+					})
+					.filter(Boolean)
+			: [];
+
+		if (Number.isFinite(currentCgpa)) {
+			const alreadyHasCurrent = points.some((point) => point.semester === currentSemester);
+			if (!alreadyHasCurrent) {
+				points.push({
+					semester: currentSemester,
+					cgpa: Math.min(5, Math.max(0, currentCgpa)),
+				});
+			}
+		}
+
+		points.sort((left, right) => left.semester - right.semester);
+
+		return points.map((point, index) => {
+			const previous = index > 0 ? points[index - 1] : null;
+			const movement = previous ? point.cgpa - previous.cgpa : 0;
+			return {
+				...point,
+				movement,
+			};
+		});
+	}, [previousSemesters, currentCgpa, currentSemester]);
+
+	const semesterHistoryPath = useMemo(() => {
+		if (semesterHistory.length < 2) return '';
+
+		return semesterHistory
+			.map((point, index) => {
+				const x = semesterHistory.length === 1 ? 0 : (index / (semesterHistory.length - 1)) * 100;
+				const y = 100 - (Math.min(5, Math.max(0, point.cgpa)) / 5) * 100;
+				return `${x},${y}`;
+			})
+			.join(' ');
+	}, [semesterHistory]);
+
+	const semesterHistoryInsights = useMemo(() => {
+		if (semesterHistory.length === 0) {
+			return {
+				bestSemester: null,
+				largestDrop: null,
+			};
+		}
+
+		const bestSemester = semesterHistory.reduce((best, point) => {
+			if (!best || point.cgpa > best.cgpa) return point;
+			return best;
+		}, null);
+
+		const largestDropPoint = semesterHistory
+			.slice(1)
+			.filter((point) => point.movement < 0)
+			.reduce((worst, point) => {
+				if (!worst || point.movement < worst.movement) return point;
+				return worst;
+			}, null);
+
+		return {
+			bestSemester,
+			largestDrop: largestDropPoint
+				? {
+					semester: largestDropPoint.semester,
+					value: Math.abs(largestDropPoint.movement),
+				}
+				: null,
+		};
+	}, [semesterHistory]);
+
 	const goalProjection = useMemo(() => {
 		const target = Number(goalCgpa);
 		const plannedUnits = Number(remainingUnits);
@@ -358,6 +485,57 @@ function MyTrackerWidget() {
 			scoreHint: getScoreHintFromRequiredGpa(requiredFutureGpa),
 		};
 	}, [goalCgpa, remainingUnits, stats.totalUnits, stats.totalWeighted]);
+
+	const examNeedNotifications = useMemo(() => {
+		const targetFinalScore = goalProjection
+			? getTargetFinalScoreFromRequiredGpa(goalProjection.requiredFutureGpa)
+			: 40;
+
+		return courses
+			.map((course) => {
+				const courseName = String(course.courseName || '').trim() || 'Unnamed course';
+				const test1 = Number(course.test1Score);
+				const test2 = Number(course.test2Score);
+
+				if (!Number.isFinite(test1) || !Number.isFinite(test2)) {
+					return null;
+				}
+
+				const continuousAssessmentTotal = test1 + test2;
+				const requiredExam = targetFinalScore - continuousAssessmentTotal;
+
+				if (requiredExam <= 0) {
+					return {
+						courseId: course.id,
+						courseName,
+						type: 'secured',
+						message: `${courseName}: You already secured this target before exam.`,
+					};
+				}
+
+				if (requiredExam > 70) {
+					return {
+						courseId: course.id,
+						courseName,
+						type: 'risk',
+						message: `${courseName}: You need ${requiredExam.toFixed(1)} in exam (above 70, currently not feasible).`,
+					};
+				}
+
+				return {
+					courseId: course.id,
+					courseName,
+					type: 'need',
+					message: `${courseName}: You need ${requiredExam.toFixed(1)} in exam.`,
+				};
+			})
+			.filter(Boolean)
+			.sort((left, right) => {
+				const leftWeight = left.type === 'risk' ? 0 : left.type === 'need' ? 1 : 2;
+				const rightWeight = right.type === 'risk' ? 0 : right.type === 'need' ? 1 : 2;
+				return leftWeight - rightWeight;
+			});
+	}, [courses, goalProjection]);
 
 	const semesterProjection = useMemo(() => {
 		if (!goalProjection || goalProjection.plannedUnits <= 0) {
@@ -414,7 +592,8 @@ function MyTrackerWidget() {
 			.filter((event) => !event.acknowledgedAt)
 			.map((event) => {
 				const dueTime = new Date(event.dueAt).getTime();
-				const reminderAt = dueTime + (Number(event.reminderDelayMinutes) || ACADEMIC_REMINDER_DELAY_MINUTES) * 60000;
+				const reminderDelayMinutes = getAcademicReminderDelayMinutes(event.taskType, event.reminderDelayMinutes);
+				const reminderAt = dueTime + reminderDelayMinutes * 60000;
 				return {
 					...event,
 					dueTime,
@@ -622,6 +801,48 @@ function MyTrackerWidget() {
 		setRemainingUnits('');
 		setCgpa(null);
 		setClassification(null);
+		setSemesterTransitionNotice('');
+	};
+
+	const handleAdvanceSemester = () => {
+		setSemesterTransitionNotice('');
+
+		if (!Number.isFinite(currentCgpa)) {
+			setSemesterTransitionNotice('Enter course scores and calculate CGPA before ending the semester.');
+			return;
+		}
+
+		if (currentSemester >= totalSemesters) {
+			setSemesterTransitionNotice('You are already in your final semester.');
+			return;
+		}
+
+		const shouldProceed = window.confirm(
+			`End Semester ${currentSemester} and start Semester ${currentSemester + 1}? This will archive the current semester CGPA and clear current course entries.`
+		);
+
+		if (!shouldProceed) {
+			return;
+		}
+
+		const completedSemesterCgpa = Math.min(5, Math.max(0, currentCgpa));
+		setPreviousSemesters((prev) => {
+			const withoutCurrent = prev.filter((entry) => Number(entry?.semester) !== currentSemester);
+			return [
+				...withoutCurrent,
+				{
+					semester: currentSemester,
+					cgpa: Number(completedSemesterCgpa.toFixed(2)),
+				},
+			].sort((left, right) => Number(left.semester) - Number(right.semester));
+		});
+
+		setCurrentSemester((prev) => Math.min(totalSemesters, prev + 1));
+		setCourses([createCourse(1)]);
+		setNextId(2);
+		setCgpa(null);
+		setClassification(null);
+		setSemesterTransitionNotice(`Semester ${currentSemester + 1} started. Add new courses for this semester.`);
 	};
 
 	const handleGoalCgpaChange = (value) => {
@@ -660,6 +881,8 @@ function MyTrackerWidget() {
 		setShowDashboardClassification(value);
 	};
 
+	const canAdvanceSemester = currentSemester < totalSemesters;
+
 	if (!onboardingCompleted) {
 		return <OnboardingWizard onComplete={handleOnboardingComplete} />;
 	}
@@ -697,7 +920,101 @@ function MyTrackerWidget() {
 						Previous CGPA: {previousSemesters.map((s) => s.cgpa).join(' → ')}
 					</p>
 				)}
+				<div className={styles.semesterActions}>
+					<button
+						type="button"
+						onClick={handleAdvanceSemester}
+						className={styles.btnAdvanceSemester}
+						disabled={!canAdvanceSemester}
+					>
+						End Semester {currentSemester} and Start Semester {Math.min(totalSemesters, currentSemester + 1)}
+					</button>
+				</div>
+				{semesterTransitionNotice && <p className={styles.semesterNotice}>{semesterTransitionNotice}</p>}
 			</div>
+
+			<section className={styles.historySection}>
+				<h3 className={styles.historyTitle}>Semester History</h3>
+				<p className={styles.historyHint}>Track how your CGPA moves from semester to semester.</p>
+
+				<div className={styles.historyHighlights}>
+					<div className={styles.historyHighlightCard}>
+						<p className={styles.historyHighlightLabel}>Best Semester</p>
+						<p className={styles.historyHighlightValue}>
+							{semesterHistoryInsights.bestSemester
+								? `Semester ${semesterHistoryInsights.bestSemester.semester} (${semesterHistoryInsights.bestSemester.cgpa.toFixed(2)})`
+								: 'No semester data yet'}
+						</p>
+					</div>
+					<div className={styles.historyHighlightCard}>
+						<p className={styles.historyHighlightLabel}>Largest Drop</p>
+						<p className={`${styles.historyHighlightValue} ${styles.historyHighlightToneRisk}`}>
+							{semesterHistoryInsights.largestDrop
+								? `Semester ${semesterHistoryInsights.largestDrop.semester} (-${semesterHistoryInsights.largestDrop.value.toFixed(2)})`
+								: 'No downward movement yet'}
+						</p>
+					</div>
+				</div>
+
+				{semesterHistory.length < 2 ? (
+					<p className={styles.historyEmpty}>
+						Add previous semester CGPAs (and calculate current CGPA) to see movement.
+					</p>
+				) : (
+					<>
+						<div className={styles.historyChartWrap}>
+							<svg viewBox="0 0 100 100" preserveAspectRatio="none" className={styles.historyChart}>
+								<polyline points={semesterHistoryPath} className={styles.historyLine} />
+							</svg>
+						</div>
+
+						<div className={styles.historyTableWrap}>
+							<table className={styles.historyTable}>
+								<thead>
+									<tr>
+										<th>Semester</th>
+										<th>CGPA</th>
+										<th>Movement</th>
+									</tr>
+								</thead>
+								<tbody>
+									{semesterHistory.map((point, index) => {
+										const isCurrent = point.semester === currentSemester;
+										const movementText = index === 0
+											? 'Baseline'
+											: point.movement > 0
+												? `+${point.movement.toFixed(2)}`
+												: point.movement.toFixed(2);
+
+										return (
+											<tr key={point.semester}>
+												<td>
+													Semester {point.semester}
+													{isCurrent ? ' (current)' : ''}
+												</td>
+												<td>{point.cgpa.toFixed(2)}</td>
+												<td
+													className={
+														index === 0
+															? styles.historyMovementFlat
+															: point.movement > 0
+																? styles.historyMovementUp
+																: point.movement < 0
+																	? styles.historyMovementDown
+																	: styles.historyMovementFlat
+													}
+												>
+													{movementText}
+												</td>
+											</tr>
+										);
+									})}
+								</tbody>
+							</table>
+						</div>
+					</>
+				)}
+			</section>
 
 			<section className={styles.reminderSection}>
 				<h3 className={styles.reminderTitle}>Academic Score Reminders</h3>
@@ -727,6 +1044,33 @@ function MyTrackerWidget() {
 								>
 									I entered this score
 								</button>
+							</article>
+						))}
+					</div>
+				)}
+			</section>
+
+			<section className={styles.examAlertSection}>
+				<h3 className={styles.examAlertTitle}>Smart Exam Alerts</h3>
+				<p className={styles.examAlertHint}>
+					Based on your CA/Test entries{goalProjection ? ' and current CGPA target context' : ''}, here is what you need in each exam.
+				</p>
+				{examNeedNotifications.length === 0 ? (
+					<p className={styles.examAlertEmpty}>Enter Test 1 and Test 2 scores to get exam-needed alerts.</p>
+				) : (
+					<div className={styles.examAlertList}>
+						{examNeedNotifications.map((alert) => (
+							<article
+								key={alert.courseId}
+								className={`${styles.examAlertCard} ${
+									alert.type === 'risk'
+										? styles.examAlertRisk
+										: alert.type === 'need'
+											? styles.examAlertNeed
+											: styles.examAlertSecured
+								}`}
+							>
+								<p className={styles.examAlertMessage}>{alert.message}</p>
 							</article>
 						))}
 					</div>

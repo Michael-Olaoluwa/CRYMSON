@@ -87,10 +87,11 @@ function OnboardingWizard({ onComplete }) {
 	};
 
 	const handleConfirm = () => {
+		const resolvedTotalSemesters = isFirstSemester ? 8 : Number(totalSemesters);
 		const data = {
 			isFirstSemester,
 			currentSemester: isFirstSemester ? 1 : Number(currentSemester),
-			totalSemesters: Number(totalSemesters),
+			totalSemesters: resolvedTotalSemesters,
 			previousSemesters: previousSemesters.map((s) => ({
 				...s,
 				cgpa: Number(s.cgpa),

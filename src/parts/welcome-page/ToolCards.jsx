@@ -4,7 +4,7 @@ import styles from './ToolCards.module.css';
 const tools = [
 	{ name: 'CGPA Tracker', label: 'Live', href: '#', accent: 'olive' },
 	{ name: 'To-Do Planner', label: 'Live', href: '#', accent: 'olive' },
-	{ name: 'Time Tracker', label: 'Soon', href: '#', accent: 'olive' },
+	{ name: 'Time Tracker', label: 'Live', href: '#', accent: 'olive' },
 	{ name: 'Focus Analytics', label: 'Soon', href: '#', accent: 'olive' },
 ];
 

@@ -6,7 +6,13 @@ const NOTIFIED_TASKS_KEY_BASE = 'crymson_todo_notified_tasks';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
-const ACADEMIC_REMINDER_DELAY_MINUTES = 60;
+const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
+  'test-1': 24 * 60,
+  'test-2': 24 * 60,
+  exam: 24 * 60,
+  'exam-timetable': 24 * 60,
+  'submission-deadline': 6 * 60,
+};
 const REMINDER_WINDOW_MS = 10 * 60 * 1000;
 const REMINDER_CHECK_INTERVAL_MS = 30 * 1000;
 
@@ -87,6 +93,11 @@ const getCGPACourses = () => {
   } catch (error) {
     return [];
   }
+};
+
+const getAcademicReminderDelayMinutes = (taskType) => {
+  const normalized = String(taskType || '').toLowerCase();
+  return ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE[normalized] || 24 * 60;
 };
 
 function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
@@ -399,6 +410,8 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   const createAcademicEventFromTask = async (token, task) => {
     if (!token || !task || task.taskType === 'general') return;
 
+    const reminderDelayMinutes = getAcademicReminderDelayMinutes(task.taskType);
+
     const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
       method: 'POST',
       headers: {
@@ -410,7 +423,7 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
         title: task.title,
         taskType: task.taskType,
         dueAt: task.dueAt,
-        reminderDelayMinutes: ACADEMIC_REMINDER_DELAY_MINUTES,
+        reminderDelayMinutes,
         sourceTaskId: task.id,
         notes: task.details,
       }),

@@ -182,6 +182,72 @@
   gap: 0.36rem;
 }
 
+.toolsHubCard {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 18px;
+  padding: 0.95rem;
+}
+
+.toolsHubHeader {
+  margin-bottom: 0.7rem;
+}
+
+.toolsHubGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+.toolHubItem {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.6rem;
+  align-content: space-between;
+}
+
+.toolHubMeta {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.toolHubName {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+
+.toolHubSummary {
+  margin: 0;
+  color: rgba(19, 23, 34, 0.68);
+  line-height: 1.5;
+  font-size: 0.8rem;
+}
+
+.toolHubStatus {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.18rem 0.48rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.toolHubStatusLive {
+  background: rgba(44, 207, 163, 0.15);
+  color: #1c6f58;
+}
+
+.toolHubStatusPending {
+  background: rgba(95, 111, 135, 0.16);
+  color: #4f5d72;
+}
+
 .moodButton {
   width: 2rem;
   height: 2rem;
@@ -542,6 +608,13 @@
   border-color: rgba(52, 120, 246, 0.3);
 }
 
+.secondaryButton:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .dashboardSection {
   margin-top: 0.05rem;
 }
@@ -808,6 +881,10 @@
   .panel0 { transform: translateX(0); }
   .panel1 { transform: translateX(calc(-100% / 3)); }
   .panel2 { transform: translateX(calc(-200% / 3)); }
+
+  .toolsHubGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -822,6 +899,10 @@
   }
 
   .pendingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolsHubGrid {
     grid-template-columns: 1fr;
   }
 

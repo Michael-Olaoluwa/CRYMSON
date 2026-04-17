@@ -354,6 +354,65 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
 
   const completionRate = Math.round((tasks.filter((task) => task.done).length / tasks.length) * 100);
 
+  const toolHubItems = [
+    {
+      id: 'cgpa',
+      name: 'CGPA Tracker',
+      summary: 'Track grades, CGPA trend, and semester movement.',
+      status: 'Live',
+      isLive: true,
+      actionLabel: 'Open App',
+      onOpen: () => {
+        trackPanelUse('action');
+        onNavigateToUserCGPA();
+      },
+    },
+    {
+      id: 'todo',
+      name: 'Task Manager',
+      summary: 'Manage assignments, reminders, and deadlines.',
+      status: 'Live',
+      isLive: true,
+      actionLabel: 'Open App',
+      onOpen: () => {
+        trackPanelUse('action');
+        onNavigateToTodo();
+      },
+    },
+    {
+      id: 'time',
+      name: 'Time Tracker',
+      summary: 'Log study sessions and focus blocks.',
+      status: 'Coming Soon',
+      isLive: false,
+      actionLabel: 'Coming Soon',
+    },
+    {
+      id: 'focus',
+      name: 'Focus Analytics',
+      summary: 'See productivity trends and deep-work patterns.',
+      status: 'Coming Soon',
+      isLive: false,
+      actionLabel: 'Coming Soon',
+    },
+    {
+      id: 'finance',
+      name: 'Finance Tracker',
+      summary: 'Track spending for school and personal budgets.',
+      status: 'Coming Soon',
+      isLive: false,
+      actionLabel: 'Coming Soon',
+    },
+    {
+      id: 'social',
+      name: 'Social Layer',
+      summary: 'Connect with classmates and study groups.',
+      status: 'Coming Soon',
+      isLive: false,
+      actionLabel: 'Coming Soon',
+    },
+  ];
+
   const pendingModules = [
     { name: 'AI Study Planner', status: 'Coming Soon' },
     { name: 'Finance Tracker', status: 'Data Sync Pending' },
@@ -429,6 +488,36 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
             </button>
           </div>
         </div>
+
+        <section className={`${styles.toolsHubCard} ${styles.startupReveal} ${styles.revealDelay2}`}>
+          <div className={styles.toolsHubHeader}>
+            <h2 className={styles.sectionTitle}>Tools Launcher</h2>
+            <p className={styles.sectionLead}>Open each module like an app from your dashboard.</p>
+          </div>
+
+          <div className={styles.toolsHubGrid}>
+            {toolHubItems.map((tool) => (
+              <article key={tool.id} className={styles.toolHubItem}>
+                <div className={styles.toolHubMeta}>
+                  <h3 className={styles.toolHubName}>{tool.name}</h3>
+                  <p className={styles.toolHubSummary}>{tool.summary}</p>
+                  <span className={`${styles.toolHubStatus} ${tool.isLive ? styles.toolHubStatusLive : styles.toolHubStatusPending}`}>
+                    {tool.status}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className={tool.isLive ? styles.primaryButton : styles.secondaryButton}
+                  onClick={tool.onOpen}
+                  disabled={!tool.isLive}
+                >
+                  {tool.actionLabel}
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
 
         <div className={`${styles.panelNav} ${styles.startupReveal} ${styles.revealDelay2}`}>
           {orderedPanels.map((panelId, index) => (

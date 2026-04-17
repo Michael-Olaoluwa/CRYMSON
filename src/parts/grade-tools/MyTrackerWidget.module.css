@@ -74,6 +74,158 @@
   font-size: 0.85rem;
 }
 
+.semesterActions {
+  margin-top: 0.75rem;
+}
+
+.btnAdvanceSemester {
+  background: #1f4c82;
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+}
+
+.btnAdvanceSemester:hover:not(:disabled) {
+  background: #193f6c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(31, 76, 130, 0.22);
+}
+
+.btnAdvanceSemester:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.semesterNotice {
+  margin: 0.55rem 0 0;
+  color: #2f4f37;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.historySection {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(42, 72, 118, 0.15);
+  background: linear-gradient(160deg, rgba(42, 72, 118, 0.06), rgba(255, 255, 255, 0.85));
+}
+
+.historyTitle {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--black);
+  line-height: 1.28;
+}
+
+.historyHint {
+  margin: 0.35rem 0 0;
+  color: #5e5e5e;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.historyHighlights {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.historyHighlightCard {
+  border: 1px solid rgba(42, 72, 118, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+}
+
+.historyHighlightLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5f6773;
+}
+
+.historyHighlightValue {
+  margin: 0.22rem 0 0;
+  color: #273144;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.historyHighlightToneRisk {
+  color: #9a302a;
+}
+
+.historyEmpty {
+  margin: 0.75rem 0 0;
+  color: #666;
+  font-size: 0.88rem;
+}
+
+.historyChartWrap {
+  margin-top: 0.85rem;
+}
+
+.historyChart {
+  width: 100%;
+  height: 130px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid rgba(42, 72, 118, 0.14);
+}
+
+.historyLine {
+  fill: none;
+  stroke: #1f4c82;
+  stroke-width: 2.2;
+}
+
+.historyTableWrap {
+  margin-top: 0.8rem;
+  overflow-x: auto;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.historyTable thead {
+  background: rgba(42, 72, 118, 0.1);
+}
+
+.historyTable th,
+.historyTable td {
+  padding: 0.5rem 0.55rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.historyMovementUp {
+  color: #1d7f4e;
+  font-weight: 700;
+}
+
+.historyMovementDown {
+  color: #b0403a;
+  font-weight: 700;
+}
+
+.historyMovementFlat {
+  color: #5f5f5f;
+  font-weight: 600;
+}
+
 .reminderSection {
   margin-bottom: 1.5rem;
   padding: 1rem;
@@ -168,6 +320,69 @@
 .reminderButton:hover {
   background: #a00028;
   box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
+}
+
+.examAlertSection {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(30, 47, 94, 0.12);
+  background: rgba(30, 47, 94, 0.04);
+}
+
+.examAlertTitle {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--black);
+  line-height: 1.28;
+}
+
+.examAlertHint {
+  margin: 0.35rem 0 0;
+  color: #5e5e5e;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.examAlertEmpty {
+  margin: 0.75rem 0 0;
+  color: #666;
+  font-size: 0.88rem;
+}
+
+.examAlertList {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.examAlertCard {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  background: #fff;
+}
+
+.examAlertNeed {
+  border-color: rgba(128, 0, 32, 0.18);
+  background: rgba(128, 0, 32, 0.05);
+}
+
+.examAlertRisk {
+  border-color: rgba(179, 62, 35, 0.26);
+  background: rgba(179, 62, 35, 0.09);
+}
+
+.examAlertSecured {
+  border-color: rgba(45, 118, 90, 0.26);
+  background: rgba(45, 118, 90, 0.08);
+}
+
+.examAlertMessage {
+  margin: 0;
+  color: #2f2f33;
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .tableWrapper {
@@ -465,6 +680,10 @@ button:focus-visible,
     font-size: 0.85rem;
   }
 
+  .btnAdvanceSemester {
+    width: 100%;
+  }
+
   .table th,
   .table td {
     padding: 0.5rem;
@@ -484,6 +703,14 @@ button:focus-visible,
   }
 
   .goalInputs {
+    grid-template-columns: 1fr;
+  }
+
+  .historyTable {
+    font-size: 0.82rem;
+  }
+
+  .historyHighlights {
     grid-template-columns: 1fr;
   }
 
