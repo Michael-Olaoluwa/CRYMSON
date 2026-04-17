@@ -8,7 +8,7 @@ const tools = [
 	{ name: 'Focus Analytics', label: 'Soon', href: '#', accent: 'olive' },
 ];
 
-function ToolCards({ onNavigateToCGPA, onNavigateToTodo }) {
+function ToolCards({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime }) {
 	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {
@@ -39,6 +39,12 @@ function ToolCards({ onNavigateToCGPA, onNavigateToTodo }) {
 		if (toolName === 'To-Do Planner' && onNavigateToTodo) {
 			event.preventDefault();
 			onNavigateToTodo();
+			return;
+		}
+
+		if (toolName === 'Time Tracker' && onNavigateToTime) {
+			event.preventDefault();
+			onNavigateToTime();
 		}
 	};
 

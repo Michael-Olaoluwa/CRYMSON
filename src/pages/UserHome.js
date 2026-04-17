@@ -171,7 +171,7 @@ const getRingTone = (progress) => {
   return 'building';
 };
 
-function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, onLogout }) {
+function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, onNavigateToTime, onLogout }) {
   const displayName = userName || userId || 'Michael';
   const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary());
   const [usage, setUsage] = useState(() => getStoredUsage());
@@ -383,9 +383,13 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       id: 'time',
       name: 'Time Tracker',
       summary: 'Log study sessions and focus blocks.',
-      status: 'Coming Soon',
-      isLive: false,
-      actionLabel: 'Coming Soon',
+      status: 'Live',
+      isLive: true,
+      actionLabel: 'Open App',
+      onOpen: () => {
+        trackPanelUse('action');
+        onNavigateToTime();
+      },
     },
     {
       id: 'focus',

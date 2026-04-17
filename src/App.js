@@ -4,12 +4,13 @@ import GradeTrackerScreen from './screens/GradeTrackerScreen';
 import TaskPlannerScreen from './screens/TaskPlannerScreen';
 import HomeScreen from './screens/HomeScreen';
 import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
+import TimeTrackerScreen from './screens/TimeTrackerScreen';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo']);
+const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time']);
 
 const getSavedAppState = () => {
   try {
@@ -136,6 +137,10 @@ function App() {
     setCurrentPage('todo');
   };
 
+  const navigateToTimeTracker = () => {
+    setCurrentPage('time');
+  };
+
   const navigateToUserHome = (userId, userName, token) => {
     if (typeof token === 'string' && token) {
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
@@ -163,6 +168,7 @@ function App() {
         <WelcomeScreen
           onNavigateToCGPA={navigateToCGPA}
           onNavigateToTodo={navigateToTodo}
+          onNavigateToTime={navigateToTimeTracker}
           onLoginSuccess={navigateToUserHome}
         />
       )}
@@ -173,6 +179,7 @@ function App() {
           userName={activeUserName}
           onNavigateToUserCGPA={navigateToUserCGPA}
           onNavigateToTodo={navigateToTodo}
+          onNavigateToTime={navigateToTimeTracker}
           onLogout={handleLogout}
         />
       )}
@@ -187,6 +194,13 @@ function App() {
 
       {currentPage === 'todo' && (
         <TaskPlannerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
+      )}
+
+      {currentPage === 'time' && (
+        <TimeTrackerScreen
+          activeUserId={activeUserId}
+          onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
+        />
       )}
     </div>
   );
