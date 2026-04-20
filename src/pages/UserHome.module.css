@@ -988,6 +988,57 @@
 }
 
 @media (max-width: 760px) {
+  .page {
+    padding: 1rem 0.85rem 1.25rem;
+  }
+
+  .shell {
+    gap: 0.85rem;
+  }
+
+  .hero {
+    padding: 1rem;
+  }
+
+  .heroActions {
+    width: 100%;
+  }
+
+  .heroActions .primaryButton,
+  .heroActions .secondaryButton {
+    flex: 1 1 0;
+  }
+
+  .moodBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .moodActions {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .moodButton {
+    flex: 1 1 0;
+  }
+
+  .summaryCard,
+  .toolHubItem,
+  .panel,
+  .progressCard {
+    padding: 0.85rem;
+  }
+
+  .summaryValue {
+    font-size: 1.15rem;
+  }
+
+  .toolsHubCard {
+    padding: 0.8rem;
+  }
+
   .ringLayout {
     grid-template-columns: 1fr;
     justify-items: center;
@@ -1012,6 +1063,26 @@
 
   .wrappedActions {
     flex-direction: column;
+  }
+
+  .modalOverlay {
+    padding: 0.65rem;
+  }
+
+  .analyticsModal {
+    width: min(100%, 100vw - 1.3rem);
+    padding: 0.9rem;
+    border-radius: 16px;
+  }
+
+  .toastStack {
+    right: 0.65rem;
+    left: 0.65rem;
+    bottom: 0.65rem;
+  }
+
+  .aiToast {
+    width: 100%;
   }
 }
 

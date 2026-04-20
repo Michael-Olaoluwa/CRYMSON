@@ -208,4 +208,30 @@
   .modalTitle {
     font-size: 1.7rem;
   }
+
+  .modalSubtext {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalOverlay {
+    padding: 0.5rem;
+  }
+
+  .modal {
+    width: min(100%, 100vw - 1rem);
+    padding: 1.15rem 0.95rem 1rem;
+    border-radius: 16px;
+  }
+
+  .modalTitle,
+  .successTitle {
+    font-size: 1.45rem;
+  }
+
+  .generatedId {
+    font-size: clamp(1.7rem, 10vw, 2.3rem);
+    letter-spacing: 0.08em;
+  }
 }

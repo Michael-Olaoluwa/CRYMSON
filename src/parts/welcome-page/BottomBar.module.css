@@ -58,5 +58,18 @@
 @media (max-width: 768px) {
   .footerInner {
     grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .footer {
+    padding: 2rem 1.1rem;
+  }
+
+  .footerLogo {
+    font-size: 1.35rem;
+  }
+
+  .footerBottom {
+    margin-top: 1.4rem;
   }
 }

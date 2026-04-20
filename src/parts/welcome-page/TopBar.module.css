@@ -128,18 +128,31 @@
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    height: 3.55rem;
+    padding: 0 1rem;
+  }
+
+  .navLogo {
+    font-size: 1.35rem;
+  }
+
   .navLinks {
     display: none;
   }
 
   .authActions {
-    gap: 0.45rem;
+    gap: 0.4rem;
   }
 
   .signInBtn,
   .signUpBtn {
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    padding: 0.4rem 0.85rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    padding: 0.38rem 0.72rem;
+  }
+
+  .navCta {
+    display: none;
   }
 }

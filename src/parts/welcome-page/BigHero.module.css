@@ -39,3 +39,23 @@
   opacity: 0.7;
   text-align: center;
 }
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 5.25rem 1.25rem 3.75rem;
+    gap: 1rem;
+  }
+
+  .heroTitle {
+    font-size: clamp(2.7rem, 14vw, 4rem);
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .heroTagline,
+  .heroSubtext {
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+}

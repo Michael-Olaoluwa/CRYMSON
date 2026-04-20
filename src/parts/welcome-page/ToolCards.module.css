@@ -95,6 +95,29 @@
 
 @media (max-width: 768px) {
   .section {
-    padding: 4.5rem 1.75rem;
+    padding: 4rem 1.1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtext {
+    font-size: 0.95rem;
+  }
+
+  .toolsGrid {
+    margin-top: 1.75rem;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .toolCard {
+    padding: 1.25rem;
+    text-align: left;
+  }
+
+  .toolName {
+    font-size: 1.05rem;
   }
 }

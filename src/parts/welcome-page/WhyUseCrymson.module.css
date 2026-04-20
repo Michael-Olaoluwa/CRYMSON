@@ -89,6 +89,30 @@
 
 @media (max-width: 768px) {
   .section {
-    padding: 4.5rem 1.75rem;
+    padding: 4rem 1.1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtext {
+    font-size: 0.95rem;
+  }
+
+  .slideshow {
+    margin-top: 1.75rem;
+  }
+
+  .slide {
+    padding: 1.25rem 0.25rem;
+  }
+
+  .slideTitle {
+    font-size: 1.35rem;
+  }
+
+  .slideText {
+    font-size: 0.9rem;
   }
 }
