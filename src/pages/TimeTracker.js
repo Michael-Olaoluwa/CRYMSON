@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './TimeTracker.module.css';
-import { formatClock } from '../utils/timeFormatting';
+import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 
 const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
@@ -151,6 +151,11 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
 
   const totalTrackedSeconds = useMemo(
     () => sessions.reduce((sum, session) => sum + (Number(session.durationSeconds) || 0), 0),
+    [sessions]
+  );
+
+  const studyStreakStats = useMemo(
+    () => getStudyStreakStats(sessions),
     [sessions]
   );
 
@@ -560,6 +565,14 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
           <div className={styles.summaryRow}>
             <span>Total Tracked</span>
             <strong>{formatClock(totalTrackedSeconds)}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Current Streak</span>
+            <strong>{studyStreakStats.currentStreakDays} day{studyStreakStats.currentStreakDays === 1 ? '' : 's'}</strong>
+          </div>
+          <div className={styles.summaryRow}>
+            <span>Best Streak</span>
+            <strong>{studyStreakStats.bestStreakDays} day{studyStreakStats.bestStreakDays === 1 ? '' : 's'}</strong>
           </div>
 
           <div className={styles.courseTotalsHeader}>

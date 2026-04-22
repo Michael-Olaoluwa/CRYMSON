@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
-import { formatClock } from '../utils/timeFormatting';
+import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
@@ -444,6 +444,8 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       return Number.isFinite(startedAt) && startedAt >= weekStart;
     });
 
+    const streakStats = getStudyStreakStats(studySessions);
+
     const weekSeconds = weekSessions.reduce((sum, session) => sum + (Number(session.durationSeconds) || 0), 0);
     const todayString = new Date().toDateString();
     const todaySeconds = studySessions.reduce((sum, session) => {
@@ -456,6 +458,8 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       weekSeconds,
       todaySeconds,
       sessionCount: weekSessions.length,
+      currentStreakDays: streakStats.currentStreakDays,
+      bestStreakDays: streakStats.bestStreakDays,
     };
   }, [studySessions, weekStart]);
 
@@ -515,9 +519,11 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       note: dashboardTaskStats.nextTask ? dashboardTaskStats.nextTask.title : 'Nothing urgent in the next 7 days',
     },
     {
-      label: 'Study Today',
-      value: dashboardStudyStats.todaySeconds > 0 ? `${Math.round(dashboardStudyStats.todaySeconds / 60)}m` : '0m',
-      note: dashboardStudyStats.todaySeconds > 0 ? 'Logged in Time Tracker' : 'Start a study session to build momentum',
+      label: 'Study Streak',
+      value: `${dashboardStudyStats.currentStreakDays}d`,
+      note: dashboardStudyStats.currentStreakDays > 0
+        ? `${dashboardStudyStats.bestStreakDays}d best, ${dashboardStudyStats.todaySeconds > 0 ? 'studied today' : 'keep it active today'}`
+        : 'Start a session today to begin a streak',
     },
     {
       label: 'Study This Week',
