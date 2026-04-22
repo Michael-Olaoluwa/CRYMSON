@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
+import { formatClock } from '../utils/timeFormatting';
 
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './TimeTracker.module.css';
+import { formatClock } from '../utils/timeFormatting';
 
 const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
@@ -23,14 +24,6 @@ const getStoredToken = () => {
   } catch (error) {
     return '';
   }
-};
-
-const formatClock = (totalSeconds) => {
-  const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
-  const hours = String(Math.floor(safe / 3600)).padStart(2, '0');
-  const minutes = String(Math.floor((safe % 3600) / 60)).padStart(2, '0');
-  const seconds = String(safe % 60).padStart(2, '0');
-  return `${hours}:${minutes}:${seconds}`;
 };
 
 const getLocalDateTimeParts = (date) => {
