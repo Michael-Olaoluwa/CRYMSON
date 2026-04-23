@@ -3,7 +3,7 @@ import styles from './TimeTracker.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 
 const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
-const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
+const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
@@ -37,6 +37,7 @@ const getLocalDateTimeParts = (date) => {
 
 function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
   const storageKey = useMemo(() => `${STORAGE_KEY_BASE}:${activeUserId || 'guest'}`, [activeUserId]);
+  const userCgpaStateKey = useMemo(() => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`, [activeUserId]);
   const [sessions, setSessions] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -54,27 +55,120 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
   const [editingManualSessionId, setEditingManualSessionId] = useState('');
   const [sessionStartIso, setSessionStartIso] = useState('');
   const timerRef = useRef(null);
+  const hasHydratedSessionsRef = useRef(false);
+  const hasHydratedRemoteSessionsRef = useRef(false);
+  const sessionSyncTimeoutRef = useRef(null);
 
   useEffect(() => {
+    hasHydratedSessionsRef.current = false;
+
     try {
       const raw = localStorage.getItem(storageKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        setSessions(parsed);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setSessions(parsed);
+        } else {
+          setSessions([]);
+        }
+      } else {
+        setSessions([]);
       }
     } catch (error) {
       setSessions([]);
+    } finally {
+      hasHydratedSessionsRef.current = true;
     }
   }, [storageKey]);
 
   useEffect(() => {
+    if (!hasHydratedSessionsRef.current) {
+      return;
+    }
+
     localStorage.setItem(storageKey, JSON.stringify(sessions));
   }, [sessions, storageKey]);
 
   useEffect(() => {
+    let cancelled = false;
+    hasHydratedRemoteSessionsRef.current = false;
+
+    const loadRemoteSessions = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        hasHydratedRemoteSessionsRef.current = true;
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/time-sessions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const remoteSessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+        if (remoteSessions.length > 0) {
+          setSessions(remoteSessions);
+        }
+      } catch (error) {
+        // Keep local sessions if remote load fails.
+      } finally {
+        hasHydratedRemoteSessionsRef.current = true;
+      }
+    };
+
+    loadRemoteSessions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeUserId]);
+
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token || !hasHydratedRemoteSessionsRef.current) {
+      return undefined;
+    }
+
+    if (sessionSyncTimeoutRef.current) {
+      window.clearTimeout(sessionSyncTimeoutRef.current);
+    }
+
+    sessionSyncTimeoutRef.current = window.setTimeout(async () => {
+      try {
+        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            data: {
+              timeSessions: sessions,
+            },
+          }),
+        });
+      } catch (error) {
+        // Keep local sessions even if remote sync fails.
+      }
+    }, 300);
+
+    return () => {
+      if (sessionSyncTimeoutRef.current) {
+        window.clearTimeout(sessionSyncTimeoutRef.current);
+      }
+    };
+  }, [sessions]);
+
+  useEffect(() => {
     try {
-      const raw = localStorage.getItem(USER_CGPA_STATE_KEY);
+      const raw = localStorage.getItem(userCgpaStateKey);
       if (!raw) return;
 
       const parsed = JSON.parse(raw);
@@ -87,13 +181,13 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     } catch (error) {
       setAvailableCourseTags([]);
     }
-  }, []);
+  }, [userCgpaStateKey]);
 
   useEffect(() => {
     const scopedTasksKey = `${TODO_STORAGE_KEY_BASE}:${activeUserId || 'guest'}`;
 
     try {
-      const raw = localStorage.getItem(scopedTasksKey) || localStorage.getItem(TODO_STORAGE_KEY_BASE);
+      const raw = localStorage.getItem(scopedTasksKey);
       if (!raw) {
         setCalendarTasks([]);
       } else {

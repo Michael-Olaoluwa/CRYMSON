@@ -5,10 +5,10 @@ const tools = [
 	{ name: 'CGPA Tracker', label: 'Live', href: '#', accent: 'olive' },
 	{ name: 'To-Do Planner', label: 'Live', href: '#', accent: 'olive' },
 	{ name: 'Time Tracker', label: 'Live', href: '#', accent: 'olive' },
-	{ name: 'Focus Analytics', label: 'Soon', href: '#', accent: 'olive' },
+	{ name: 'Finance Tracker', label: 'Live', href: '#', accent: 'olive' },
 ];
 
-function ToolCards({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime }) {
+function ToolCards({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavigateToFinance }) {
 	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {
@@ -45,6 +45,14 @@ function ToolCards({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime }) {
 		if (toolName === 'Time Tracker' && onNavigateToTime) {
 			event.preventDefault();
 			onNavigateToTime();
+			return;
+		}
+
+		if (toolName === 'Finance Tracker') {
+			event.preventDefault();
+			if (onNavigateToFinance) {
+				onNavigateToFinance();
+			}
 		}
 	};
 

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './MyTrackerWidget.module.css';
 import OnboardingWizard from './OnboardingWizard';
 
-const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
+const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -60,9 +60,11 @@ const normalizeSemesterMeta = (currentSemester, totalSemesters) => {
 	};
 };
 
-const getInitialState = () => {
+const getUserCgpaStateKey = (activeUserId) => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`;
+
+const getInitialState = (storageKey) => {
 	try {
-		const raw = localStorage.getItem(USER_CGPA_STATE_KEY);
+		const raw = localStorage.getItem(storageKey);
 		if (!raw) {
 			return {
 				courses: [createCourse(1)],
@@ -164,8 +166,9 @@ const formatScoreUpdatePrompt = (event) => {
 	return `You said your ${subject} ${taskLabel} was today - how'd it go?`;
 };
 
-function MyTrackerWidget() {
-	const initialState = useMemo(getInitialState, []);
+function MyTrackerWidget({ activeUserId = 'guest' }) {
+	const userCgpaStateKey = useMemo(() => getUserCgpaStateKey(activeUserId), [activeUserId]);
+	const initialState = useMemo(() => getInitialState(userCgpaStateKey), [userCgpaStateKey]);
 	const [courses, setCourses] = useState(initialState.courses);
 	const [nextId, setNextId] = useState(initialState.nextId);
 	const [goalCgpa, setGoalCgpa] = useState(initialState.goalCgpa);
@@ -654,7 +657,7 @@ function MyTrackerWidget() {
 
 	useEffect(() => {
 		localStorage.setItem(
-			USER_CGPA_STATE_KEY,
+			userCgpaStateKey,
 			JSON.stringify({
 				courses,
 				nextId,
@@ -671,6 +674,7 @@ function MyTrackerWidget() {
 			})
 		);
 	}, [
+		userCgpaStateKey,
 		courses,
 		nextId,
 		goalCgpa,
@@ -710,13 +714,17 @@ function MyTrackerWidget() {
 			};
 
 			try {
-				await fetch(`${AUTH_API_BASE_URL}/api/user-state/cgpa`, {
+				await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
 					method: 'PUT',
 					headers: {
 						'Content-Type': 'application/json',
 						Authorization: `Bearer ${token}`,
 					},
-					body: JSON.stringify({ state }),
+					body: JSON.stringify({
+						data: {
+							cgpaState: state,
+						},
+					}),
 				});
 			} catch (error) {
 				// Keep local save even if remote sync fails.

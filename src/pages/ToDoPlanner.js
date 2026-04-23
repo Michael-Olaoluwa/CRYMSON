@@ -3,6 +3,7 @@ import styles from './ToDoPlanner.module.css';
 
 const STORAGE_KEY_BASE = 'crymson_todo_tasks';
 const NOTIFIED_TASKS_KEY_BASE = 'crymson_todo_notified_tasks';
+const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -80,9 +81,11 @@ const getStoredToken = () => {
   }
 };
 
-const getCGPACourses = () => {
+const getCGPACourses = (activeUserId) => {
+  const scopedCgpaKey = `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`;
+
   try {
-    const raw = localStorage.getItem('crymson_cgpa_tracker_state_v1');
+    const raw = localStorage.getItem(scopedCgpaKey);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed.courses)) return [];
@@ -119,7 +122,7 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(scopedTasksKey) || localStorage.getItem(STORAGE_KEY_BASE);
+      const raw = localStorage.getItem(scopedTasksKey);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
@@ -203,13 +206,17 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
     taskSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
-        await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
+        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ tasks }),
+          body: JSON.stringify({
+            data: {
+              tasks,
+            },
+          }),
         });
       } catch (error) {
         // Keep local save even if remote sync fails.
@@ -225,7 +232,7 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(scopedNotifiedTasksKey) || localStorage.getItem(NOTIFIED_TASKS_KEY_BASE);
+      const raw = localStorage.getItem(scopedNotifiedTasksKey);
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
@@ -238,9 +245,9 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
   useEffect(() => {
     if (isModalOpen) {
-      setCgpaCourses(getCGPACourses());
+      setCgpaCourses(getCGPACourses(activeUserId));
     }
-  }, [isModalOpen]);
+  }, [isModalOpen, activeUserId]);
 
   useEffect(() => {
     if (notificationPermission !== 'granted') return undefined;

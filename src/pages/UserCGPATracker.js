@@ -2,7 +2,7 @@ import React from 'react';
 import MyTrackerWidget from '../parts/grade-tools/MyTrackerWidget';
 import styles from './UserCGPATracker.module.css';
 
-function UserCGPATracker({ onNavigateHome }) {
+function UserCGPATracker({ activeUserId = 'guest', onNavigateHome }) {
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
@@ -36,7 +36,7 @@ function UserCGPATracker({ onNavigateHome }) {
         </section>
 
         <div className={styles.workspacePane}>
-          <MyTrackerWidget />
+          <MyTrackerWidget activeUserId={activeUserId} />
         </div>
       </div>
     </div>

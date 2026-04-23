@@ -14,9 +14,27 @@ const userStateSchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.Mixed],
       default: [],
     },
+    timeSessions: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
     cgpaState: {
       type: mongoose.Schema.Types.Mixed,
       default: null,
+    },
+    financeState: {
+      entries: {
+        type: [mongoose.Schema.Types.Mixed],
+        default: [],
+      },
+      recurringPlans: {
+        type: [mongoose.Schema.Types.Mixed],
+        default: [],
+      },
+      prefs: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null,
+      },
     },
     updatedAt: {
       type: Date,

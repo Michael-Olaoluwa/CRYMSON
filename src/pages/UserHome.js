@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 
-const USER_CGPA_STATE_KEY = 'crymson_user_cgpa_state_v1';
+const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
 const TIME_TRACKER_STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
+const FINANCE_ENTRIES_STORAGE_KEY_BASE = 'crymson_finance_entries';
+const FINANCE_PREFS_STORAGE_KEY_BASE = 'crymson_finance_prefs';
 const DASHBOARD_USAGE_KEY = 'crymson_dashboard_usage_v1';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
@@ -83,9 +85,13 @@ const resolveClassification = (value) => {
   return null;
 };
 
-const getCgpaSummary = () => {
+const getUserCgpaStateKey = (activeUserId) => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`;
+
+const getCgpaSummary = (activeUserId) => {
+  const userCgpaStateKey = getUserCgpaStateKey(activeUserId);
+
   try {
-    const raw = localStorage.getItem(USER_CGPA_STATE_KEY);
+    const raw = localStorage.getItem(userCgpaStateKey);
     if (!raw) {
       return {
         currentCgpa: null,
@@ -206,9 +212,131 @@ const normalizeSession = (session) => ({
   durationSeconds: Number(session?.durationSeconds) || 0,
 });
 
-function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, onNavigateToTime, onLogout }) {
+const getFinanceEntriesKey = (activeUserId) => `${FINANCE_ENTRIES_STORAGE_KEY_BASE}:${activeUserId || 'guest'}`;
+
+const getFinancePrefsKey = (activeUserId) => `${FINANCE_PREFS_STORAGE_KEY_BASE}:${activeUserId || 'guest'}`;
+
+const formatMoney = (value) => {
+  const numericValue = Number(value);
+  const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(safeValue);
+};
+
+const getStoredFinancePrefs = (activeUserId) => {
+  try {
+    const raw = localStorage.getItem(getFinancePrefsKey(activeUserId));
+    if (!raw) {
+      return {
+        savingsGoalAmount: 100,
+        lowBalanceThreshold: 50,
+        hideBalanceOnDashboard: false,
+      };
+    }
+
+    const parsed = JSON.parse(raw);
+    return {
+      savingsGoalAmount: Number.isFinite(Number(parsed?.savingsGoalAmount)) && Number(parsed.savingsGoalAmount) > 0
+        ? Number(parsed.savingsGoalAmount)
+        : 100,
+      lowBalanceThreshold: Number.isFinite(Number(parsed?.lowBalanceThreshold)) && Number(parsed.lowBalanceThreshold) >= 0
+        ? Number(parsed.lowBalanceThreshold)
+        : 50,
+      hideBalanceOnDashboard: typeof parsed?.hideBalanceOnDashboard === 'boolean'
+        ? parsed.hideBalanceOnDashboard
+        : false,
+    };
+  } catch (error) {
+    return {
+      savingsGoalAmount: 100,
+      lowBalanceThreshold: 50,
+      hideBalanceOnDashboard: false,
+    };
+  }
+};
+
+const getFinanceDashboardSummary = (activeUserId, financePrefs) => {
+  const fallbackMonthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+  try {
+    const raw = localStorage.getItem(getFinanceEntriesKey(activeUserId));
+    const entries = raw ? JSON.parse(raw) : [];
+    const normalizedEntries = Array.isArray(entries)
+      ? entries.map((entry) => ({
+        ...entry,
+        kind: String(entry?.kind || 'expense').toLowerCase() === 'income' ? 'income' : 'expense',
+        amount: Number(entry?.amount) || 0,
+        date: String(entry?.date || ''),
+      }))
+      : [];
+
+    const balance = normalizedEntries.reduce((sum, entry) => sum + (entry.kind === 'income' ? entry.amount : -entry.amount), 0);
+    const currentMonthKey = new Date().toISOString().slice(0, 7);
+    const monthEntries = normalizedEntries.filter((entry) => String(entry.date || '').startsWith(currentMonthKey));
+    const monthIncome = monthEntries.reduce((sum, entry) => sum + (entry.kind === 'income' ? entry.amount : 0), 0);
+    const monthExpense = monthEntries.reduce((sum, entry) => sum + (entry.kind === 'expense' ? entry.amount : 0), 0);
+    const monthBalance = monthIncome - monthExpense;
+    const savingsGoalAmount = Number.isFinite(Number(financePrefs?.savingsGoalAmount)) && Number(financePrefs.savingsGoalAmount) > 0
+      ? Number(financePrefs.savingsGoalAmount)
+      : 100;
+    const lowBalanceThreshold = Number.isFinite(Number(financePrefs?.lowBalanceThreshold)) && Number(financePrefs.lowBalanceThreshold) >= 0
+      ? Number(financePrefs.lowBalanceThreshold)
+      : 50;
+    const progressPercent = savingsGoalAmount > 0
+      ? Math.min(100, Math.max(0, (monthBalance / savingsGoalAmount) * 100))
+      : 0;
+    const remainingToGoal = Math.max(0, savingsGoalAmount - monthBalance);
+
+    return {
+      totalEntries: normalizedEntries.length,
+      monthIncome,
+      monthExpense,
+      balance,
+      monthBalance,
+      savingsGoalAmount,
+      remainingToGoal,
+      progressPercent,
+      lowBalanceThreshold,
+      monthLabel: fallbackMonthLabel,
+      isLowBalance: balance <= lowBalanceThreshold,
+    };
+  } catch (error) {
+    const lowBalanceThreshold = Number.isFinite(Number(financePrefs?.lowBalanceThreshold)) && Number(financePrefs.lowBalanceThreshold) >= 0
+      ? Number(financePrefs.lowBalanceThreshold)
+      : 50;
+
+    return {
+      totalEntries: 0,
+      monthIncome: 0,
+      monthExpense: 0,
+      balance: 0,
+      monthBalance: 0,
+      savingsGoalAmount: 100,
+      remainingToGoal: 100,
+      progressPercent: 0,
+      lowBalanceThreshold,
+      monthLabel: fallbackMonthLabel,
+      isLowBalance: true,
+    };
+  }
+};
+
+function UserHome({
+  userId,
+  userName,
+  onNavigateToUserCGPA,
+  onNavigateToTodo,
+  onNavigateToTime,
+  onNavigateToFinance,
+  onLogout,
+}) {
   const displayName = userName || userId || 'Michael';
-  const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary());
+  const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary(userId));
   const [usage, setUsage] = useState(() => getStoredUsage());
   const [isBooting, setIsBooting] = useState(true);
   const [bootProgress, setBootProgress] = useState(0);
@@ -220,6 +348,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
   const [isMoodBouncing, setIsMoodBouncing] = useState(false);
   const [dashboardTasks, setDashboardTasks] = useState([]);
   const [studySessions, setStudySessions] = useState([]);
+  const [financePrefs, setFinancePrefs] = useState(() => getStoredFinancePrefs(userId));
 
   const touchStartRef = useRef(0);
   const longPressTimerRef = useRef(null);
@@ -244,11 +373,29 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
   }, [usage]);
 
   useEffect(() => {
+    setCgpaSummary(getCgpaSummary(userId));
+  }, [userId]);
+
+  useEffect(() => {
+    setFinancePrefs(getStoredFinancePrefs(userId));
+  }, [userId]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(getFinancePrefsKey(userId), JSON.stringify(financePrefs));
+    } catch (error) {
+      // Ignore storage write failures; the card can still render from in-memory state.
+    }
+  }, [financePrefs, userId]);
+
+  useEffect(() => {
     const scopedTaskKey = `${TODO_STORAGE_KEY_BASE}:${userId || 'guest'}`;
     const scopedSessionKey = `${TIME_TRACKER_STORAGE_KEY_BASE}:${userId || 'guest'}`;
+    const scopedFinanceEntriesKey = getFinanceEntriesKey(userId);
+    const scopedFinancePrefsKey = getFinancePrefsKey(userId);
 
     try {
-      const rawTasks = localStorage.getItem(scopedTaskKey) || localStorage.getItem(TODO_STORAGE_KEY_BASE);
+      const rawTasks = localStorage.getItem(scopedTaskKey);
       if (rawTasks) {
         const parsedTasks = JSON.parse(rawTasks);
         setDashboardTasks(Array.isArray(parsedTasks) ? parsedTasks.map(normalizeTask) : []);
@@ -260,7 +407,7 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
     }
 
     try {
-      const rawSessions = localStorage.getItem(scopedSessionKey) || localStorage.getItem(TIME_TRACKER_STORAGE_KEY_BASE);
+      const rawSessions = localStorage.getItem(scopedSessionKey);
       if (rawSessions) {
         const parsedSessions = JSON.parse(rawSessions);
         setStudySessions(Array.isArray(parsedSessions) ? parsedSessions.map(normalizeSession) : []);
@@ -273,14 +420,14 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
 
     let cancelled = false;
 
-    const loadRemoteTasks = async () => {
+    const loadRemoteDashboardState = async () => {
       const token = getStoredToken();
       if (!token) {
         return;
       }
 
       try {
-        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -291,14 +438,47 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
           return;
         }
 
-        const remoteTasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+        const allState = payload.data && typeof payload.data === 'object'
+          ? payload.data
+          : null;
+
+        if (!allState) {
+          return;
+        }
+
+        const remoteTasks = Array.isArray(allState.tasks) ? allState.tasks : [];
         setDashboardTasks(remoteTasks.map(normalizeTask));
+        localStorage.setItem(scopedTaskKey, JSON.stringify(remoteTasks));
+
+        const remoteSessions = Array.isArray(allState.timeSessions)
+          ? allState.timeSessions.map(normalizeSession)
+          : [];
+        setStudySessions(remoteSessions);
+        localStorage.setItem(scopedSessionKey, JSON.stringify(remoteSessions));
+
+        const remoteFinance = allState.finance && typeof allState.finance === 'object'
+          ? allState.finance
+          : null;
+
+        if (remoteFinance) {
+          const remoteEntries = Array.isArray(remoteFinance.entries) ? remoteFinance.entries : [];
+          localStorage.setItem(scopedFinanceEntriesKey, JSON.stringify(remoteEntries));
+
+          if (remoteFinance.prefs && typeof remoteFinance.prefs === 'object') {
+            const mergedPrefs = {
+              ...getStoredFinancePrefs(userId),
+              ...remoteFinance.prefs,
+            };
+            setFinancePrefs(mergedPrefs);
+            localStorage.setItem(scopedFinancePrefsKey, JSON.stringify(mergedPrefs));
+          }
+        }
       } catch (error) {
         // Keep local dashboard data when remote fetch fails.
       }
     };
 
-    loadRemoteTasks();
+    loadRemoteDashboardState();
 
     return () => {
       cancelled = true;
@@ -337,14 +517,16 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
   const currentDashoffset = ringInnerCircumference * (1 - currentPercent / 100);
 
   const handleTurnOnDashboardCgpa = () => {
+    const userCgpaStateKey = getUserCgpaStateKey(userId);
+
     try {
-      const raw = localStorage.getItem(USER_CGPA_STATE_KEY);
+      const raw = localStorage.getItem(userCgpaStateKey);
       const parsed = raw ? JSON.parse(raw) : {};
       localStorage.setItem(
-        USER_CGPA_STATE_KEY,
+        userCgpaStateKey,
         JSON.stringify({ ...parsed, showDashboardCard: true })
       );
-      setCgpaSummary(getCgpaSummary());
+      setCgpaSummary(getCgpaSummary(userId));
     } catch (error) {
       setCgpaSummary((prev) => ({ ...prev, showDashboardCard: true }));
     }
@@ -463,12 +645,21 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
     };
   }, [studySessions, weekStart]);
 
+  const financeSummary = useMemo(() => getFinanceDashboardSummary(userId, financePrefs), [userId, financePrefs]);
+
   const crymsonScore = useMemo(() => {
     const cgpaScore = cgpaSummary.currentCgpa !== null ? (cgpaSummary.currentCgpa / 5) * 55 : 0;
     const taskScore = dashboardTaskStats.completionRate * 0.25;
     const studyScore = Math.min(25, Math.round(dashboardStudyStats.weekSeconds / 1800) * 4);
     return Math.min(100, Math.round(cgpaScore + taskScore + studyScore));
   }, [cgpaSummary.currentCgpa, dashboardTaskStats.completionRate, dashboardStudyStats.weekSeconds]);
+
+  const handleToggleFinanceBalance = () => {
+    setFinancePrefs((prev) => ({
+      ...prev,
+      hideBalanceOnDashboard: !prev.hideBalanceOnDashboard,
+    }));
+  };
 
   const realSummaryCards = [
     {
@@ -575,22 +766,19 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
       },
     },
     {
-      id: 'focus',
-      name: 'Focus Analytics',
-      icon: '📊',
-      summary: 'See productivity trends and deep-work patterns.',
-      status: 'Pending',
-      isLive: false,
-      actionLabel: 'Coming Soon',
-    },
-    {
       id: 'finance',
       name: 'Finance Tracker',
       icon: '💳',
       summary: 'Track spending for school and personal budgets.',
-      status: 'Pending',
-      isLive: false,
-      actionLabel: 'Coming Soon',
+      status: 'Live',
+      isLive: true,
+      actionLabel: 'Open App',
+      onOpen: () => {
+        trackPanelUse('action');
+        if (onNavigateToFinance) {
+          onNavigateToFinance();
+        }
+      },
     },
     {
       id: 'social',
@@ -605,7 +793,6 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
 
   const pendingModules = [
     { name: 'AI Study Planner', status: 'Pending' },
-    { name: 'Finance Tracker', status: 'Pending' },
     { name: 'Social Layer', status: 'Pending' },
     { name: 'Semester Wrapped', status: 'Pending' },
   ];
@@ -690,6 +877,97 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
               <p className={styles.summaryNote}>{item.note}</p>
             </article>
           ))}
+        </section>
+
+        <section className={`${styles.financeSummaryCard} ${styles.startupReveal} ${styles.revealDelay2}`} aria-label="Finance summary">
+          <div className={styles.financeSummaryHeader}>
+            <div>
+              <p className={styles.financeEyebrow}>Finance Pulse</p>
+              <h2 className={styles.sectionTitle}>Finance Tracker snapshot</h2>
+              <p className={styles.sectionLead}>
+                See this month&apos;s balance, savings goal progress, and how much is left before you hit your target.
+              </p>
+            </div>
+
+            <div className={styles.financeSummaryActions}>
+              <button type="button" className={styles.secondaryButton} onClick={handleToggleFinanceBalance}>
+                {financePrefs.hideBalanceOnDashboard ? 'Show balance' : 'Hide balance'}
+              </button>
+              {onNavigateToFinance && (
+                <button type="button" className={styles.primaryButton} onClick={onNavigateToFinance}>
+                  Open Finance Tracker
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.financeSummaryBody}>
+            <div className={styles.financeGaugePanel}>
+              <div
+                className={styles.financeGaugeCircle}
+                style={{ '--value': `${financeSummary.progressPercent}%` }}
+              >
+                <div className={styles.financeGaugeInner}>
+                  <span className={styles.financeGaugeValue}>
+                    {financePrefs.hideBalanceOnDashboard ? 'Hidden' : formatMoney(financeSummary.balance)}
+                  </span>
+                  <span className={styles.financeGaugeLabel}>Current balance</span>
+                </div>
+              </div>
+
+              <p className={styles.financeGaugeNote}>
+                {financeSummary.totalEntries > 0
+                  ? `${formatMoney(financeSummary.remainingToGoal)} left to your savings goal`
+                  : 'Add income and expenses in Finance Tracker to unlock your snapshot.'}
+              </p>
+
+              <p className={styles.financePrivacyNote}>
+                {financePrefs.hideBalanceOnDashboard
+                  ? 'Balance is hidden on the dashboard.'
+                  : 'Balance is visible on the dashboard.'}
+              </p>
+            </div>
+
+            <div className={styles.financeStatsGrid}>
+              <article className={styles.financeStatCard}>
+                <span className={styles.financeStatLabel}>This Month</span>
+                <strong className={styles.financeStatValue}>{financeSummary.monthLabel}</strong>
+                <p className={styles.financeStatNote}>Monthly snapshot from your logged finance entries.</p>
+              </article>
+
+              <article className={styles.financeStatCard}>
+                <span className={styles.financeStatLabel}>Income</span>
+                <strong className={styles.financeStatValue}>{formatMoney(financeSummary.monthIncome)}</strong>
+                <p className={styles.financeStatNote}>All income logged this month.</p>
+              </article>
+
+              <article className={styles.financeStatCard}>
+                <span className={styles.financeStatLabel}>Expenses</span>
+                <strong className={styles.financeStatValue}>{formatMoney(financeSummary.monthExpense)}</strong>
+                <p className={styles.financeStatNote}>What you&apos;ve spent so far this month.</p>
+              </article>
+
+              <article className={styles.financeStatCard}>
+                <span className={styles.financeStatLabel}>Left to Goal</span>
+                <strong className={styles.financeStatValue}>{formatMoney(financeSummary.remainingToGoal)}</strong>
+                <p className={styles.financeStatNote}>
+                  {financeSummary.progressPercent > 0
+                    ? `${Math.round(financeSummary.progressPercent)}% of your savings target covered.`
+                    : 'Set a savings goal inside Finance Tracker.'}
+                </p>
+              </article>
+
+              <article className={styles.financeStatCard}>
+                <span className={styles.financeStatLabel}>Low-Balance Mark</span>
+                <strong className={styles.financeStatValue}>{formatMoney(financeSummary.lowBalanceThreshold)}</strong>
+                <p className={styles.financeStatNote}>
+                  {financeSummary.isLowBalance
+                    ? 'You are at or below your alert level.'
+                    : 'Your balance is above the warning threshold.'}
+                </p>
+              </article>
+            </div>
+          </div>
         </section>
 
         <section className={`${styles.toolsHubCard} ${styles.startupReveal} ${styles.revealDelay2}`}>
@@ -830,6 +1108,25 @@ function UserHome({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo, on
                     <div className={styles.contextMenu}>
                       <button type="button" onClick={() => setContextCard(null)}>Add Reminder</button>
                       <button type="button" onClick={() => setContextCard(null)}>Move Priority</button>
+                    </div>
+                  )}
+                </article>
+
+                <article
+                  className={styles.actionCard}
+                  onPointerDown={() => beginLongPress('finance')}
+                  onPointerUp={endLongPress}
+                  onPointerLeave={endLongPress}
+                >
+                  <h3 className={styles.actionTitle}>Finance Tracker</h3>
+                  <p className={styles.actionText}>Log allowance, expenses, and campus spending with student-friendly categories.</p>
+                  <button type="button" className={styles.secondaryButton} onClick={() => { trackPanelUse('action'); if (onNavigateToFinance) onNavigateToFinance(); }}>
+                    Open Finance Tracker
+                  </button>
+                  {contextCard === 'finance' && (
+                    <div className={styles.contextMenu}>
+                      <button type="button" onClick={() => setContextCard(null)}>Log Expense</button>
+                      <button type="button" onClick={() => setContextCard(null)}>Add Income</button>
                     </div>
                   )}
                 </article>

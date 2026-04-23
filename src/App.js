@@ -5,12 +5,13 @@ import TaskPlannerScreen from './screens/TaskPlannerScreen';
 import HomeScreen from './screens/HomeScreen';
 import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
 import TimeTrackerScreen from './screens/TimeTrackerScreen';
+import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time']);
+const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance']);
 
 const getSavedAppState = () => {
   try {
@@ -141,6 +142,10 @@ function App() {
     setCurrentPage('time');
   };
 
+  const navigateToFinanceTracker = () => {
+    setCurrentPage('finance');
+  };
+
   const navigateToUserHome = (userId, userName, token) => {
     if (typeof token === 'string' && token) {
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
@@ -169,6 +174,7 @@ function App() {
           onNavigateToCGPA={navigateToCGPA}
           onNavigateToTodo={navigateToTodo}
           onNavigateToTime={navigateToTimeTracker}
+          onNavigateToFinance={navigateToFinanceTracker}
           onLoginSuccess={navigateToUserHome}
         />
       )}
@@ -180,6 +186,7 @@ function App() {
           onNavigateToUserCGPA={navigateToUserCGPA}
           onNavigateToTodo={navigateToTodo}
           onNavigateToTime={navigateToTimeTracker}
+          onNavigateToFinance={navigateToFinanceTracker}
           onLogout={handleLogout}
         />
       )}
@@ -189,7 +196,7 @@ function App() {
       )}
 
       {currentPage === 'user-cgpa' && (
-        <MyGradeTrackerScreen onNavigateHome={() => setCurrentPage('home')} />
+        <MyGradeTrackerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
       )}
 
       {currentPage === 'todo' && (
@@ -198,6 +205,13 @@ function App() {
 
       {currentPage === 'time' && (
         <TimeTrackerScreen
+          activeUserId={activeUserId}
+          onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
+        />
+      )}
+
+      {currentPage === 'finance' && (
+        <FinanceTrackerScreen
           activeUserId={activeUserId}
           onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
         />

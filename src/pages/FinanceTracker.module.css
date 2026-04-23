@@ -1,0 +1,631 @@
+.page {
+  min-height: 100vh;
+  padding: 2rem clamp(1rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(circle at 10% 8%, rgba(52, 120, 246, 0.14), transparent 32%),
+    radial-gradient(circle at 88% 4%, rgba(255, 111, 97, 0.12), transparent 30%),
+    radial-gradient(circle at 78% 82%, rgba(44, 207, 163, 0.1), transparent 34%),
+    linear-gradient(160deg, #ffffff 0%, #f7f9fd 56%, #edf2fa 100%);
+  color: #15202f;
+}
+
+.header {
+  max-width: 1180px;
+  margin: 0 auto 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: rgba(21, 32, 47, 0.58);
+}
+
+.title {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem);
+  line-height: 1.12;
+}
+
+.subtitle {
+  margin: 0.55rem 0 0;
+  max-width: 66ch;
+  line-height: 1.6;
+  color: rgba(21, 32, 47, 0.72);
+}
+
+.backButton {
+  border: 1px solid rgba(95, 111, 135, 0.25);
+  background: #fff;
+  color: #15202f;
+  border-radius: 12px;
+  padding: 0.68rem 0.96rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(20, 26, 37, 0.06);
+}
+
+.heroGrid,
+.layout,
+.hintStrip {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.recurringBanner {
+  max-width: 1180px;
+  margin: 0 auto 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(52, 120, 246, 0.1), rgba(255, 255, 255, 0.92));
+  box-shadow: 0 16px 36px rgba(20, 26, 37, 0.08);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.recurringMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  min-width: min(380px, 100%);
+}
+
+.recurringMetrics article {
+  border: 1px solid rgba(95, 111, 135, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 0.75rem;
+}
+
+.recurringMetrics span {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(21, 32, 47, 0.56);
+}
+
+.recurringMetrics strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.1rem;
+}
+
+.alertRow {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.alertBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.34rem 0.6rem;
+  background: rgba(255, 111, 97, 0.14);
+  color: #9a302a;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.alertActionButton {
+  border: 1px solid rgba(52, 120, 246, 0.24);
+  background: rgba(52, 120, 246, 0.08);
+  color: #1f4c82;
+  border-radius: 999px;
+  padding: 0.34rem 0.6rem;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.heroCard,
+.card,
+.hintStrip {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 36px rgba(20, 26, 37, 0.08);
+}
+
+.heroCard {
+  padding: 1rem;
+}
+
+.insightGrid {
+  max-width: 1180px;
+  margin: 0 auto 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.insightCard {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 36px rgba(20, 26, 37, 0.08);
+  padding: 1rem;
+}
+
+.warningCard {
+  border-color: rgba(179, 62, 35, 0.22);
+  background: rgba(179, 62, 35, 0.05);
+}
+
+.balanceCard {
+  background: linear-gradient(140deg, rgba(52, 120, 246, 0.12), rgba(255, 255, 255, 0.92));
+}
+
+.cardLabel {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  color: rgba(21, 32, 47, 0.56);
+}
+
+.balanceValue,
+.metricValue {
+  display: block;
+  margin-top: 0.38rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.cardNote {
+  margin: 0.35rem 0 0;
+  color: rgba(21, 32, 47, 0.68);
+  line-height: 1.5;
+}
+
+.progressBarTrack {
+  margin-top: 0.85rem;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(95, 111, 135, 0.14);
+}
+
+.progressBarFill,
+.progressBarFillAlt {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.progressBarFill {
+  background: linear-gradient(120deg, #3478f6 0%, #5e6cff 100%);
+}
+
+.progressBarFillAlt {
+  background: linear-gradient(120deg, #2ccfa3 0%, #22b589 100%);
+}
+
+.goalInputs {
+  margin-top: 0.75rem;
+}
+
+.warningList {
+  margin: 0.7rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.warningItem {
+  font-size: 0.8rem;
+  color: rgba(21, 32, 47, 0.72);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 0.9rem;
+}
+
+.academicAlertSection {
+  max-width: 1180px;
+  margin: 0.9rem auto 0;
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 16px 36px rgba(20, 26, 37, 0.08);
+  padding: 1rem;
+}
+
+.card {
+  padding: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.sectionTitle {
+  margin: 0.3rem 0 0;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+.presetRow {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.presetButton {
+  border: 1px solid rgba(52, 120, 246, 0.24);
+  background: rgba(52, 120, 246, 0.08);
+  color: #1f4c82;
+  border-radius: 999px;
+  padding: 0.42rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggleGroup,
+.filterRow {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.toggleButton,
+.filterButton,
+.chip,
+.historyActions button {
+  border: 1px solid rgba(95, 111, 135, 0.24);
+  background: #fff;
+  color: #15202f;
+  border-radius: 999px;
+  padding: 0.44rem 0.7rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggleButtonActive,
+.filterButtonActive,
+.chipActive {
+  border-color: rgba(52, 120, 246, 0.45);
+  background: rgba(52, 120, 246, 0.12);
+  color: #1f4c82;
+}
+
+.formGrid {
+  margin-top: 0.95rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.34rem;
+  font-size: 0.84rem;
+  color: rgba(21, 32, 47, 0.78);
+}
+
+.field input,
+.field select {
+  height: 2.65rem;
+  border: 1px solid rgba(95, 111, 135, 0.24);
+  border-radius: 10px;
+  padding: 0 0.8rem;
+  font: inherit;
+  background: #fff;
+}
+
+.chipSection {
+  margin-top: 0.95rem;
+}
+
+.chipLabel {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(21, 32, 47, 0.72);
+}
+
+.chipRow {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.actions {
+  margin-top: 0.95rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  border-radius: 12px;
+  padding: 0.68rem 0.95rem;
+  border: 1px solid transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: linear-gradient(130deg, #3478f6 0%, #5e6cff 100%);
+  color: #fff;
+}
+
+.secondaryButton {
+  border-color: rgba(95, 111, 135, 0.26);
+  background: #fff;
+  color: #15202f;
+}
+
+.message {
+  margin: 0.75rem 0 0;
+  font-weight: 700;
+  color: #1f6f56;
+}
+
+.categoryList,
+.historyList {
+  margin-top: 0.85rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.recurringSummaryList {
+  margin-top: 0.85rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.alertList {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.alertCard {
+  border: 1px solid rgba(255, 111, 97, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 111, 97, 0.07);
+  padding: 0.72rem 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.alertTitle {
+  margin: 0;
+  font-weight: 800;
+}
+
+.alertMeta {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(21, 32, 47, 0.68);
+}
+
+.alertPulse {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.18rem 0.48rem;
+  background: rgba(255, 111, 97, 0.16);
+  color: #9a302a;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.categoryItem,
+.historyItem {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.7rem 0.8rem;
+}
+
+.recurringPlanCard {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.categoryItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.categoryName,
+.historyName,
+.historyNote,
+.historyDate,
+.categoryMeta {
+  margin: 0;
+}
+
+.categoryName,
+.historyName {
+  font-weight: 800;
+}
+
+.categoryMeta,
+.historyNote,
+.historyDate {
+  font-size: 0.78rem;
+  color: rgba(21, 32, 47, 0.68);
+}
+
+.historyTitle {
+  margin: 1rem 0 0;
+  font-weight: 800;
+}
+
+.emptyState {
+  margin: 0.2rem 0 0;
+  color: rgba(21, 32, 47, 0.66);
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.historyMetaGroup {
+  min-width: 0;
+}
+
+.historyTopRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.recurringBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.14rem 0.45rem;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  background: rgba(44, 207, 163, 0.18);
+  color: #1f6f56;
+}
+
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.14rem 0.45rem;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.typeBadgeIncome {
+  background: rgba(44, 207, 163, 0.18);
+  color: #1f6f56;
+}
+
+.typeBadgeExpense {
+  background: rgba(255, 111, 97, 0.16);
+  color: #9a302a;
+}
+
+.historyActions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.historyActions strong {
+  margin-right: 0.35rem;
+}
+
+.hintStrip {
+  margin-top: 0.9rem;
+  padding: 1rem;
+}
+
+.hintTitle {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  color: rgba(21, 32, 47, 0.56);
+  font-weight: 700;
+}
+
+.hintText {
+  margin: 0.35rem 0 0;
+  color: rgba(21, 32, 47, 0.72);
+  line-height: 1.55;
+}
+
+.hintRow {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+}
+
+.hintPill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.3rem 0.55rem;
+  background: rgba(52, 120, 246, 0.1);
+  color: #1f4c82;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .heroGrid,
+  .insightGrid,
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .header,
+  .sectionHeader,
+  .historyItem,
+  .recurringBanner,
+  .recurringPlanCard,
+  .alertCard {
+    flex-direction: column;
+  }
+
+  .recurringMetrics {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

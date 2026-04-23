@@ -22,7 +22,7 @@ const INITIAL_FORM_DATA = {
   confirmPassword: ''
 };
 
-function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onLoginSuccess }) {
+function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavigateToFinance, onLoginSuccess }) {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -232,7 +232,12 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onLogin
       <main>
         <BigHero />
         <div className={styles.line} />
-        <ToolCards onNavigateToCGPA={onNavigateToCGPA} onNavigateToTodo={onNavigateToTodo} onNavigateToTime={onNavigateToTime} />
+        <ToolCards
+          onNavigateToCGPA={onNavigateToCGPA}
+          onNavigateToTodo={onNavigateToTodo}
+          onNavigateToTime={onNavigateToTime}
+          onNavigateToFinance={onNavigateToFinance}
+        />
         <IdExplainer />
         <PreviewPanel />
         <WhyUseCrymson />
