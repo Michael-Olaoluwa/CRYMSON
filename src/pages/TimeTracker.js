@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './TimeTracker.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
+import { useTimer } from '../context/TimerContext';
 
 const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
@@ -36,11 +37,21 @@ const getLocalDateTimeParts = (date) => {
 };
 
 function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
+  const {
+    isRunning: contextIsRunning,
+    elapsedSeconds: contextElapsedSeconds,
+    sessionStartIso: contextSessionStartIso,
+    startTimer: contextStartTimer,
+    stopTimer: contextStopTimer,
+    setElapsedSeconds: contextSetElapsedSeconds,
+    setSessionStartIso: contextSetSessionStartIso,
+  } = useTimer();
+
   const storageKey = useMemo(() => `${STORAGE_KEY_BASE}:${activeUserId || 'guest'}`, [activeUserId]);
   const userCgpaStateKey = useMemo(() => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`, [activeUserId]);
   const [sessions, setSessions] = useState([]);
-  const [isRunning, setIsRunning] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isRunning, setIsRunning] = useState(contextIsRunning);
+  const [elapsedSeconds, setElapsedSeconds] = useState(contextElapsedSeconds);
   const [note, setNote] = useState('');
   const [courseTag, setCourseTag] = useState('General Study');
   const [availableCourseTags, setAvailableCourseTags] = useState([]);
@@ -53,7 +64,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
   const [manualTime, setManualTime] = useState(() => getLocalDateTimeParts(new Date()).time);
   const [manualError, setManualError] = useState('');
   const [editingManualSessionId, setEditingManualSessionId] = useState('');
-  const [sessionStartIso, setSessionStartIso] = useState('');
+  const [sessionStartIso, setSessionStartIso] = useState(contextSessionStartIso);
   const timerRef = useRef(null);
   const hasHydratedSessionsRef = useRef(false);
   const hasHydratedRemoteSessionsRef = useRef(false);
@@ -88,6 +99,13 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
 
     localStorage.setItem(storageKey, JSON.stringify(sessions));
   }, [sessions, storageKey]);
+
+  // Sync context state to local state when component mounts
+  useEffect(() => {
+    setIsRunning(contextIsRunning);
+    setElapsedSeconds(contextElapsedSeconds);
+    setSessionStartIso(contextSessionStartIso);
+  }, [contextIsRunning, contextElapsedSeconds, contextSessionStartIso]);
 
   useEffect(() => {
     let cancelled = false;
@@ -233,7 +251,11 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     }
 
     timerRef.current = window.setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
+      setElapsedSeconds((prev) => {
+        const next = prev + 1;
+        contextSetElapsedSeconds(next);
+        return next;
+      });
     }, 1000);
 
     return () => {
@@ -241,7 +263,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
         window.clearInterval(timerRef.current);
       }
     };
-  }, [isRunning]);
+  }, [isRunning, contextSetElapsedSeconds]);
 
   const totalTrackedSeconds = useMemo(
     () => sessions.reduce((sum, session) => sum + (Number(session.durationSeconds) || 0), 0),
@@ -362,17 +384,22 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
 
   const startTimer = () => {
     if (isRunning) return;
-    setSessionStartIso(new Date().toISOString());
+    const now = new Date().toISOString();
+    setSessionStartIso(now);
+    contextSetSessionStartIso(now);
     setIsRunning(true);
+    contextStartTimer();
   };
 
   const stopAndSaveSession = () => {
     if (!isRunning && elapsedSeconds <= 0) return;
 
     setIsRunning(false);
+    contextStopTimer();
 
     if (elapsedSeconds <= 0) {
       setSessionStartIso('');
+      contextSetSessionStartIso('');
       return;
     }
 
@@ -393,13 +420,18 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
 
     setNote('');
     setElapsedSeconds(0);
+    contextSetElapsedSeconds(0);
     setSessionStartIso('');
+    contextSetSessionStartIso('');
   };
 
   const resetCurrent = () => {
     setIsRunning(false);
+    contextStopTimer();
     setElapsedSeconds(0);
+    contextSetElapsedSeconds(0);
     setSessionStartIso('');
+    contextSetSessionStartIso('');
   };
 
   const handleManualLog = () => {

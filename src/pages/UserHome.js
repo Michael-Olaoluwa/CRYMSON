@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
+import TimerWidget from '../components/TimerWidget';
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
@@ -1262,6 +1263,8 @@ function UserHome({
           </article>
         </div>
       )}
+
+      <TimerWidget />
     </div>
   );
 }

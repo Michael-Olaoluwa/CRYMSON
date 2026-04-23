@@ -6,6 +6,7 @@ import HomeScreen from './screens/HomeScreen';
 import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
 import TimeTrackerScreen from './screens/TimeTrackerScreen';
 import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
+import { TimerProvider } from './context/TimerContext';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -168,55 +169,57 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {currentPage === 'landing' && (
-        <WelcomeScreen
-          onNavigateToCGPA={navigateToCGPA}
-          onNavigateToTodo={navigateToTodo}
-          onNavigateToTime={navigateToTimeTracker}
-          onNavigateToFinance={navigateToFinanceTracker}
-          onLoginSuccess={navigateToUserHome}
-        />
-      )}
+    <TimerProvider>
+      <div className="App">
+        {currentPage === 'landing' && (
+          <WelcomeScreen
+            onNavigateToCGPA={navigateToCGPA}
+            onNavigateToTodo={navigateToTodo}
+            onNavigateToTime={navigateToTimeTracker}
+            onNavigateToFinance={navigateToFinanceTracker}
+            onLoginSuccess={navigateToUserHome}
+          />
+        )}
 
-      {currentPage === 'home' && (
-        <HomeScreen
-          userId={activeUserId}
-          userName={activeUserName}
-          onNavigateToUserCGPA={navigateToUserCGPA}
-          onNavigateToTodo={navigateToTodo}
-          onNavigateToTime={navigateToTimeTracker}
-          onNavigateToFinance={navigateToFinanceTracker}
-          onLogout={handleLogout}
-        />
-      )}
+        {currentPage === 'home' && (
+          <HomeScreen
+            userId={activeUserId}
+            userName={activeUserName}
+            onNavigateToUserCGPA={navigateToUserCGPA}
+            onNavigateToTodo={navigateToTodo}
+            onNavigateToTime={navigateToTimeTracker}
+            onNavigateToFinance={navigateToFinanceTracker}
+            onLogout={handleLogout}
+          />
+        )}
 
-      {currentPage === 'cgpa' && (
-        <GradeTrackerScreen onNavigateHome={navigateHome} />
-      )}
+        {currentPage === 'cgpa' && (
+          <GradeTrackerScreen onNavigateHome={navigateHome} />
+        )}
 
-      {currentPage === 'user-cgpa' && (
-        <MyGradeTrackerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
-      )}
+        {currentPage === 'user-cgpa' && (
+          <MyGradeTrackerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
+        )}
 
-      {currentPage === 'todo' && (
-        <TaskPlannerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
-      )}
+        {currentPage === 'todo' && (
+          <TaskPlannerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
+        )}
 
-      {currentPage === 'time' && (
-        <TimeTrackerScreen
-          activeUserId={activeUserId}
-          onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
-        />
-      )}
+        {currentPage === 'time' && (
+          <TimeTrackerScreen
+            activeUserId={activeUserId}
+            onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
+          />
+        )}
 
-      {currentPage === 'finance' && (
-        <FinanceTrackerScreen
-          activeUserId={activeUserId}
-          onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
-        />
-      )}
-    </div>
+        {currentPage === 'finance' && (
+          <FinanceTrackerScreen
+            activeUserId={activeUserId}
+            onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
+          />
+        )}
+      </div>
+    </TimerProvider>
   );
 }
 
