@@ -61,12 +61,21 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
   await initDb();
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Crymson backend running on port ${port}`);
+  });
+
+  return server;
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error('Failed to start backend:', error);
+    process.exit(1);
   });
 }
 
-startServer().catch((error) => {
-  console.error('Failed to start backend:', error);
-  process.exit(1);
-});
+module.exports = {
+  app,
+  startServer
+};
