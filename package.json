@@ -14,6 +14,7 @@
     "start:backend": "npm --prefix backend run start",
     "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "build": "react-scripts build",
+    "build:backend": "npm --prefix backend run build",
     "test": "react-scripts test",
     "test:ci": "react-scripts test --watchAll=false --passWithNoTests",
     "test:smoke": "npm run test:ci && npm --prefix backend run test",
