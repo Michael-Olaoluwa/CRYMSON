@@ -1,0 +1,31 @@
+{
+  "name": "crymson-backend",
+  "description": "Crymson productivity platform backend API",
+  "runtime": "nodejs",
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Port number",
+      "value": "5000"
+    },
+    "JWT_SECRET": {
+      "description": "JWT signing secret - must be strong and unique",
+      "required": true
+    },
+    "MONGODB_URI": {
+      "description": "MongoDB connection string",
+      "required": true
+    },
+    "CLIENT_ORIGIN": {
+      "description": "Frontend URL (e.g., https://yourapp.vercel.app)",
+      "required": true
+    },
+    "ALLOWED_ORIGINS": {
+      "description": "Additional allowed origins (comma-separated)",
+      "required": false
+    }
+  }
+}
