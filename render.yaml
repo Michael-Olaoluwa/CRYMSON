@@ -16,6 +16,6 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: CLIENT_ORIGIN
-        sync: false
+        value: https://crymson.onrender.com
       - key: ALLOWED_ORIGINS
-        sync: false
+        value: https://crymson.onrender.com
