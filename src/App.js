@@ -7,9 +7,9 @@ import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
 import TimeTrackerScreen from './screens/TimeTrackerScreen';
 import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
 import { TimerProvider } from './context/TimerContext';
+import { getApiBaseUrl } from './utils/apiBaseUrl';
 
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const AUTH_API_BASE_URL = getApiBaseUrl();
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance']);
@@ -42,10 +42,43 @@ const getStoredToken = () => {
     }
 
     const parsed = JSON.parse(raw);
-    return typeof parsed.token === 'string' ? parsed.token : '';
+    return typeof parsed.accessToken === 'string'
+      ? parsed.accessToken
+      : (typeof parsed.token === 'string' ? parsed.token : '');
   } catch (error) {
     return '';
   }
+};
+
+const getStoredRefreshToken = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_SESSION_KEY);
+    if (!raw) {
+      return '';
+    }
+
+    const parsed = JSON.parse(raw);
+    return typeof parsed.refreshToken === 'string' ? parsed.refreshToken : '';
+  } catch (error) {
+    return '';
+  }
+};
+
+const storeAuthSession = (session) => {
+  if (!session) {
+    return;
+  }
+
+  const accessToken = typeof session.accessToken === 'string'
+    ? session.accessToken
+    : (typeof session.token === 'string' ? session.token : '');
+  const refreshToken = typeof session.refreshToken === 'string' ? session.refreshToken : '';
+
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({
+    accessToken,
+    refreshToken,
+    token: accessToken,
+  }));
 };
 
 const clearSessionStorage = () => {
@@ -61,6 +94,33 @@ function App() {
   useEffect(() => {
     let isCancelled = false;
 
+    const refreshSession = async () => {
+      const refreshToken = getStoredRefreshToken();
+      if (!refreshToken) {
+        return false;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          return false;
+        }
+
+        storeAuthSession(payload);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    };
+
     const restoreFromValidSession = async () => {
       const token = getStoredToken();
       const savedState = getSavedAppState();
@@ -71,14 +131,28 @@ function App() {
       }
 
       try {
-        const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/session`, {
+        let response = await fetch(`${AUTH_API_BASE_URL}/api/auth/session`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
 
-        const payload = await response.json().catch(() => ({}));
+        let payload = await response.json().catch(() => ({}));
+
+        if (!response.ok && getStoredRefreshToken()) {
+          const refreshed = await refreshSession();
+          if (refreshed) {
+            const renewedToken = getStoredToken();
+            response = await fetch(`${AUTH_API_BASE_URL}/api/auth/session`, {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${renewedToken}`
+              }
+            });
+            payload = await response.json().catch(() => ({}));
+          }
+        }
 
         if (!response.ok) {
           throw new Error(payload.message || 'Invalid session.');
@@ -147,9 +221,11 @@ function App() {
     setCurrentPage('finance');
   };
 
-  const navigateToUserHome = (userId, userName, token) => {
-    if (typeof token === 'string' && token) {
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
+  const navigateToUserHome = (userId, userName, session) => {
+    if (session && typeof session === 'object') {
+      storeAuthSession(session);
+    } else if (typeof session === 'string' && session) {
+      storeAuthSession({ accessToken: session, token: session, refreshToken: '' });
     }
 
     setActiveUserId(userId);

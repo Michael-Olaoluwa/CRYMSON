@@ -16,6 +16,6 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: CLIENT_ORIGIN
-        value: https://crymson.onrender.com
+        value: https://YOUR-VERCEL-PROJECT.vercel.app
       - key: ALLOWED_ORIGINS
-        value: https://crymson.onrender.com
+        value: https://YOUR-VERCEL-PROJECT.vercel.app

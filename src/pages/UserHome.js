@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import TimerWidget from '../components/TimerWidget';
+import { getApiBaseUrl } from '../utils/apiBaseUrl';
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
@@ -10,8 +11,7 @@ const FINANCE_ENTRIES_STORAGE_KEY_BASE = 'crymson_finance_entries';
 const FINANCE_PREFS_STORAGE_KEY_BASE = 'crymson_finance_prefs';
 const DASHBOARD_USAGE_KEY = 'crymson_dashboard_usage_v1';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const AUTH_API_BASE_URL = getApiBaseUrl();
 const TEST_TASK_TYPES = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
 
 const BOOT_QUOTES = [

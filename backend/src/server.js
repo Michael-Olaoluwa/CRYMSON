@@ -6,6 +6,8 @@ const { initDb } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const academicRoutes = require('./routes/academicRoutes');
 const userStateRoutes = require('./routes/userStateRoutes');
+const { batchSync } = require('./controllers/batchSyncController');
+const { requireAuth } = require('./middleware/auth');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -68,6 +70,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/academic-events', academicRoutes);
 app.use('/api/user-state', userStateRoutes);
+app.put('/api/user-state/batch-sync', requireAuth, batchSync);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found.' });

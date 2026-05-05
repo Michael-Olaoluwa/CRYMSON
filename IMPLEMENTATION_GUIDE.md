@@ -361,3 +361,46 @@ KNOWN LIMITATIONS
 6. IndexedDB not available in private browsing (some browsers)
    - Falls back to localStorage automatically
    - May hit quota limits faster
+
+
+VERCEL FRONTEND DEPLOYMENT
+==========================
+
+Goal:
+- Move the React frontend off Render and host it on Vercel.
+- Keep the backend on Render exactly as-is.
+
+What changes:
+- Frontend now reads `REACT_APP_API_URL` first, then falls back to `REACT_APP_API_BASE_URL`.
+- Vercel should be configured with `REACT_APP_API_URL` pointing to the Render backend URL.
+- Render backend CORS must allow the Vercel domain.
+
+Frontend deployment steps:
+1. Import the GitHub repo into Vercel.
+2. Set the environment variable:
+   - `REACT_APP_API_URL=https://<your-render-backend>.onrender.com`
+3. Leave the root directory as the repo root.
+4. Use the default build command (`npm run build`) and output directory (`build`).
+5. Deploy.
+
+Vercel routing:
+- The repo already includes `vercel.json` with SPA rewrites.
+- Client-side navigation should continue to work after deployment.
+
+Render backend updates:
+1. Update `render.yaml` or Render dashboard env vars:
+   - `CLIENT_ORIGIN=https://<your-vercel-project>.vercel.app`
+   - `ALLOWED_ORIGINS=https://<your-vercel-project>.vercel.app`
+2. If you use a custom Vercel domain, add it to `ALLOWED_ORIGINS` as well.
+3. Redeploy the backend so CORS picks up the new allowed origin.
+
+Validation checklist:
+1. Open the Vercel app in a browser.
+2. Confirm login hits the Render backend URL.
+3. Confirm `/api/auth/session` succeeds.
+4. Confirm To-Do, Time, Finance, and CGPA requests still work cross-origin.
+5. Confirm SPA refresh on a deep route returns the app instead of 404.
+
+If Render still hosts an old frontend service:
+- Disable or delete that service after Vercel is live.
+- Keep the backend service only.

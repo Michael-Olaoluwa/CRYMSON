@@ -9,9 +9,9 @@ import BottomBar from '../parts/welcome-page/BottomBar';
 import CreateAccountDialog from '../parts/welcome-page/CreateAccountDialog';
 import SignupSuccessDialog from '../parts/welcome-page/SignupSuccessDialog';
 import styles from './Landing.module.css';
+import { getApiBaseUrl } from '../utils/apiBaseUrl';
 
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const AUTH_API_BASE_URL = getApiBaseUrl();
 
 const INITIAL_FORM_DATA = {
   fullName: '',
@@ -133,12 +133,17 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
 
       const accountId = payload?.user?.crymsonId || submittedUserId;
       const accountName = payload?.user?.fullName || '';
-      const token = payload?.token;
+      const token = payload?.accessToken || payload?.token;
+      const refreshToken = payload?.refreshToken || '';
 
       setIsSignInOpen(false);
       setCredentials({ crymsonId: '', password: '' });
       setPendingSignupCredentials({ crymsonId: '', password: '' });
-      onLoginSuccess(accountId, accountName, token);
+      onLoginSuccess(accountId, accountName, {
+        accessToken: token,
+        refreshToken,
+        token,
+      });
     } catch (error) {
       setSignInError(error.message || 'Unable to sign in right now.');
     } finally {

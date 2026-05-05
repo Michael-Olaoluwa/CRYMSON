@@ -1,8 +1,10 @@
 /**
  * Frontend batch sync system
- * Combines multiple PUT requests into a single /api/user-state/all call
+ * Combines multiple PUT requests into a single /api/user-state/batch-sync call
  * Reduces network overhead and improves reliability
  */
+
+import { getApiBaseUrl } from './apiBaseUrl';
 
 class BatchSync {
   constructor(debounceMs = 500, maxBatchSize = 10) {
@@ -89,7 +91,7 @@ class BatchSync {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/user-state/batch-sync",
+        `${getApiBaseUrl()}/api/user-state/batch-sync`,
         {
           method: "PUT",
           headers: {

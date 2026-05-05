@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './FinanceTracker.module.css';
+import { getApiBaseUrl } from '../utils/apiBaseUrl';
+import { batchSync } from '../utils/batchSync';
 
 const STORAGE_KEY_BASE = 'crymson_finance_entries';
 const RECURRING_STORAGE_KEY_BASE = 'crymson_finance_recurring_plans';
 const FINANCE_PREFS_STORAGE_KEY_BASE = 'crymson_finance_prefs';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const AUTH_API_BASE_URL = getApiBaseUrl();
 
 const ENTRY_TYPES = {
   income: 'Income',
@@ -491,22 +492,11 @@ function FinanceTracker({ activeUserId = 'guest', onNavigateHome }) {
 
     financeSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
-        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            data: {
-              finance: {
-                entries,
-                recurringPlans,
-                prefs: financePrefs,
-              },
-            },
-          }),
-        });
+        batchSync.queueSync('finance', {
+          entries,
+          recurringPlans,
+          prefs: financePrefs,
+        }, { version: Date.now() });
       } catch (error) {
         // Keep local finance state even if remote sync fails.
       }
