@@ -1,0 +1,30 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+  padding: 24px;
+}
+
+.card {
+  max-width: 760px;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+  padding: 40px;
+  text-align: center;
+}
+
+.card h1 {
+  margin: 0 0 12px 0;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.card p {
+  margin: 0;
+  color: #475569;
+  font-size: 16px;
+}
