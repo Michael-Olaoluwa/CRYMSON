@@ -3,6 +3,13 @@ import styles from './UserHome.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import TimerWidget from '../components/TimerWidget';
 import { getApiBaseUrl } from '../utils/apiBaseUrl';
+import {
+  getCgpaStateStorageKey,
+  getTodayPlan,
+  normalizeAcademicEvent,
+  normalizeCgpaState,
+  readCgpaStateFromStorage,
+} from '../utils/todayEngine';
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
@@ -261,6 +268,8 @@ const getStoredFinancePrefs = (activeUserId) => {
   }
 };
 
+const getCgpaState = (activeUserId) => readCgpaStateFromStorage(activeUserId);
+
 const getFinanceDashboardSummary = (activeUserId, financePrefs) => {
   const fallbackMonthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
@@ -349,6 +358,8 @@ function UserHome({
   const [isMoodBouncing, setIsMoodBouncing] = useState(false);
   const [dashboardTasks, setDashboardTasks] = useState([]);
   const [studySessions, setStudySessions] = useState([]);
+  const [academicEvents, setAcademicEvents] = useState([]);
+  const [cgpaState, setCgpaState] = useState(() => getCgpaState(userId));
   const [financePrefs, setFinancePrefs] = useState(() => getStoredFinancePrefs(userId));
 
   const touchStartRef = useRef(0);
@@ -375,6 +386,7 @@ function UserHome({
 
   useEffect(() => {
     setCgpaSummary(getCgpaSummary(userId));
+    setCgpaState(getCgpaState(userId));
   }, [userId]);
 
   useEffect(() => {
@@ -394,6 +406,7 @@ function UserHome({
     const scopedSessionKey = `${TIME_TRACKER_STORAGE_KEY_BASE}:${userId || 'guest'}`;
     const scopedFinanceEntriesKey = getFinanceEntriesKey(userId);
     const scopedFinancePrefsKey = getFinancePrefsKey(userId);
+    const scopedCgpaKey = getCgpaStateStorageKey(userId);
 
     try {
       const rawTasks = localStorage.getItem(scopedTaskKey);
@@ -417,6 +430,18 @@ function UserHome({
       }
     } catch (error) {
       setStudySessions([]);
+    }
+
+    try {
+      const rawCgpaState = localStorage.getItem(scopedCgpaKey);
+      if (rawCgpaState) {
+        const parsedCgpaState = JSON.parse(rawCgpaState);
+        setCgpaState(normalizeCgpaState(parsedCgpaState));
+      } else {
+        setCgpaState(null);
+      }
+    } catch (error) {
+      setCgpaState(null);
     }
 
     let cancelled = false;
@@ -451,6 +476,12 @@ function UserHome({
         setDashboardTasks(remoteTasks.map(normalizeTask));
         localStorage.setItem(scopedTaskKey, JSON.stringify(remoteTasks));
 
+        if (allState.cgpaState && typeof allState.cgpaState === 'object') {
+          const nextCgpaState = normalizeCgpaState(allState.cgpaState);
+          setCgpaState(nextCgpaState);
+          localStorage.setItem(scopedCgpaKey, JSON.stringify(nextCgpaState));
+        }
+
         const remoteSessions = Array.isArray(allState.timeSessions)
           ? allState.timeSessions.map(normalizeSession)
           : [];
@@ -480,6 +511,34 @@ function UserHome({
     };
 
     loadRemoteDashboardState();
+
+    const loadAcademicEvents = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        setAcademicEvents([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || cancelled) {
+          return;
+        }
+
+        const remoteEvents = Array.isArray(payload.events) ? payload.events : [];
+        setAcademicEvents(remoteEvents.map(normalizeAcademicEvent));
+      } catch (error) {
+        setAcademicEvents([]);
+      }
+    };
+
+    loadAcademicEvents();
 
     return () => {
       cancelled = true;
@@ -647,6 +706,24 @@ function UserHome({
   }, [studySessions, weekStart]);
 
   const financeSummary = useMemo(() => getFinanceDashboardSummary(userId, financePrefs), [userId, financePrefs]);
+
+  const todayPlan = useMemo(() => getTodayPlan({
+    tasks: dashboardTasks,
+    academicEvents,
+    cgpaState,
+    timeSessions: studySessions,
+  }), [dashboardTasks, academicEvents, cgpaState, studySessions]);
+
+  const handleTodayPlanAction = (action) => {
+    if (!action) return;
+
+    if (action.kind === 'study') {
+      onNavigateToTime();
+      return;
+    }
+
+    onNavigateToTodo();
+  };
 
   const crymsonScore = useMemo(() => {
     const cgpaScore = cgpaSummary.currentCgpa !== null ? (cgpaSummary.currentCgpa / 5) * 55 : 0;
@@ -823,6 +900,54 @@ function UserHome({
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
+        <section className={`${styles.todayPlanSection} ${styles.startupReveal} ${styles.revealDelay1}`} aria-label="Today\'s Plan">
+          <div className={styles.todayPlanHeader}>
+            <div>
+              <p className={styles.todayPlanEyebrow}>Execution layer</p>
+              <h2 className={styles.todayPlanTitle}>Today&apos;s Plan</h2>
+              <p className={styles.todayPlanLead}>
+                The engine turns your tasks, study history, CGPA state, and academic reminders into a clear set of next actions.
+              </p>
+            </div>
+
+            <div className={styles.todayPlanMeta}>
+              <span>{todayPlan.actions.length} actions</span>
+              <span>{Math.max(0, Math.round(todayPlan.summary.studyDeficitMinutes / 60))} study hours needed</span>
+            </div>
+          </div>
+
+          <div className={styles.todayPlanFeedback}>
+            {todayPlan.feedback.map((message) => (
+              <p key={message} className={styles.todayPlanFeedbackText}>{message}</p>
+            ))}
+          </div>
+
+          <div className={styles.todayPlanGrid}>
+            {todayPlan.actions.map((action) => (
+              <article key={action.key} className={styles.todayPlanCard} data-urgency={action.urgencyLevel}>
+                <div className={styles.todayPlanCardHeader}>
+                  <span className={styles.todayPlanPill}>{action.urgencyLevel}</span>
+                  <span className={styles.todayPlanDuration}>{action.estimatedDuration} min</span>
+                </div>
+                <h3 className={styles.todayPlanActionTitle}>{action.title}</h3>
+                <p className={styles.todayPlanActionReason}>{action.reason}</p>
+                <div className={styles.todayPlanCardFooter}>
+                  <p className={styles.todayPlanContext}>
+                    {action.relatedCourse ? `Course: ${action.relatedCourse}` : action.taskId ? `Task ID: ${action.taskId}` : 'Directive'}
+                  </p>
+                  <button
+                    type="button"
+                    className={action.kind === 'study' ? styles.primaryButton : styles.secondaryButton}
+                    onClick={() => handleTodayPlanAction(action)}
+                  >
+                    {action.actionLabel}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <header className={`${styles.hero} ${styles.startupReveal} ${styles.revealDelay1}`}>
           <div className={styles.heroContent}>
             <p className={styles.heroEyebrow}>Crymson Command Center</p>

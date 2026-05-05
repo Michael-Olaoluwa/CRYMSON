@@ -25,6 +25,147 @@
   gap: 1rem;
 }
 
+.todayPlanSection {
+  border: 1px solid rgba(52, 120, 246, 0.18);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(52, 120, 246, 0.12), transparent 28%),
+    radial-gradient(circle at 90% 0%, rgba(44, 207, 163, 0.12), transparent 30%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(243, 247, 255, 0.94));
+  box-shadow: 0 22px 46px rgba(20, 26, 37, 0.1);
+  padding: 1.1rem;
+}
+
+.todayPlanHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.todayPlanEyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(19, 23, 34, 0.58);
+}
+
+.todayPlanTitle {
+  margin: 0.3rem 0 0;
+  font-size: clamp(1.34rem, 3vw, 1.9rem);
+  line-height: 1.15;
+}
+
+.todayPlanLead {
+  margin: 0.45rem 0 0;
+  max-width: 68ch;
+  line-height: 1.58;
+  color: rgba(19, 23, 34, 0.72);
+}
+
+.todayPlanMeta {
+  display: grid;
+  gap: 0.32rem;
+  justify-items: end;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(19, 23, 34, 0.56);
+}
+
+.todayPlanFeedback {
+  margin-top: 0.85rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.todayPlanFeedbackText {
+  margin: 0;
+  border-left: 3px solid rgba(52, 120, 246, 0.5);
+  padding: 0.45rem 0 0.45rem 0.75rem;
+  border-radius: 0 12px 12px 0;
+  background: rgba(52, 120, 246, 0.05);
+  color: rgba(19, 23, 34, 0.75);
+  line-height: 1.5;
+}
+
+.todayPlanGrid {
+  margin-top: 0.95rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.todayPlanCard {
+  border: 1px solid rgba(95, 111, 135, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.88rem;
+  display: grid;
+  gap: 0.6rem;
+  box-shadow: 0 14px 26px rgba(20, 26, 37, 0.06);
+}
+
+.todayPlanCard[data-urgency='high'] {
+  border-color: rgba(255, 111, 97, 0.28);
+}
+
+.todayPlanCard[data-urgency='medium'] {
+  border-color: rgba(52, 120, 246, 0.24);
+}
+
+.todayPlanCard[data-urgency='low'] {
+  border-color: rgba(95, 111, 135, 0.14);
+}
+
+.todayPlanCardHeader,
+.todayPlanCardFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.todayPlanPill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.18rem 0.48rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #2d4a82;
+  background: rgba(52, 120, 246, 0.1);
+}
+
+.todayPlanDuration {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: rgba(19, 23, 34, 0.62);
+}
+
+.todayPlanActionTitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.todayPlanActionReason {
+  margin: 0;
+  color: rgba(19, 23, 34, 0.72);
+  line-height: 1.5;
+  font-size: 0.84rem;
+}
+
+.todayPlanContext {
+  margin: 0;
+  font-size: 0.74rem;
+  color: rgba(19, 23, 34, 0.58);
+}
+
 .bootScreen {
   min-height: 100vh;
   display: grid;
@@ -1085,6 +1226,18 @@
 }
 
 @media (max-width: 980px) {
+  .todayPlanHeader {
+    flex-direction: column;
+  }
+
+  .todayPlanMeta {
+    justify-items: start;
+  }
+
+  .todayPlanGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .hero {
     flex-direction: column;
   }
@@ -1146,6 +1299,25 @@
 
   .hero {
     padding: 1rem;
+  }
+
+  .todayPlanSection {
+    padding: 0.92rem;
+    border-radius: 20px;
+  }
+
+  .todayPlanGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .todayPlanCardFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .todayPlanCardFooter .primaryButton,
+  .todayPlanCardFooter .secondaryButton {
+    width: 100%;
   }
 
   .heroActions {
