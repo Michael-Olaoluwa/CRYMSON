@@ -1,0 +1,567 @@
+CRYMSON COMPLETE ACTION AND CONNECTION TRACE
+Version date: 2026-05-05
+Purpose: Plain-text technical handoff that explains every major action, connection, state transition, and persistence path in the app.
+
+====================================================================
+0) SYSTEM MAP
+====================================================================
+Frontend:
+- React app in src/
+- Page switching is state-driven in App.js (not URL routing)
+- Local persistence via localStorage
+- Shared timer state via TimerContext
+
+Backend:
+- Express server in backend/src/server.js
+- Controllers:
+  - authController.js
+  - academicController.js
+  - userStateController.js
+- Auth middleware: backend/src/middleware/auth.js
+
+Database:
+- MongoDB via Mongoose
+- Collections:
+  - User
+  - AcademicEvent
+  - UserState
+
+Primary interaction model:
+1) User acts in UI
+2) Component updates React state
+3) Component writes localStorage immediately
+4) If logged in, component schedules debounced sync to backend
+5) Backend validates token and upserts user-scoped data
+
+====================================================================
+1) APP BOOT SEQUENCE (FROM FRESH PAGE LOAD)
+====================================================================
+Trigger:
+- Browser opens frontend (usually http://localhost:3000)
+
+Flow:
+1. React mounts App component.
+2. App reads local storage session key for JWT token.
+3. App reads saved app state key for last page and user identity snapshot.
+4. Branch:
+   - If no token: App sets current page to landing.
+   - If token exists: App calls GET /api/auth/session with Bearer token.
+5. Backend auth middleware checks Authorization header:
+   - Missing/invalid header -> 401
+   - Token verify fail -> 401
+   - Token valid -> req.auth = decoded payload
+6. authController.getSession resolves user by crymsonId and returns sanitized profile.
+7. Frontend branch after response:
+   - 200: App restores activeUserId/activeUserName and opens home.
+   - non-200: App clears stored session and opens landing.
+8. App writes currentPage/activeUserId/activeUserName back to localStorage on state changes.
+
+Result:
+- User lands on either WelcomeScreen (guest) or UserHome (authenticated).
+
+====================================================================
+2) AUTH LIFECYCLE
+====================================================================
+
+2.1 Signup action
+User action:
+- Submit fullName, email, department, level, password
+
+Frontend behavior:
+- Sends POST /api/auth/signup
+
+Backend behavior:
+1. Validates required fields.
+2. Lowercases and trims email.
+3. Enforces minimum password length.
+4. Checks email uniqueness.
+5. Generates unique crymsonId using backend/src/utils/crymsonId.js.
+6. Hashes password with bcrypt (salt rounds 10).
+7. Creates User document.
+8. Returns user-safe payload (no hash).
+
+Database effect:
+- Insert into User collection:
+  - crymsonId (unique)
+  - fullName, email, department, level
+  - passwordHash
+  - createdAt
+
+2.2 Login action
+User action:
+- Submit crymsonId + password
+
+Frontend behavior:
+- Sends POST /api/auth/login
+
+Backend behavior:
+1. Normalizes crymsonId to uppercase.
+2. Finds user by crymsonId.
+3. Compares submitted password with bcrypt hash.
+4. If valid, signs JWT (7-day expiry).
+5. Returns token + user profile.
+
+Frontend persistence:
+- Saves token under auth session key.
+- Updates App state to authenticated user and opens home.
+
+2.3 Session validation on reload
+Action:
+- Automatic at app boot if token exists
+
+Connection:
+- GET /api/auth/session
+
+Result:
+- Valid token keeps user logged in
+- Invalid/expired token logs user out locally
+
+2.4 Logout
+User action:
+- Click logout on dashboard
+
+Frontend effect:
+- Clears auth and app-state localStorage keys
+- Clears active user state
+- Navigates to landing
+
+Backend:
+- No revoke endpoint used in this code path
+
+====================================================================
+3) DASHBOARD (USERHOME) INTERNAL DATA FLOW
+====================================================================
+
+Mount sequence:
+1. Reads local data snapshots (tasks, time sessions, finance, CGPA state).
+2. Starts boot animation state for short intro.
+3. If token exists, calls GET /api/user-state/all.
+4. If server returns data, hydrates dashboard state from remote values.
+
+Computed metrics (frontend):
+- Task completion rate
+- Upcoming academic items count
+- Weekly study totals and streaks
+- Finance balances and monthly deltas
+- CGPA/goal summary and progress
+
+User actions on dashboard:
+- Open tool cards -> set App currentPage to tool target
+- Resume Study -> navigate to time tracker
+- Mood select -> local UI state update only
+- Panel switch -> local state update and usage tracking
+
+Persistence behavior:
+- Dashboard itself mostly reads aggregates.
+- Source-of-truth edits happen inside tool pages.
+
+====================================================================
+4) TO-DO PLANNER ACTION TRACE
+====================================================================
+
+4.1 Initial load
+1. Read tasks from user-scoped localStorage key.
+2. If authenticated, GET /api/user-state/tasks.
+3. If server data exists, use it to hydrate local task state.
+
+4.2 Add task
+User action:
+- Opens modal and submits task fields.
+
+Frontend validations:
+- Title required
+- Due date required
+- Academic task requires course tag
+
+State write:
+- Creates task object with id, metadata, completed=false
+- Inserts into tasks array
+- Writes localStorage immediately
+
+Remote sync:
+- Debounced PUT /api/user-state/all with updated tasks
+
+Academic mirror behavior:
+- If task type is academic, frontend also POSTs /api/academic-events
+- Academic event stores sourceTaskId linking back to task
+
+4.3 Edit task
+User action:
+- Open edit modal, save changes
+
+Behavior:
+- Updates task object in state/localStorage
+- Debounced remote PUT
+- If academic mapping changed, frontend may recreate linked academic event
+
+4.4 Complete task
+User action:
+- Toggle checkbox
+
+Behavior:
+- completed flips true/false
+- localStorage updated
+- debounced remote sync
+
+If recurrence is enabled:
+- Creates next instance with shifted due date
+- Re-adds as new open task
+- If academic recurrence, creates corresponding academic event
+
+4.5 Delete task
+User action:
+- Remove task
+
+Behavior:
+- Removes from local tasks array
+- localStorage update
+- remote sync
+- if linked academic event exists, frontend attempts deletion in academic endpoint
+
+4.6 Reminder notifications
+Engine:
+- Periodic check loop (30s cadence in page logic)
+
+Rule:
+- For open tasks due soon, if permission granted and not already notified:
+  - Trigger browser notification
+  - Mark task as notified locally
+
+====================================================================
+5) ACADEMIC EVENT FLOW (SHARED ACROSS TO-DO, CGPA, FINANCE)
+====================================================================
+
+Creation sources:
+- To-Do planner academic tasks
+
+Core fields in AcademicEvent model:
+- id (custom/unique)
+- userId
+- subject
+- title
+- taskType enum
+- dueAt
+- reminderDelayMinutes
+- acknowledgedAt
+- sourceTaskId
+- notes
+
+Read paths:
+- MyTrackerWidget reads events for score reminders
+- Finance tracker reads events for tuition/fee related warnings
+
+Acknowledge path:
+- PATCH /api/academic-events/:id/acknowledge
+- Sets acknowledgedAt timestamp
+
+Delete path:
+- DELETE /api/academic-events/:id
+
+====================================================================
+6) ADVANCED CGPA TRACKER (MYTRACKERWIDGET) TRACE
+====================================================================
+
+6.1 Initial load
+1. Reads user-scoped CGPA state from localStorage.
+2. If authenticated, GET /api/user-state/cgpa.
+3. Applies server state if available.
+4. Loads academic events for reminder cards.
+
+6.2 Onboarding (first usage)
+User action:
+- Completes onboarding wizard inputs (goal, semester context, etc.)
+
+Behavior:
+- Saves onboarding-complete flag and starter state locally
+- Schedules backend CGPA state sync
+
+6.3 Course input and CGPA computation
+User action:
+- Enter course items (units, test1, test2, exam)
+
+Frontend computation:
+1. finalScore = test1 + test2 + exam
+2. gradePoint mapped from score bands
+3. weighted = gradePoint * creditUnits
+4. CGPA = totalWeighted / totalUnits
+5. classification resolved from CGPA thresholds
+
+Persistence:
+- localStorage write on state change
+- debounced PUT /api/user-state/cgpa
+
+6.4 Goal projection logic
+Inputs:
+- goalCgpa
+- remainingUnits
+
+Output:
+- required future GPA profile
+- status (achievable/unachievable/already-met)
+- suggestion hints
+
+6.5 Semester rollover
+User action:
+- End semester button confirmed
+
+Behavior:
+- Archives current semester result into history array
+- Increments semester counter
+- Resets current-course inputs
+- Saves local + backend sync
+
+6.6 Academic reminder acknowledgement
+User action:
+- Clicks acknowledge/entered-score action on reminder
+
+Behavior:
+- PATCH acknowledge endpoint
+- Event marked and removed from active reminder list
+
+====================================================================
+7) SIMPLE CGPA TRACKER (GUEST PAGE) TRACE
+====================================================================
+
+Scope:
+- Public/guest accessible calculator page
+
+Flow:
+1. Reads local calculator state key.
+2. User edits course rows (name, units, score).
+3. Calculate button computes weighted CGPA.
+4. Classification label computed.
+5. CSV export builds downloadable blob from current rows + summary.
+6. Reset clears calculator state.
+
+Backend:
+- No authenticated sync in this basic page flow.
+
+====================================================================
+8) TIME TRACKER TRACE
+====================================================================
+
+8.1 Initial load
+1. Read sessions from localStorage key.
+2. If authenticated, GET /api/user-state/time-sessions.
+3. Optionally hydrate from server response.
+
+8.2 Start timer
+User action:
+- Press Start
+
+Behavior:
+- Sets running=true
+- Stores start timestamp
+- Starts 1-second interval incrementing elapsed seconds
+- Context updates via TimerContext
+
+8.3 Stop and save
+User action:
+- Press Stop & Save
+
+Behavior:
+1. Stops interval.
+2. Builds session object:
+   - id
+   - note
+   - courseTag
+   - durationSeconds
+   - startedAt/endedAt
+3. Appends session list.
+4. Writes localStorage.
+5. Debounced sync via PUT /api/user-state/all timeSessions payload.
+
+8.4 Manual entry
+User action:
+- Enter retrospective session form and save
+
+Behavior:
+- Validates duration/date/time
+- Creates session with source=manual
+- Stores locally + syncs remotely
+
+8.5 Derived analytics
+Computed on frontend:
+- today total
+- all-time total
+- per-course totals
+- current and best streak (from date-key utility)
+- low-study warnings near upcoming tests
+
+====================================================================
+9) FINANCE TRACKER TRACE
+====================================================================
+
+9.1 Initial load
+1. Reads local entries, recurringPlans, prefs keys.
+2. If authenticated, GET /api/user-state/finance.
+3. Applies server data when present.
+4. Optionally reads academic events for tuition-fee warning context.
+
+9.2 Add income/expense entry
+User action:
+- Submit amount/category/date/note and kind
+
+Behavior:
+- Validates amount > 0
+- Creates entry object
+- Writes local list
+- localStorage persist
+- debounced backend sync (PUT /api/user-state/all with finance object)
+
+9.3 Recurring plans
+User action:
+- Create recurring plan (label, amount, frequency, reminder days)
+
+Behavior:
+- Stores plan locally
+- Engine checks due dates and auto-generates entries when due
+- Marks generated entries with recurring metadata
+- Advances nextDueDate marker
+- Syncs plan and entries remotely
+
+9.4 Alerts
+Rules:
+- Low balance warning when balance <= threshold
+- Savings goal progress from monthly net versus goal amount
+- Due-soon recurring reminders
+- Tuition/fee reminders from academic events
+
+Notification behavior:
+- Browser notifications trigger when permission granted and due criteria match
+- Dedup keys prevent repeat spam for same reminder
+
+====================================================================
+10) BACKEND ENDPOINT EXECUTION ORDER (AUTHENTICATED REQUEST)
+====================================================================
+
+For protected routes:
+1. Request hits Express route.
+2. CORS rules evaluate origin.
+3. JSON body parser runs.
+4. requireAuth middleware:
+   - Parse Authorization header
+   - Verify JWT with JWT_SECRET
+   - Attach req.auth
+5. Controller validates payload shape.
+6. Controller performs DB operation via Mongoose.
+7. Controller returns JSON status payload.
+
+Common DB operation pattern in userStateController:
+- updateOne({userId}, {$set: updatedFields, $setOnInsert: {userId}}, {upsert: true})
+
+Meaning:
+- Existing userState doc -> update fields
+- Missing doc -> create new one with userId + fields
+
+====================================================================
+11) DATA OWNERSHIP AND SOURCE-OF-TRUTH RULES
+====================================================================
+
+Rule A:
+- Immediate UX state is local React state + localStorage.
+
+Rule B:
+- Server state is used as hydration source on authenticated load.
+
+Rule C:
+- Most writes are optimistic local-first, then async remote.
+
+Rule D:
+- In conflict scenarios, behavior effectively trends toward last-write-wins (no explicit merge engine).
+
+Impact:
+- Fast UX and offline tolerance
+- Possible multi-device overwrite risk without version vectors
+
+====================================================================
+12) KEY LOCALSTORAGE SURFACE
+====================================================================
+
+Session/navigation:
+- crymson_auth_session
+- crymson_app_state
+
+Feature keys (user scoped):
+- crymson_todo_tasks:{userId}
+- crymson_todo_notified_tasks:{userId}
+- crymson_time_tracker_sessions:{userId}
+- crymson_finance_entries:{userId}
+- crymson_finance_recurring_plans:{userId}
+- crymson_finance_prefs:{userId}
+- crymson_user_cgpa_state_v1:{userId}
+
+Dashboard support:
+- crymson_dashboard_usage_v1
+
+====================================================================
+13) ERROR PATHS AND USER-VISIBLE OUTCOMES
+====================================================================
+
+Auth token invalid:
+- Session check fails -> app clears session -> returns to landing
+
+Backend unreachable:
+- Local writes still succeed
+- Remote sync silently fails and retries on later actions
+
+Validation failures (server-side):
+- 400 responses with field-level message
+- UI typically shows error toast/message where implemented
+
+Academic event mismatch:
+- If source task exists without matching event (or reverse), UI continues
+- Reconciliation happens on next edit/delete cycle where logic attempts cleanup
+
+Timer interruption:
+- If page reload during active timer, elapsed runtime continuity depends on saved context/state handling
+
+====================================================================
+14) SECURITY POSTURE (AS IMPLEMENTED)
+====================================================================
+
+Implemented:
+- bcrypt password hashing
+- JWT authentication with expiry
+- Protected backend routes via middleware
+- CORS origin gate logic
+
+Gaps to review with consultant:
+- No explicit login rate limiting
+- Token in localStorage (XSS sensitivity)
+- No refresh-token rotation flow
+- No multi-factor authentication flow
+- Limited conflict handling for cross-device concurrent edits
+
+====================================================================
+15) CONSULTANT CHECKLIST (HIGH VALUE REVIEW ITEMS)
+====================================================================
+
+1. Confirm production env safety:
+- JWT_SECRET strength
+- Mongo URI security
+- CLIENT_ORIGIN correctness
+- HTTPS-only deployment
+
+2. Validate DB indexing strategy:
+- User.crymsonId unique
+- User.email unique
+- AcademicEvent userId/dueAt query efficiency
+- UserState userId unique index
+
+3. Verify sync correctness under multi-device concurrency.
+
+4. Add/authenticate operational controls:
+- Rate limiting on auth endpoints
+- Structured request logging
+- Error observability
+
+5. Define explicit conflict resolution strategy for user-state writes.
+
+6. Decide token-storage hardening approach for production threat model.
+
+====================================================================
+16) END-TO-END QUICK NARRATIVE (ONE-PASS)
+====================================================================
+
+A user logs in with crymsonId/password. Backend verifies credentials, issues JWT, and frontend stores it locally. App opens dashboard and hydrates local data, then fetches server state. User creates tasks, logs study sessions, updates CGPA, and records finance entries. Each action updates component state immediately, writes localStorage instantly, and schedules debounced server sync through user-state endpoints. Academic tasks additionally create academic events, which feed reminders used across CGPA and finance surfaces. Browser notification loops emit due-soon reminders when permissions allow. On future loads or another device session, authenticated fetches rehydrate from backend, making MongoDB the shared persistence layer while localStorage remains the fast interaction cache.

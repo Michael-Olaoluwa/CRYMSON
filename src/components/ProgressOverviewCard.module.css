@@ -1,0 +1,180 @@
+/**
+ * src/components/ProgressOverviewCard.module.css
+ */
+
+.container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  margin-bottom: 20px;
+}
+
+.container h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.metricsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.metric {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.metric:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.metricLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.8;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.metricValue {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.metricSubtext {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 12px;
+}
+
+.metricGoal {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.metricNote {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #4eca9d, #44bb44);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fill.success {
+  background: linear-gradient(90deg, #4eca9d, #44bb44);
+}
+
+.fill.warning {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+
+.fill.alert {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+}
+
+.sparkline {
+  font-family: monospace;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 2px;
+  margin-top: 8px;
+  opacity: 0.6;
+}
+
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  border-left: 4px solid rgba(255, 255, 255, 0.3);
+}
+
+.insight {
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight.positive {
+  color: #a3e4d7;
+  border-left-color: #4eca9d;
+}
+
+.insight.warning {
+  color: #fcd5b8;
+  border-left-color: #fbbf24;
+}
+
+.insight.alert {
+  color: #fecaca;
+  border-left-color: #f87171;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .metricsRow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .metricValue {
+    font-size: 24px;
+  }
+
+  .metric {
+    padding: 12px;
+  }
+
+  .insights {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metricsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .container h3 {
+    font-size: 18px;
+  }
+}
