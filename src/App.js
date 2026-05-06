@@ -6,7 +6,6 @@ import HomeScreen from './screens/HomeScreen';
 import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
 import TimeTrackerScreen from './screens/TimeTrackerScreen';
 import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
-import Maintenance from './components/Maintenance';
 import { TimerProvider } from './context/TimerContext';
 import { getApiBaseUrl } from './utils/apiBaseUrl';
 
@@ -14,10 +13,6 @@ const AUTH_API_BASE_URL = getApiBaseUrl();
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
 const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance']);
-
-// NOTE: maintenance mode is enabled to show a temporary renovation message.
-// This will short-circuit the app rendering so visitors see the maintenance page.
-const MAINTENANCE_MODE = true;
 
 const getSavedAppState = () => {
   try {
@@ -248,13 +243,6 @@ function App() {
     setActiveUserName('');
     setCurrentPage('landing');
   };
-  if (MAINTENANCE_MODE) {
-    return (
-      <div className="App">
-        <Maintenance />
-      </div>
-    );
-  }
 
   return (
     <TimerProvider>
