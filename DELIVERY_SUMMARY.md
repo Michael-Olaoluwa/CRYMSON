@@ -4,11 +4,6 @@ DELIVERED ENHANCEMENTS - SUMMARY
 Delivery Date: May 5, 2026
 Status: 13 Features Implemented + Integration Guide + Callout Analysis
 
-Deployment note:
-- Frontend should now be hosted on Vercel.
-- Backend remains on Render.
-- Frontend env var preference is `REACT_APP_API_URL`.
-
 WHAT'S BEEN DELIVERED
 =====================
 

@@ -1,12 +1,11 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { generateUniqueCrymsonId } = require('../utils/crymsonId');
-const {
-  generateTokenPair,
-  verifyRefreshToken,
-} = require('../utils/tokenManager');
 
 const REQUIRED_SIGNUP_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-change-me';
+const TOKEN_EXPIRES_IN = '7d';
 
 function sanitizeUser(user) {
   return {
@@ -17,6 +16,10 @@ function sanitizeUser(user) {
     level: user.level,
     createdAt: user.createdAt
   };
+}
+
+function createSessionToken(user) {
+  return jwt.sign({ crymsonId: user.crymsonId }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
 }
 
 async function signup(req, res) {
@@ -81,43 +84,10 @@ async function login(req, res) {
     return res.status(401).json({ message: 'Invalid Crymson ID or password.' });
   }
 
-  const { accessToken, refreshToken } = generateTokenPair(user.crymsonId);
-
   return res.status(200).json({
     message: 'Login successful.',
-    token: accessToken,
-    accessToken,
-    refreshToken,
+    token: createSessionToken(user),
     user: sanitizeUser(user)
-  });
-}
-
-async function refreshSession(req, res) {
-  const refreshToken = String(req.body?.refreshToken || '').trim();
-
-  if (!refreshToken) {
-    return res.status(400).json({ message: 'refreshToken is required.' });
-  }
-
-  const decoded = verifyRefreshToken(refreshToken);
-  if (!decoded?.crymsonId) {
-    return res.status(401).json({ message: 'Invalid or expired refresh token.' });
-  }
-
-  const user = await User.findOne({ crymsonId: String(decoded.crymsonId).trim().toUpperCase() }).lean();
-
-  if (!user) {
-    return res.status(401).json({ message: 'Session user not found.' });
-  }
-
-  const { accessToken: nextAccessToken, refreshToken: nextRefreshToken } = generateTokenPair(user.crymsonId);
-
-  return res.status(200).json({
-    message: 'Session refreshed.',
-    token: nextAccessToken,
-    accessToken: nextAccessToken,
-    refreshToken: nextRefreshToken,
-    user: sanitizeUser(user),
   });
 }
 
@@ -143,6 +113,5 @@ async function getSession(req, res) {
 module.exports = {
   signup,
   login,
-  getSession,
-  refreshSession
+  getSession
 };

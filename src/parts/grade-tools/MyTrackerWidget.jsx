@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './MyTrackerWidget.module.css';
 import OnboardingWizard from './OnboardingWizard';
-import { getApiBaseUrl } from '../../utils/apiBaseUrl';
-import { batchSync } from '../../utils/batchSync';
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const AUTH_API_BASE_URL = getApiBaseUrl();
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || `${window.location.protocol}//${window.location.hostname}:5000`;
 const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
 	'test-1': 24 * 60,
 	'test-2': 24 * 60,
@@ -715,7 +714,18 @@ function MyTrackerWidget({ activeUserId = 'guest' }) {
 			};
 
 			try {
-				batchSync.queueSync('cgpaState', state, { version: Date.now() });
+				await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({
+						data: {
+							cgpaState: state,
+						},
+					}),
+				});
 			} catch (error) {
 				// Keep local save even if remote sync fails.
 			}

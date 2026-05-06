@@ -7,8 +7,6 @@ const jwt = require("jsonwebtoken");
 
 const ACCESS_TOKEN_EXPIRY = "15m"; // Short-lived access token
 const REFRESH_TOKEN_EXPIRY = "7d"; // Long-lived refresh token
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-change-me';
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || JWT_SECRET;
 
 /**
  * Generate access and refresh tokens
@@ -16,13 +14,13 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || JWT_SECRET;
 function generateTokenPair(crymsonId) {
   const accessToken = jwt.sign(
     { crymsonId, type: "access" },
-    JWT_SECRET,
+    process.env.JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
   );
 
   const refreshToken = jwt.sign(
     { crymsonId, type: "refresh" },
-    REFRESH_TOKEN_SECRET,
+    process.env.REFRESH_TOKEN_SECRET || process.env.JWT_SECRET,
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );
 
@@ -34,7 +32,7 @@ function generateTokenPair(crymsonId) {
  */
 function verifyAccessToken(token) {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.type !== "access") {
       throw new Error("Invalid token type");
     }
@@ -51,7 +49,7 @@ function verifyRefreshToken(token) {
   try {
     const decoded = jwt.verify(
       token,
-      REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET || process.env.JWT_SECRET
     );
     if (decoded.type !== "refresh") {
       throw new Error("Invalid token type");

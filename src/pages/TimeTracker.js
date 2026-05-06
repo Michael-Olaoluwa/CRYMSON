@@ -2,14 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './TimeTracker.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import { useTimer } from '../context/TimerContext';
-import { getApiBaseUrl } from '../utils/apiBaseUrl';
-import { batchSync } from '../utils/batchSync';
 
 const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const AUTH_API_BASE_URL = getApiBaseUrl();
+const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || `${window.location.protocol}//${window.location.hostname}:5000`;
 const TEST_TASK_TYPES = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
 const COURSE_TOTAL_FILTERS = [
   { id: 'week', label: 'This Week' },
@@ -161,7 +160,18 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
 
     sessionSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
-        batchSync.queueSync('timeSessions', sessions, { version: Date.now() });
+        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            data: {
+              timeSessions: sessions,
+            },
+          }),
+        });
       } catch (error) {
         // Keep local sessions even if remote sync fails.
       }
