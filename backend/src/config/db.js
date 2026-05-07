@@ -9,6 +9,8 @@ const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/crymson';
 
 async function migrateFromJsonIfNeeded() {
   try {
+    await fs.access(jsonDataFile);
+
     const raw = await fs.readFile(jsonDataFile, 'utf8');
     const parsed = JSON.parse(raw || '{}');
     const users = Array.isArray(parsed.users) ? parsed.users : [];
@@ -90,6 +92,10 @@ async function migrateFromJsonIfNeeded() {
       console.log(`JSON sync complete: +${upsertedUsers} users, +${upsertedEvents} academic events.`);
     }
   } catch (error) {
+    if (error.code === 'ENOENT') {
+      return;
+    }
+
     console.warn('Skipping JSON migration:', error.message);
   }
 }
