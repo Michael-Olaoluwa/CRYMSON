@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { generateUniqueCrymsonId, isAdminId } = require('../utils/crymsonId');
+const { generateUniqueCrymsonId, generateAdminCrymsonId, isAdminId } = require('../utils/crymsonId');
 
 const REQUIRED_SIGNUP_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-change-me';
@@ -113,8 +113,60 @@ async function getSession(req, res) {
   });
 }
 
+async function setupFirstAdmin(req, res) {
+  try {
+    // Check if any admins exist
+    const adminExists = await User.findOne({ crymsonId: /A$/ }).lean();
+    if (adminExists) {
+      return res.status(403).json({ message: 'Admin setup is only available when no admins exist.' });
+    }
+
+    const payload = req.body || {};
+    const REQUIRED_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
+
+    for (const field of REQUIRED_FIELDS) {
+      if (!String(payload[field] || '').trim()) {
+        return res.status(400).json({ message: `${field} is required.` });
+      }
+    }
+
+    const email = String(payload.email).trim().toLowerCase();
+    const password = String(payload.password);
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+    }
+
+    const emailAlreadyUsed = await User.exists({ email });
+    if (emailAlreadyUsed) {
+      return res.status(409).json({ message: 'Email already in use.' });
+    }
+
+    const crymsonId = generateAdminCrymsonId();
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      crymsonId,
+      fullName: String(payload.fullName).trim(),
+      email,
+      department: String(payload.department).trim(),
+      level: String(payload.level).trim(),
+      passwordHash,
+      createdAt: new Date()
+    });
+
+    return res.status(201).json({
+      message: 'First admin created successfully.',
+      user: sanitizeUser(user)
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to create admin.', error: error.message });
+  }
+}
+
 module.exports = {
   signup,
   login,
-  getSession
+  getSession,
+  setupFirstAdmin
 };

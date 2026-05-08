@@ -12,6 +12,16 @@ export default function Admin({ onNavigateHome }) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 0, limit: 20 });
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    fullName: '',
+    email: '',
+    department: '',
+    level: '',
+    password: '',
+    isAdmin: false
+  });
+  const [creatingUser, setCreatingUser] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -74,6 +84,45 @@ export default function Admin({ onNavigateHome }) {
     }
   };
 
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setCreatingUser(true);
+    setError('');
+
+    try {
+      const token = getToken();
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(createForm)
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to create user');
+      }
+
+      const data = await response.json();
+      setUsers([data.user, ...users]);
+      setCreateForm({
+        fullName: '',
+        email: '',
+        department: '',
+        level: '',
+        password: '',
+        isAdmin: false
+      });
+      setShowCreateForm(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCreatingUser(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -106,7 +155,71 @@ export default function Admin({ onNavigateHome }) {
           }}
           className={styles.searchInput}
         />
+        <button
+          className={styles.createBtn}
+          onClick={() => setShowCreateForm(!showCreateForm)}
+        >
+          {showCreateForm ? 'Cancel' : 'Create User'}
+        </button>
       </div>
+
+      {showCreateForm && (
+        <form className={styles.createForm} onSubmit={handleCreateUser}>
+          <h3>Create New User</h3>
+          <div className={styles.formRow}>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={createForm.fullName}
+              onChange={(e) => setCreateForm({ ...createForm, fullName: e.target.value })}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={createForm.email}
+              onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+              required
+            />
+          </div>
+          <div className={styles.formRow}>
+            <input
+              type="text"
+              placeholder="Department"
+              value={createForm.department}
+              onChange={(e) => setCreateForm({ ...createForm, department: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Level"
+              value={createForm.level}
+              onChange={(e) => setCreateForm({ ...createForm, level: e.target.value })}
+              required
+            />
+          </div>
+          <div className={styles.formRow}>
+            <input
+              type="password"
+              placeholder="Password (min 6 characters)"
+              value={createForm.password}
+              onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+              required
+            />
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={createForm.isAdmin}
+                onChange={(e) => setCreateForm({ ...createForm, isAdmin: e.target.checked })}
+              />
+              Make Admin (ID ends with A)
+            </label>
+          </div>
+          <button type="submit" className={styles.submitBtn} disabled={creatingUser}>
+            {creatingUser ? 'Creating...' : 'Create User'}
+          </button>
+        </form>
+      )}
 
       {loading ? (
         <div className={styles.loading}>Loading users...</div>

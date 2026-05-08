@@ -339,13 +339,13 @@ function UserHome({
 }) {
   const displayName = userName || userId || 'Michael';
   const [isAdmin, setIsAdmin] = useState(false);
-  
+
   // Check if user is admin (ID ends with 'A')
   useEffect(() => {
     const adminStatus = String(userId || '').toUpperCase().endsWith('A');
     setIsAdmin(adminStatus);
   }, [userId]);
-  
+
   const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary(userId));
   const [usage, setUsage] = useState(() => getStoredUsage());
   const [isBooting, setIsBooting] = useState(true);

@@ -43,10 +43,13 @@
 
 .controls {
   margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .searchInput {
-  width: 100%;
+  flex: 1;
   max-width: 400px;
   padding: 8px 12px;
   border: 1px solid #cbd5e1;
@@ -58,6 +61,23 @@
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.createBtn {
+  padding: 8px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.createBtn:hover {
+  background: #059669;
 }
 
 .loading,
@@ -124,6 +144,80 @@
   background: #dc2626;
 }
 
+.createForm {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.createForm h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.createForm input[type="text"],
+.createForm input[type="email"],
+.createForm input[type="password"] {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.createForm input[type="text"]:focus,
+.createForm input[type="email"]:focus,
+.createForm input[type="password"]:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.submitBtn {
+  padding: 10px 20px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
@@ -159,6 +253,19 @@
     align-items: flex-start;
   }
 
+  .controls {
+    flex-direction: column;
+  }
+
+  .searchInput {
+    width: 100%;
+    max-width: none;
+  }
+
+  .createBtn {
+    width: 100%;
+  }
+
   .table {
     font-size: 12px;
   }
@@ -172,4 +279,13 @@
     padding: 4px 8px;
     font-size: 11px;
   }
+
+  .createForm {
+    padding: 16px;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
 }
+

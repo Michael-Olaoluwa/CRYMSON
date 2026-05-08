@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const { generateUniqueCrymsonId, generateAdminCrymsonId, isAdminId } = require('../utils/crymsonId');
 
 async function listUsers(req, res) {
   try {
@@ -103,8 +105,64 @@ async function deleteUser(req, res) {
   }
 }
 
+async function createUser(req, res) {
+  try {
+    const payload = req.body || {};
+    const REQUIRED_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
+
+    for (const field of REQUIRED_FIELDS) {
+      if (!String(payload[field] || '').trim()) {
+        return res.status(400).json({ message: `${field} is required.` });
+      }
+    }
+
+    const email = String(payload.email).trim().toLowerCase();
+    const password = String(payload.password);
+    const isAdmin = Boolean(payload.isAdmin);
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+    }
+
+    const emailAlreadyUsed = await User.exists({ email });
+    if (emailAlreadyUsed) {
+      return res.status(409).json({ message: 'Email already in use.' });
+    }
+
+    const existingUsers = await User.find({}, { crymsonId: 1, _id: 0 }).lean();
+    const crymsonId = isAdmin ? generateAdminCrymsonId() : generateUniqueCrymsonId(existingUsers);
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      crymsonId,
+      fullName: String(payload.fullName).trim(),
+      email,
+      department: String(payload.department).trim(),
+      level: String(payload.level).trim(),
+      passwordHash,
+      createdAt: new Date()
+    });
+
+    return res.status(201).json({
+      message: 'User created successfully.',
+      user: {
+        crymsonId: user.crymsonId,
+        fullName: user.fullName,
+        email: user.email,
+        department: user.department,
+        level: user.level,
+        isAdmin: isAdminId(user.crymsonId),
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to create user.', error: error.message });
+  }
+}
+
 module.exports = {
   listUsers,
   getUser,
-  deleteUser
+  deleteUser,
+  createUser
 };
