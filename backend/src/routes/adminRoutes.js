@@ -1,5 +1,7 @@
 const express = require('express');
 const { listUsers, getUser, deleteUser, createUser } = require('../controllers/adminController');
+const { getSettings, updateSettings } = require('../controllers/adminSettingsController');
+const { listLogs } = require('../controllers/adminLogsController');
 const { requireAuth } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/requireAdmin');
 
@@ -20,5 +22,12 @@ router.get('/users/:id', getUser);
 
 // Delete a user
 router.delete('/users/:id', deleteUser);
+
+// Settings (feature flags, maintenance)
+router.get('/settings', getSettings);
+router.put('/settings', updateSettings);
+
+// Audit logs
+router.get('/logs', listLogs);
 
 module.exports = router;

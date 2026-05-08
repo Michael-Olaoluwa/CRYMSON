@@ -289,3 +289,25 @@
   }
 }
 
+.adminRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+}
+
+.logs {
+  max-height: 240px;
+  overflow: auto;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #334155;
+}
+

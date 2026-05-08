@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Setting = require('../models/Setting');
 const { generateUniqueCrymsonId, generateAdminCrymsonId, isAdminId } = require('../utils/crymsonId');
 
 const REQUIRED_SIGNUP_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
@@ -73,6 +74,16 @@ async function login(req, res) {
 
   if (!crymsonId || !password) {
     return res.status(400).json({ message: 'Crymson ID and password are required.' });
+  }
+
+  // If the app is in maintenance mode, block non-admin logins
+  try {
+    const maintenanceSetting = await Setting.findOne({ key: 'maintenance' }).lean().catch(() => null);
+    if (maintenanceSetting && maintenanceSetting.value === true && !crymsonId.endsWith('A')) {
+      return res.status(503).json({ message: 'App is under maintenance.' });
+    }
+  } catch (err) {
+    // ignore errors reading settings and proceed
   }
 
   const user = await User.findOne({ crymsonId }).lean();

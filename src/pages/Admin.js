@@ -10,6 +10,10 @@ export default function Admin({ onNavigateHome }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [settings, setSettings] = useState({});
+  const [health, setHealth] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 0, limit: 20 });
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -39,6 +43,63 @@ export default function Admin({ onNavigateHome }) {
   };
 
   const fetchUsers = async () => {
+  const fetchSettings = async () => {
+    try {
+      const token = getToken();
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/admin/settings`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to load settings');
+      const data = await response.json();
+      setSettings(data.settings || {});
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const toggleMaintenance = async () => {
+    try {
+      const token = getToken();
+      const newVal = !Boolean(settings.maintenance);
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/admin/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ maintenance: newVal })
+      });
+      if (!response.ok) throw new Error('Failed to update settings');
+      const data = await response.json();
+      setSettings(data.settings || {});
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const fetchHealth = async () => {
+    try {
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/health`);
+      const data = await response.json();
+      setHealth(data || null);
+    } catch (err) {
+      setError('Failed to fetch health');
+    }
+  };
+
+  const fetchLogs = async () => {
+    setLogsLoading(true);
+    try {
+      const token = getToken();
+      const response = await fetch(`${AUTH_API_BASE_URL}/api/admin/logs?limit=200`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to load logs');
+      const data = await response.json();
+      setLogs(data.logs || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLogsLoading(false);
+    }
+  };
     setLoading(true);
     setError('');
     try {
@@ -86,6 +147,8 @@ export default function Admin({ onNavigateHome }) {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    fetchSettings();
+    fetchHealth();
     setCreatingUser(true);
     setError('');
 
@@ -237,6 +300,43 @@ export default function Admin({ onNavigateHome }) {
                   <th>Department</th>
                   <th>Level</th>
                   <th>Joined</th>
+      <div className={styles.adminRow}>
+        <div className={styles.card}>
+          <h3>System Health</h3>
+          <div>
+            {health ? (
+              <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(health, null, 2)}</pre>
+            ) : (
+              <div>Loading...</div>
+            )}
+            <button onClick={fetchHealth}>Refresh</button>
+          </div>
+        </div>
+
+        <div className={styles.card}>
+          <h3>Maintenance</h3>
+          <div>
+            <p>App under maintenance: <strong>{String(Boolean(settings.maintenance))}</strong></p>
+            <button onClick={toggleMaintenance}>Toggle Maintenance</button>
+          </div>
+        </div>
+
+        <div className={styles.card}>
+          <h3>Audit Logs</h3>
+          <div>
+            <button onClick={fetchLogs} disabled={logsLoading}>{logsLoading ? 'Loading...' : 'Load Logs'}</button>
+            <div className={styles.logs}>
+              {logs.length === 0 ? <div>No logs loaded.</div> : (
+                <ul>
+                  {logs.slice(0,50).map((entry, idx) => (
+                    <li key={idx}><strong>{entry.timestamp}</strong> — {entry.userId} {entry.action} {entry.resource} ({entry.status})</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
                   <th>Action</th>
                 </tr>
               </thead>
