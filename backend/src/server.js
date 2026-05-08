@@ -6,6 +6,7 @@ const { initDb } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const academicRoutes = require('./routes/academicRoutes');
 const userStateRoutes = require('./routes/userStateRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -68,6 +69,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/academic-events', academicRoutes);
 app.use('/api/user-state', userStateRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found.' });

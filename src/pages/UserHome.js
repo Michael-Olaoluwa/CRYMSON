@@ -334,9 +334,18 @@ function UserHome({
   onNavigateToTodo,
   onNavigateToTime,
   onNavigateToFinance,
+  onNavigateToAdmin,
   onLogout,
 }) {
   const displayName = userName || userId || 'Michael';
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Check if user is admin (ID ends with 'A')
+  useEffect(() => {
+    const adminStatus = String(userId || '').toUpperCase().endsWith('A');
+    setIsAdmin(adminStatus);
+  }, [userId]);
+  
   const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary(userId));
   const [usage, setUsage] = useState(() => getStoredUsage());
   const [isBooting, setIsBooting] = useState(true);
@@ -837,6 +846,11 @@ function UserHome({
             <button type="button" className={styles.primaryButton} onClick={onNavigateToTime}>
               Resume Study
             </button>
+            {isAdmin && onNavigateToAdmin && (
+              <button type="button" className={styles.adminButton} onClick={onNavigateToAdmin}>
+                Admin Panel
+              </button>
+            )}
             <button type="button" className={styles.secondaryButton} onClick={onLogout}>
               Log Out
             </button>

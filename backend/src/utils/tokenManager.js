@@ -11,15 +11,15 @@ const REFRESH_TOKEN_EXPIRY = "7d"; // Long-lived refresh token
 /**
  * Generate access and refresh tokens
  */
-function generateTokenPair(crymsonId) {
+function generateTokenPair(crymsonId, isAdmin = false) {
   const accessToken = jwt.sign(
-    { crymsonId, type: "access" },
+    { crymsonId, isAdmin, type: "access" },
     process.env.JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
   );
 
   const refreshToken = jwt.sign(
-    { crymsonId, type: "refresh" },
+    { crymsonId, isAdmin, type: "refresh" },
     process.env.REFRESH_TOKEN_SECRET || process.env.JWT_SECRET,
     { expiresIn: REFRESH_TOKEN_EXPIRY }
   );

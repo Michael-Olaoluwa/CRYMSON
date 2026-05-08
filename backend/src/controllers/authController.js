@@ -1,25 +1,28 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { generateUniqueCrymsonId } = require('../utils/crymsonId');
+const { generateUniqueCrymsonId, isAdminId } = require('../utils/crymsonId');
 
 const REQUIRED_SIGNUP_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-change-me';
 const TOKEN_EXPIRES_IN = '7d';
 
 function sanitizeUser(user) {
+  const isAdmin = isAdminId(user.crymsonId);
   return {
     crymsonId: user.crymsonId,
     fullName: user.fullName,
     email: user.email,
     department: user.department,
     level: user.level,
+    isAdmin,
     createdAt: user.createdAt
   };
 }
 
 function createSessionToken(user) {
-  return jwt.sign({ crymsonId: user.crymsonId }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
+  const isAdmin = isAdminId(user.crymsonId);
+  return jwt.sign({ crymsonId: user.crymsonId, isAdmin }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
 }
 
 async function signup(req, res) {

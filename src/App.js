@@ -6,13 +6,14 @@ import HomeScreen from './screens/HomeScreen';
 import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
 import TimeTrackerScreen from './screens/TimeTrackerScreen';
 import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
+import Admin from './pages/Admin';
 import { TimerProvider } from './context/TimerContext';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const APP_STATE_KEY = 'crymson_app_state';
 const AUTH_SESSION_KEY = 'crymson_auth_session';
-const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance']);
+const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance', 'admin']);
 
 const getSavedAppState = () => {
   try {
@@ -147,6 +148,10 @@ function App() {
     setCurrentPage('finance');
   };
 
+  const navigateToAdmin = () => {
+    setCurrentPage('admin');
+  };
+
   const navigateToUserHome = (userId, userName, token) => {
     if (typeof token === 'string' && token) {
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
@@ -189,6 +194,7 @@ function App() {
             onNavigateToTodo={navigateToTodo}
             onNavigateToTime={navigateToTimeTracker}
             onNavigateToFinance={navigateToFinanceTracker}
+            onNavigateToAdmin={navigateToAdmin}
             onLogout={handleLogout}
           />
         )}
@@ -217,6 +223,10 @@ function App() {
             activeUserId={activeUserId}
             onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
           />
+        )}
+
+        {currentPage === 'admin' && (
+          <Admin onNavigateHome={() => setCurrentPage('home')} />
         )}
       </div>
     </TimerProvider>

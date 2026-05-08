@@ -984,6 +984,24 @@
   box-shadow: none;
 }
 
+.adminButton {
+  border-radius: 11px;
+  font-weight: 700;
+  padding: 0.62rem 0.88rem;
+  cursor: pointer;
+  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
+  border: 1px solid #f59e0b;
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.adminButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.28);
+  border-color: #d97706;
+  background: #fde68a;
+}
+
 .dashboardSection {
   margin-top: 0.05rem;
 }
