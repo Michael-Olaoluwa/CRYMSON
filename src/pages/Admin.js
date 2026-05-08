@@ -16,7 +16,7 @@ function getStoredToken() {
   }
 }
 
-export default function Admin({ onNavigateHome }) {
+export default function Admin() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -228,7 +228,6 @@ export default function Admin({ onNavigateHome }) {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Admin Panel</h1>
-        <button className={styles.backBtn} onClick={onNavigateHome}>Back to Home</button>
       </div>
 
       {error && <div className={styles.error}>{error}</div>}
