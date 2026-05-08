@@ -138,7 +138,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
       setIsSignInOpen(false);
       setCredentials({ crymsonId: '', password: '' });
       setPendingSignupCredentials({ crymsonId: '', password: '' });
-      onLoginSuccess(accountId, accountName, token);
+      onLoginSuccess(accountId, accountName, token, Boolean(payload?.user?.isAdmin));
     } catch (error) {
       setSignInError(error.message || 'Unable to sign in right now.');
     } finally {

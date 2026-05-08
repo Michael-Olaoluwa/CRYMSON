@@ -94,7 +94,7 @@ function App() {
         const restoredUserName = payload?.user?.fullName || savedState.activeUserName;
         const restoredPage = savedState.currentPage && savedState.currentPage !== 'landing'
           ? savedState.currentPage
-          : 'home';
+          : (payload?.user?.isAdmin ? 'admin' : 'home');
 
         if (!restoredUserId) {
           throw new Error('Invalid session user.');
@@ -103,7 +103,7 @@ function App() {
         setActiveUserId(restoredUserId);
         setActiveUserName(restoredUserName);
         setIsAdmin(Boolean(payload?.user?.isAdmin));
-        setCurrentPage(restoredPage);
+        setCurrentPage(Boolean(payload?.user?.isAdmin) && restoredPage === 'home' ? 'admin' : restoredPage);
       } catch (error) {
         if (isCancelled) {
           return;
@@ -155,14 +155,15 @@ function App() {
     setCurrentPage('admin');
   };
 
-  const navigateToUserHome = (userId, userName, token) => {
+  const navigateToUserHome = (userId, userName, token, adminFlag = false) => {
     if (typeof token === 'string' && token) {
       localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
     }
 
     setActiveUserId(userId);
     setActiveUserName(userName || '');
-    setCurrentPage('home');
+    setIsAdmin(Boolean(adminFlag));
+    setCurrentPage(Boolean(adminFlag) ? 'admin' : 'home');
   };
 
   const navigateHome = () => {
