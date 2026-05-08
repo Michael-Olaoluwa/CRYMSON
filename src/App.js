@@ -58,6 +58,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [activeUserId, setActiveUserId] = useState('');
   const [activeUserName, setActiveUserName] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -101,6 +102,7 @@ function App() {
 
         setActiveUserId(restoredUserId);
         setActiveUserName(restoredUserName);
+        setIsAdmin(Boolean(payload?.user?.isAdmin));
         setCurrentPage(restoredPage);
       } catch (error) {
         if (isCancelled) {
@@ -110,6 +112,7 @@ function App() {
         clearSessionStorage();
         setActiveUserId('');
         setActiveUserName('');
+        setIsAdmin(false);
         setCurrentPage('landing');
       }
     };
@@ -183,6 +186,7 @@ function App() {
             onNavigateToTime={navigateToTimeTracker}
             onNavigateToFinance={navigateToFinanceTracker}
             onLoginSuccess={navigateToUserHome}
+            isAdmin={isAdmin}
           />
         )}
 
@@ -196,6 +200,7 @@ function App() {
             onNavigateToFinance={navigateToFinanceTracker}
             onNavigateToAdmin={navigateToAdmin}
             onLogout={handleLogout}
+            isAdmin={isAdmin}
           />
         )}
 

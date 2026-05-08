@@ -2,6 +2,7 @@ const express = require('express');
 const { listUsers, getUser, deleteUser, createUser } = require('../controllers/adminController');
 const { getSettings, updateSettings } = require('../controllers/adminSettingsController');
 const { listLogs } = require('../controllers/adminLogsController');
+const { sendBulkEmail } = require('../controllers/adminBulkController');
 const { requireAuth } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/requireAdmin');
 
@@ -29,5 +30,8 @@ router.put('/settings', updateSettings);
 
 // Audit logs
 router.get('/logs', listLogs);
+
+// Bulk actions (emails)
+router.post('/bulk/email', sendBulkEmail);
 
 module.exports = router;

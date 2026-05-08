@@ -336,15 +336,9 @@ function UserHome({
   onNavigateToFinance,
   onNavigateToAdmin,
   onLogout,
+  isAdmin = false,
 }) {
   const displayName = userName || userId || 'Michael';
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check if user is admin (ID ends with 'A')
-  useEffect(() => {
-    const adminStatus = String(userId || '').toUpperCase().endsWith('A');
-    setIsAdmin(adminStatus);
-  }, [userId]);
 
   const [cgpaSummary, setCgpaSummary] = useState(() => getCgpaSummary(userId));
   const [usage, setUsage] = useState(() => getStoredUsage());
@@ -985,7 +979,8 @@ function UserHome({
           </div>
         </section>
 
-        <section className={`${styles.toolsHubCard} ${styles.startupReveal} ${styles.revealDelay2}`}>
+        {!isAdmin && (
+          <section className={`${styles.toolsHubCard} ${styles.startupReveal} ${styles.revealDelay2}`}>
           <div className={styles.toolsHubHeader}>
             <h2 className={styles.sectionTitle}>Tools Launcher</h2>
             <p className={styles.sectionLead}>Open each module like an app from your dashboard.</p>
@@ -1014,7 +1009,8 @@ function UserHome({
               </article>
             ))}
           </div>
-        </section>
+          </section>
+        )}
 
         <div className={`${styles.panelNav} ${styles.startupReveal} ${styles.revealDelay2}`}>
           {orderedPanels.map((panelId, index) => (
