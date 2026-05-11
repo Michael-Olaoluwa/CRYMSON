@@ -54,6 +54,17 @@ export default function Admin() {
     return getStoredToken();
   }
 
+  function handleLogout() {
+    try {
+      localStorage.removeItem(AUTH_SESSION_KEY);
+      localStorage.removeItem('crymson_app_state');
+    } catch (e) {
+      // ignore
+    }
+    // reload so App will restore to landing without a session
+    window.location.reload();
+  }
+
   async function fetchUsers() {
     setLoading(true);
     setError('');
@@ -228,6 +239,9 @@ export default function Admin() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Admin Panel</h1>
+        <div>
+          <button className={styles.backBtn} onClick={handleLogout}>Logout</button>
+        </div>
       </div>
 
       {error && <div className={styles.error}>{error}</div>}
