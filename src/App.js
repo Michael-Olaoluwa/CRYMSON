@@ -8,11 +8,11 @@ import TimeTrackerScreen from './screens/TimeTrackerScreen';
 import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
 import Admin from './pages/Admin';
 import { TimerProvider } from './context/TimerContext';
+import { clearAuthSession, getAuthToken, setAuthToken } from './utils/authSession';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const APP_STATE_KEY = 'crymson_app_state';
-const AUTH_SESSION_KEY = 'crymson_auth_session';
 const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance', 'admin']);
 
 const getSavedAppState = () => {
@@ -35,23 +35,9 @@ const getSavedAppState = () => {
   }
 };
 
-const getStoredToken = () => {
-  try {
-    const raw = localStorage.getItem(AUTH_SESSION_KEY);
-    if (!raw) {
-      return '';
-    }
-
-    const parsed = JSON.parse(raw);
-    return typeof parsed.token === 'string' ? parsed.token : '';
-  } catch (error) {
-    return '';
-  }
-};
-
 const clearSessionStorage = () => {
-  localStorage.removeItem(AUTH_SESSION_KEY);
   localStorage.removeItem(APP_STATE_KEY);
+  clearAuthSession();
 };
 
 function App() {
@@ -64,7 +50,7 @@ function App() {
     let isCancelled = false;
 
     const restoreFromValidSession = async () => {
-      const token = getStoredToken();
+      const token = getAuthToken();
       const savedState = getSavedAppState();
 
       if (!token) {
@@ -157,7 +143,7 @@ function App() {
 
   const navigateToUserHome = (userId, userName, token, adminFlag = false) => {
     if (typeof token === 'string' && token) {
-      localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ token }));
+      setAuthToken(token);
     }
 
     setActiveUserId(userId);

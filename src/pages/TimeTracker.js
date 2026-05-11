@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './TimeTracker.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import { useTimer } from '../context/TimerContext';
+import { getAuthToken } from '../utils/authSession';
 
 const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
-const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const TEST_TASK_TYPES = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
@@ -15,17 +15,6 @@ const COURSE_TOTAL_FILTERS = [
   { id: '7days', label: 'Last 7 Days' },
   { id: 'all', label: 'All Time' },
 ];
-
-const getStoredToken = () => {
-  try {
-    const raw = localStorage.getItem(AUTH_SESSION_KEY);
-    if (!raw) return '';
-    const parsed = JSON.parse(raw);
-    return typeof parsed.token === 'string' ? parsed.token : '';
-  } catch (error) {
-    return '';
-  }
-};
 
 const getLocalDateTimeParts = (date) => {
   const offsetMs = date.getTimezoneOffset() * 60000;
@@ -112,7 +101,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     hasHydratedRemoteSessionsRef.current = false;
 
     const loadRemoteSessions = async () => {
-      const token = getStoredToken();
+      const token = getAuthToken();
       if (!token) {
         hasHydratedRemoteSessionsRef.current = true;
         return;

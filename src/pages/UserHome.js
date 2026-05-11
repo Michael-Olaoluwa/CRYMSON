@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './UserHome.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import TimerWidget from '../components/TimerWidget';
+import { getAuthToken } from '../utils/authSession';
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
@@ -9,7 +10,6 @@ const TIME_TRACKER_STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
 const FINANCE_ENTRIES_STORAGE_KEY_BASE = 'crymson_finance_entries';
 const FINANCE_PREFS_STORAGE_KEY_BASE = 'crymson_finance_prefs';
 const DASHBOARD_USAGE_KEY = 'crymson_dashboard_usage_v1';
-const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const TEST_TASK_TYPES = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
@@ -183,17 +183,6 @@ const getRingTone = (progress) => {
   if (progress >= 100) return 'complete';
   if (progress >= 75) return 'strong';
   return 'building';
-};
-
-const getStoredToken = () => {
-  try {
-    const raw = localStorage.getItem(AUTH_SESSION_KEY);
-    if (!raw) return '';
-    const parsed = JSON.parse(raw);
-    return typeof parsed.token === 'string' ? parsed.token : '';
-  } catch (error) {
-    return '';
-  }
 };
 
 const normalizeTask = (task) => ({
@@ -425,7 +414,7 @@ function UserHome({
     let cancelled = false;
 
     const loadRemoteDashboardState = async () => {
-      const token = getStoredToken();
+      const token = getAuthToken();
       if (!token) {
         return;
       }

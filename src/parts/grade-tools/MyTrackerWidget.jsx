@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './MyTrackerWidget.module.css';
 import OnboardingWizard from './OnboardingWizard';
+import { getAuthToken } from '../../utils/authSession';
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
-const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
@@ -21,20 +21,6 @@ const getAcademicReminderDelayMinutes = (taskType, reminderDelayMinutes) => {
 
 	const normalizedType = String(taskType || '').toLowerCase();
 	return ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE[normalizedType] || 24 * 60;
-};
-
-const getStoredToken = () => {
-	try {
-		const raw = localStorage.getItem(AUTH_SESSION_KEY);
-		if (!raw) {
-			return '';
-		}
-
-		const parsed = JSON.parse(raw);
-		return typeof parsed.token === 'string' ? parsed.token : '';
-	} catch (error) {
-		return '';
-	}
 };
 
 const createCourse = (id) => ({
@@ -278,7 +264,7 @@ function MyTrackerWidget({ activeUserId = 'guest' }) {
 	};
 
 	const loadAcademicEvents = async () => {
-		const token = getStoredToken();
+		const token = getAuthToken();
 		if (!token) {
 			setAcademicEvents([]);
 			setAcademicNotice('Sign in to sync academic reminders across devices.');

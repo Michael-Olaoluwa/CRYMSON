@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './FinanceTracker.module.css';
+import { getAuthToken } from '../utils/authSession';
 
 const STORAGE_KEY_BASE = 'crymson_finance_entries';
 const RECURRING_STORAGE_KEY_BASE = 'crymson_finance_recurring_plans';
 const FINANCE_PREFS_STORAGE_KEY_BASE = 'crymson_finance_prefs';
-const AUTH_SESSION_KEY = 'crymson_auth_session';
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   || `${window.location.protocol}//${window.location.hostname}:5000`;
 
@@ -219,17 +219,6 @@ const getRecurringAlertStatus = (plan, todayKey) => {
   };
 };
 
-const getStoredToken = () => {
-  try {
-    const raw = localStorage.getItem(AUTH_SESSION_KEY);
-    if (!raw) return '';
-    const parsed = JSON.parse(raw);
-    return typeof parsed.token === 'string' ? parsed.token : '';
-  } catch (error) {
-    return '';
-  }
-};
-
 const getFinancePrefsKey = (activeUserId) => `${FINANCE_PREFS_STORAGE_KEY_BASE}:${activeUserId || 'guest'}`;
 
 const normalizeAcademicEvent = (event) => ({
@@ -424,7 +413,7 @@ function FinanceTracker({ activeUserId = 'guest', onNavigateHome }) {
     hasHydratedRemoteFinanceRef.current = false;
 
     const loadRemoteFinance = async () => {
-      const token = getStoredToken();
+      const token = getAuthToken();
       if (!token) {
         hasHydratedRemoteFinanceRef.current = true;
         return;

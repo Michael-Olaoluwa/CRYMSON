@@ -79,7 +79,7 @@ class BatchSync {
       });
 
       const token = JSON.parse(
-        localStorage.getItem("crymson_auth_session") || "{}"
+        sessionStorage.getItem("crymson_auth_session") || "{}"
       ).token;
 
       if (!token) {

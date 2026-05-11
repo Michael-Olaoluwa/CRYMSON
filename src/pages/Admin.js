@@ -1,20 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getApiBaseUrl } from '../utils/apiBaseUrl';
+import { clearAuthSession, getAuthToken } from '../utils/authSession';
 import styles from './Admin.module.css';
 
 const AUTH_API_BASE_URL = getApiBaseUrl();
-const AUTH_SESSION_KEY = 'crymson_auth_session';
-
-function getStoredToken() {
-  try {
-    const raw = localStorage.getItem(AUTH_SESSION_KEY);
-    if (!raw) return '';
-    const parsed = JSON.parse(raw);
-    return parsed.accessToken || parsed.token || '';
-  } catch {
-    return '';
-  }
-}
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
@@ -51,17 +40,12 @@ export default function Admin() {
   }, [page, search]);
 
   function getToken() {
-    return getStoredToken();
+    return getAuthToken();
   }
 
   function handleLogout() {
-    try {
-      localStorage.removeItem(AUTH_SESSION_KEY);
-      localStorage.removeItem('crymson_app_state');
-    } catch (e) {
-      // ignore
-    }
-    // reload so App will restore to landing without a session
+    clearAuthSession();
+    localStorage.removeItem('crymson_app_state');
     window.location.reload();
   }
 
