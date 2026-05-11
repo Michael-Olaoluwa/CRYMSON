@@ -22,6 +22,19 @@
   padding-top: 4.5rem;
 }
 
+.sessionNotice {
+  width: min(960px, calc(100% - 2rem));
+  margin: 1rem auto 0;
+  padding: 0.95rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(128, 0, 32, 0.18);
+  background: rgba(255, 248, 244, 0.92);
+  color: rgba(78, 16, 32, 0.95);
+  box-shadow: 0 10px 28px rgba(128, 0, 32, 0.08);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
 .modalOverlay {
   position: fixed;
   inset: 0;

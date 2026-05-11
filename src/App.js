@@ -45,6 +45,7 @@ function App() {
   const [activeUserId, setActiveUserId] = useState('');
   const [activeUserName, setActiveUserName] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [sessionNotice, setSessionNotice] = useState('');
 
   useEffect(() => {
     let isCancelled = false;
@@ -54,6 +55,9 @@ function App() {
       const savedState = getSavedAppState();
 
       if (!token) {
+        if (savedState.currentPage !== 'landing') {
+          setSessionNotice('This tab does not share the signed-in session. Please sign in again to continue.');
+        }
         clearSessionStorage();
         return;
       }
@@ -89,6 +93,7 @@ function App() {
         setActiveUserId(restoredUserId);
         setActiveUserName(restoredUserName);
         setIsAdmin(Boolean(payload?.user?.isAdmin));
+        setSessionNotice('');
         setCurrentPage(Boolean(payload?.user?.isAdmin) && restoredPage === 'home' ? 'admin' : restoredPage);
       } catch (error) {
         if (isCancelled) {
@@ -99,6 +104,7 @@ function App() {
         setActiveUserId('');
         setActiveUserName('');
         setIsAdmin(false);
+        setSessionNotice('Your session expired. Please sign in again to continue.');
         setCurrentPage('landing');
       }
     };
@@ -149,6 +155,7 @@ function App() {
     setActiveUserId(userId);
     setActiveUserName(userName || '');
     setIsAdmin(Boolean(adminFlag));
+    setSessionNotice('');
     setCurrentPage(Boolean(adminFlag) ? 'admin' : 'home');
   };
 
@@ -160,6 +167,7 @@ function App() {
     clearSessionStorage();
     setActiveUserId('');
     setActiveUserName('');
+    setSessionNotice('');
     setCurrentPage('landing');
   };
 
@@ -174,6 +182,7 @@ function App() {
             onNavigateToFinance={navigateToFinanceTracker}
             onLoginSuccess={navigateToUserHome}
             isAdmin={isAdmin}
+            sessionNotice={sessionNotice}
           />
         )}
 

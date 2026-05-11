@@ -22,7 +22,7 @@ const INITIAL_FORM_DATA = {
   confirmPassword: ''
 };
 
-function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavigateToFinance, onLoginSuccess, isAdmin }) {
+function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavigateToFinance, onLoginSuccess, isAdmin, sessionNotice = '' }) {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
@@ -228,6 +228,12 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
   return (
     <div className={styles.landing}>
       <TopBar onSignInClick={handleSignInClick} onSignUpClick={handleSignUpClick} />
+
+      {sessionNotice && (
+        <div className={styles.sessionNotice} role="status" aria-live="polite">
+          {sessionNotice}
+        </div>
+      )}
 
       <main>
         <BigHero />
