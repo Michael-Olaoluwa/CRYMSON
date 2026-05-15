@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { createOfflineModelProxy } = require('../utils/offlineModel');
 
 const settingSchema = new mongoose.Schema(
   {
@@ -8,4 +9,9 @@ const settingSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-module.exports = mongoose.model('Setting', settingSchema);
+const Setting = mongoose.models.Setting || mongoose.model('Setting', settingSchema);
+
+module.exports = createOfflineModelProxy(Setting, {
+  collectionName: 'settings',
+  primaryKey: 'key',
+});

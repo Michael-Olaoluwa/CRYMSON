@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { createOfflineModelProxy } = require('../utils/offlineModel');
 
 const userSchema = new mongoose.Schema(
   {
@@ -47,4 +48,9 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+module.exports = createOfflineModelProxy(User, {
+  collectionName: 'users',
+  primaryKey: 'crymsonId',
+});

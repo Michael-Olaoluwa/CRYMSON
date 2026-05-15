@@ -4,9 +4,12 @@
   "description": "Crymson - A unified productivity ecosystem",
   "private": true,
   "dependencies": {
+    "mongodb": "^7.2.0",
+    "mongodb-memory-server": "^11.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "recharts": "^3.8.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { createOfflineModelProxy } = require('../utils/offlineModel');
 
 const academicEventSchema = new mongoose.Schema(
   {
@@ -78,4 +79,9 @@ academicEventSchema.pre('save', function setUpdatedAt(next) {
   next();
 });
 
-module.exports = mongoose.model('AcademicEvent', academicEventSchema);
+const AcademicEvent = mongoose.models.AcademicEvent || mongoose.model('AcademicEvent', academicEventSchema);
+
+module.exports = createOfflineModelProxy(AcademicEvent, {
+  collectionName: 'academicEvents',
+  primaryKey: 'id',
+});

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { createOfflineModelProxy } = require('../utils/offlineModel');
 
 const userStateSchema = new mongoose.Schema(
   {
@@ -51,4 +52,9 @@ userStateSchema.pre('save', function setUpdatedAt(next) {
   next();
 });
 
-module.exports = mongoose.model('UserState', userStateSchema);
+const UserState = mongoose.models.UserState || mongoose.model('UserState', userStateSchema);
+
+module.exports = createOfflineModelProxy(UserState, {
+  collectionName: 'userStates',
+  primaryKey: 'userId',
+});

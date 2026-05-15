@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './FinanceTracker.module.css';
 import { getAuthToken } from '../utils/authSession';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const STORAGE_KEY_BASE = 'crymson_finance_entries';
 const RECURRING_STORAGE_KEY_BASE = 'crymson_finance_recurring_plans';
@@ -929,481 +930,567 @@ function FinanceTracker({ activeUserId = 'guest', onNavigateHome }) {
       : 'Browser alerts were not enabled.');
   };
 
+  // Generate chart data for the past 30 days
+  const chartData = useMemo(() => {
+    const data = [];
+    const today = new Date();
+
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toISOString().slice(0, 10);
+      const dayEntries = entries.filter((entry) => entry.date === dateKey);
+      const income = dayEntries.reduce((sum, e) => sum + (e.kind === 'income' ? e.amount : 0), 0);
+      const expense = dayEntries.reduce((sum, e) => sum + (e.kind === 'expense' ? e.amount : 0), 0);
+
+      data.push({
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        fullDate: dateKey,
+        income: Math.round(income * 100) / 100,
+        expense: Math.round(expense * 100) / 100,
+      });
+    }
+
+    return data;
+  }, [entries]);
+
+  // Generate pie chart data for categories
+  const pieData = useMemo(() => {
+    const categoryBreakdown = entries.reduce((acc, entry) => {
+      if (entry.kind === 'expense') {
+        const key = entry.category;
+        acc[key] = (acc[key] || 0) + entry.amount;
+      }
+      return acc;
+    }, {});
+
+    return Object.entries(categoryBreakdown)
+      .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
+      .sort((a, b) => b.value - a.value);
+  }, [entries]);
+
+  const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#f97316'];
+
+  const [activeNavTab, setActiveNavTab] = useState('dashboard');
+
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Crymson Finance</p>
-          <h1 className={styles.title}>Income and Expense Log</h1>
-          <p className={styles.subtitle}>
-            Track student cash flow with categories that actually fit campus life: meals, transport,
-            data, books, fees, allowance, and more.
-          </p>
+    <div className={styles.container}>
+      {/* Sidebar Navigation */}
+      <aside className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarTitle}>Finance</h2>
         </div>
 
-        <button type="button" className={styles.backButton} onClick={onNavigateHome}>
-          Back to Home
-        </button>
-      </header>
+        <nav className={styles.sidebarNav}>
+          <button
+            className={`${styles.navItem} ${activeNavTab === 'dashboard' ? styles.active : ''}`}
+            onClick={() => setActiveNavTab('dashboard')}
+          >
+            ðŸ“Š Dashboard
+          </button>
+          <button
+            className={`${styles.navItem} ${activeNavTab === 'entries' ? styles.active : ''}`}
+            onClick={() => setActiveNavTab('entries')}
+          >
+            ðŸ“ Entries
+          </button>
+          <button
+            className={`${styles.navItem} ${activeNavTab === 'recurring' ? styles.active : ''}`}
+            onClick={() => setActiveNavTab('recurring')}
+          >
+            ðŸ”„ Recurring
+          </button>
+          <button
+            className={`${styles.navItem} ${activeNavTab === 'settings' ? styles.active : ''}`}
+            onClick={() => setActiveNavTab('settings')}
+          >
+            âš™ï¸ Settings
+          </button>
+        </nav>
 
-      <section className={styles.heroGrid}>
-        <article className={`${styles.heroCard} ${styles.balanceCard}`}>
-          <p className={styles.cardLabel}>Current Balance</p>
-          <strong className={styles.balanceValue}>{formatMoney(entryStats.balance)}</strong>
-          <p className={styles.cardNote}>{entryStats.balance >= 0 ? 'Positive cash flow' : 'Spending is ahead of income'}</p>
-        </article>
-
-        <article className={styles.heroCard}>
-          <p className={styles.cardLabel}>This Month</p>
-          <strong className={styles.metricValue}>{formatMoney(entryStats.monthBalance)}</strong>
-          <p className={styles.cardNote}>{formatMoney(entryStats.monthIncome)} income, {formatMoney(entryStats.monthExpense)} expense</p>
-        </article>
-
-        <article className={styles.heroCard}>
-          <p className={styles.cardLabel}>Transactions</p>
-          <strong className={styles.metricValue}>{entryStats.transactionCount}</strong>
-          <p className={styles.cardNote}>{formatMoney(entryStats.income)} earned, {formatMoney(entryStats.expense)} spent</p>
-        </article>
-      </section>
-
-      <section className={styles.recurringBanner}>
-        <div>
-          <p className={styles.cardLabel}>Recurring Expenses</p>
-          <h2 className={styles.sectionTitle}>Keep fixed student costs on repeat</h2>
-          <p className={styles.cardNote}>
-            Auto-log essentials like data subscriptions, transport, and rent so they always show up in your budget.
-          </p>
-          <div className={styles.alertRow}>
-            <span className={styles.alertBadge}>
-              {dueSoonPlans.length > 0
-                ? `${dueSoonPlans.length} reminder${dueSoonPlans.length === 1 ? '' : 's'} due soon`
-                : 'No payments due within the reminder window'}
-            </span>
-            {typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && (
-              <button type="button" className={styles.alertActionButton} onClick={handleEnableBrowserAlerts}>
-                Enable browser alerts
-              </button>
-            )}
-          </div>
+        <div className={styles.sidebarFooter}>
+          <button type="button" className={styles.backButton} onClick={onNavigateHome}>
+            â† Back to Home
+          </button>
         </div>
-        <div className={styles.recurringMetrics}>
-          <article>
-            <span>Active plans</span>
-            <strong>{recurringSummary.activePlansCount}</strong>
-          </article>
-          <article>
-            <span>Monthly recurring</span>
-            <strong>{formatMoney(recurringSummary.monthlyRecurringTotal)}</strong>
-          </article>
-        </div>
-      </section>
+      </aside>
 
-      <section className={styles.insightGrid}>
-        <article className={styles.insightCard}>
-          <p className={styles.cardLabel}>Monthly Spending Summary</p>
-          <strong className={styles.metricValue}>{formatMoney(monthlySummary.monthExpense)}</strong>
-          <p className={styles.cardNote}>
-            Income: {formatMoney(monthlySummary.monthIncome)} · Savings: {formatMoney(monthlySummary.monthSavings)}
-          </p>
-          <div className={styles.progressBarTrack}>
-            <span className={styles.progressBarFill} style={{ width: `${Math.max(4, Math.min(100, (monthlySummary.monthExpense / Math.max(1, monthlySummary.monthIncome || monthlySummary.monthExpense)) * 100))}%` }} />
-          </div>
-        </article>
-
-        <article className={styles.insightCard}>
-          <p className={styles.cardLabel}>Savings Goal Tracking</p>
-          <strong className={styles.metricValue}>{formatMoney(monthlySummary.monthSavings)}</strong>
-          <p className={styles.cardNote}>
-            Goal: {formatMoney(monthlySummary.savingsGoalAmount)} · Remaining: {formatMoney(monthlySummary.remainingToGoal)}
-          </p>
-          <div className={styles.progressBarTrack}>
-            <span className={styles.progressBarFillAlt} style={{ width: `${Math.max(4, Math.min(100, monthlySummary.progressPercent))}%` }} />
-          </div>
-          <div className={styles.goalInputs}>
-            <label className={styles.field}>
-              <span>Savings goal</span>
-              <select
-                value={financePrefs.savingsGoalAmount}
-                onChange={(event) => setFinancePrefs((prev) => ({ ...prev, savingsGoalAmount: Number(event.target.value) }))}
-              >
-                {SAVINGS_GOAL_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </article>
-
-        <article className={`${styles.insightCard} ${lowBalanceWarning.isCritical ? styles.warningCard : ''}`}>
-          <p className={styles.cardLabel}>Low Balance Warning</p>
-          <strong className={styles.metricValue}>{formatMoney(entryStats.balance)}</strong>
-          <p className={styles.cardNote}>Alert threshold: {formatMoney(lowBalanceWarning.threshold)}</p>
-          <div className={styles.goalInputs}>
-            <label className={styles.field}>
-              <span>Balance alert</span>
-              <select
-                value={financePrefs.lowBalanceThreshold}
-                onChange={(event) => setFinancePrefs((prev) => ({ ...prev, lowBalanceThreshold: Number(event.target.value) }))}
-              >
-                {LOW_BALANCE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-          {lowBalanceWarning.warnings.length > 0 ? (
-            <ul className={styles.warningList}>
-              {lowBalanceWarning.warnings.map((warning) => (
-                <li key={warning} className={styles.warningItem}>{warning}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.cardNote}>Your balance is above the selected warning level.</p>
-          )}
-        </article>
-      </section>
-
-      <section className={styles.academicAlertSection}>
-        <div className={styles.sectionHeader}>
+      {/* Main Content */}
+      <main className={styles.mainContent}>
+        {/* Header */}
+        <header className={styles.mainHeader}>
           <div>
-            <p className={styles.cardLabel}>Academic Calendar Alerts</p>
-            <h2 className={styles.sectionTitle}>Tuition and fee deadlines</h2>
+            <h1 className={styles.pageTitle}>Finance Tracker</h1>
+            <p className={styles.pageSubtitle}>Manage your income and expenses efficiently</p>
           </div>
-        </div>
+        </header>
 
-        {tuitionFeeAlerts.length === 0 ? (
-          <p className={styles.emptyState}>No tuition or fee deadlines are currently in the alert window.</p>
-        ) : (
-          <div className={styles.alertList}>
-            {tuitionFeeAlerts.map(({ event, alert }) => (
-              <article key={event.id} className={styles.alertCard}>
-                <div>
-                  <p className={styles.alertTitle}>{alert.title}</p>
-                  <p className={styles.alertMeta}>
-                    Due {alert.dueAt} · Alert started {alert.alertAt}
-                  </p>
-                  <p className={styles.alertMeta}>
-                    {alert.timeRemainingMinutes} minute{alert.timeRemainingMinutes === 1 ? '' : 's'} remaining in this reminder window
-                  </p>
+        {/* Dashboard Tab */}
+        {activeNavTab === 'dashboard' && (
+          <div className={styles.dashboardGrid}>
+            {/* Top Metrics */}
+            <div className={styles.metricsRow}>
+              <div className={styles.metricCard}>
+                <p className={styles.metricLabel}>Total Balance</p>
+                <p className={styles.metricValue}>{formatMoney(entryStats.balance)}</p>
+                <p className={styles.metricNote}>
+                  {entryStats.balance >= 0 ? 'âœ“ Positive' : 'âš  Overspent'}
+                </p>
+              </div>
+              <div className={styles.metricCard}>
+                <p className={styles.metricLabel}>This Month Income</p>
+                <p className={styles.metricValue} style={{ color: '#10b981' }}>
+                  {formatMoney(entryStats.monthIncome)}
+                </p>
+                <p className={styles.metricNote}>{entryStats.transactionCount} transactions</p>
+              </div>
+              <div className={styles.metricCard}>
+                <p className={styles.metricLabel}>This Month Expenses</p>
+                <p className={styles.metricValue} style={{ color: '#ef4444' }}>
+                  {formatMoney(entryStats.monthExpense)}
+                </p>
+                <p className={styles.metricNote}>Budget tracking active</p>
+              </div>
+              <div className={styles.metricCard}>
+                <p className={styles.metricLabel}>Monthly Savings</p>
+                <p className={styles.metricValue} style={{ color: '#3b82f6' }}>
+                  {formatMoney(monthlySummary.monthSavings)}
+                </p>
+                <p className={styles.metricNote}>Goal: {formatMoney(monthlySummary.savingsGoalAmount)}</p>
+              </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className={styles.chartsRow}>
+              {/* Bar Chart */}
+              <div className={styles.chartCard}>
+                <h3 className={styles.chartTitle}>Income vs Expenses (30 Days)</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                    <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                      formatter={(value) => formatMoney(value)}
+                    />
+                    <Legend />
+                    <Bar dataKey="income" fill="#10b981" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="expense" fill="#ef4444" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Pie Chart */}
+              <div className={styles.chartCard}>
+                <h3 className={styles.chartTitle}>Expense Breakdown</h3>
+                {pieData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => formatMoney(value)} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className={styles.emptyState}>No expense data yet</p>
+                )}
+              </div>
+            </div>
+
+            {/* Category Breakdown */}
+            {pieData.length > 0 && (
+              <div className={styles.categoryBreakdownCard}>
+                <h3 className={styles.cardTitle}>Category Details</h3>
+                <div className={styles.categoryGrid}>
+                  {pieData.map((item, index) => (
+                    <div key={item.name} className={styles.categoryRow}>
+                      <div className={styles.categoryInfo}>
+                        <span className={styles.colorDot} style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                        <span className={styles.categoryName}>{item.name}</span>
+                      </div>
+                      <span className={styles.categoryAmount}>{formatMoney(item.value)}</span>
+                    </div>
+                  ))}
                 </div>
-                <span className={styles.alertPulse}>Tuition</span>
-              </article>
-            ))}
+              </div>
+            )}
+
+            {/* Recent Transactions */}
+            <div className={styles.transactionsCard}>
+              <h3 className={styles.cardTitle}>Recent Transactions</h3>
+              {filteredEntries.length === 0 ? (
+                <p className={styles.emptyState}>No transactions yet</p>
+              ) : (
+                <div className={styles.transactionsList}>
+                  {filteredEntries.slice(0, 5).map((entry) => (
+                    <div key={entry.id} className={styles.transactionItem}>
+                      <div className={styles.transactionInfo}>
+                        <p className={styles.transactionCategory}>{entry.category}</p>
+                        <p className={styles.transactionMeta}>{entry.date}</p>
+                      </div>
+                      <div className={styles.transactionAmountSection}>
+                        <span className={`${styles.transactionAmount} ${entry.kind === 'income' ? styles.income : styles.expense}`}>
+                          {entry.kind === 'income' ? '+' : 'âˆ’'}{formatMoney(entry.amount)}
+                        </span>
+                        <button type="button" className={styles.transactionAction} onClick={() => handleEdit(entry)}>âœŽ</button>
+                        <button type="button" className={styles.transactionAction} onClick={() => handleDelete(entry.id)}>âœ•</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
-      </section>
 
-      <section className={styles.layout}>
-        <article className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.cardLabel}>{editingEntryId ? 'Edit Entry' : 'New Entry'}</p>
-              <h2 className={styles.sectionTitle}>Log student money in seconds</h2>
-            </div>
-            <div className={styles.toggleGroup}>
-              {ENTRY_TYPE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={`${styles.toggleButton} ${entryType === option.value ? styles.toggleButtonActive : ''}`}
-                  onClick={() => setEntryType(option.value)}
-                >
-                  {option.label}
+        {/* Entries Tab */}
+        {activeNavTab === 'entries' && (
+          <div className={styles.tabContent}>
+            <div className={styles.formCard}>
+              <h3 className={styles.cardTitle}>{editingEntryId ? 'Edit Entry' : 'Add New Entry'}</h3>
+
+              {message && <p className={styles.message}>{message}</p>}
+
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>Type</span>
+                  <select value={entryType} onChange={(e) => setEntryType(e.target.value)}>
+                    {ENTRY_TYPE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Category</span>
+                  <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                    {activeCategoryOptions.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Amount</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Date</span>
+                  <input
+                    type="date"
+                    value={entryDate}
+                    onChange={(e) => setEntryDate(e.target.value)}
+                  />
+                </label>
+
+                <label className={styles.formField} style={{ gridColumn: '1 / -1' }}>
+                  <span>Note</span>
+                  <input
+                    type="text"
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Optional note"
+                  />
+                </label>
+              </div>
+
+              <div className={styles.formActions}>
+                <button type="button" className={styles.primaryButton} onClick={handleSubmit}>
+                  {editingEntryId ? 'Update Entry' : 'Add Entry'}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.formGrid}>
-            <label className={styles.field}>
-              <span>Amount</span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={amount}
-                onChange={(event) => setAmount(event.target.value)}
-                placeholder="e.g. 25"
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Category</span>
-              <select value={category} onChange={(event) => setCategory(event.target.value)}>
-                {activeCategoryOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.field}>
-              <span>Date</span>
-              <input
-                type="date"
-                value={entryDate}
-                onChange={(event) => setEntryDate(event.target.value)}
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Note</span>
-              <input
-                type="text"
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Optional note"
-              />
-            </label>
-          </div>
-
-          <div className={styles.chipSection}>
-            <p className={styles.chipLabel}>Student-specific categories</p>
-            <div className={styles.chipRow}>
-              {activeCategoryOptions.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  className={`${styles.chip} ${category === option ? styles.chipActive : ''}`}
-                  onClick={() => setCategory(option)}
-                >
-                  {option}
+                <button type="button" className={styles.secondaryButton} onClick={resetForm}>
+                  Clear
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
 
-          <div className={styles.actions}>
-            <button type="button" className={styles.primaryButton} onClick={handleSubmit}>
-              {editingEntryId ? 'Save Changes' : 'Add Entry'}
-            </button>
-            <button type="button" className={styles.secondaryButton} onClick={resetForm}>
-              Clear
-            </button>
-          </div>
-
-          {message && <p className={styles.message}>{message}</p>}
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.cardLabel}>{editingPlanId ? 'Edit Recurring Plan' : 'Recurring Plan'}</p>
-              <h2 className={styles.sectionTitle}>Schedule repeating expenses</h2>
-            </div>
-          </div>
-
-          <div className={styles.presetRow}>
-            {RECURRING_PRESETS.map((preset) => (
-              <button key={preset.label} type="button" className={styles.presetButton} onClick={() => applyRecurringPreset(preset)}>
-                {preset.label}
-              </button>
-            ))}
-          </div>
-
-          <div className={styles.formGrid}>
-            <label className={styles.field}>
-              <span>Plan name</span>
-              <input
-                type="text"
-                value={planLabel}
-                onChange={(event) => setPlanLabel(event.target.value)}
-                placeholder="e.g. Rent, data subscription"
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Amount</span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={planAmount}
-                onChange={(event) => setPlanAmount(event.target.value)}
-                placeholder="e.g. 35"
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Category</span>
-              <select value={planCategory} onChange={(event) => setPlanCategory(event.target.value)}>
-                {CATEGORY_OPTIONS.expense.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.field}>
-              <span>Frequency</span>
-              <select value={planFrequency} onChange={(event) => setPlanFrequency(event.target.value)}>
-                {RECURRING_FREQUENCIES.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.field}>
-              <span>Start date</span>
-              <input
-                type="date"
-                value={planStartDate}
-                onChange={(event) => setPlanStartDate(event.target.value)}
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Note</span>
-              <input
-                type="text"
-                value={planNote}
-                onChange={(event) => setPlanNote(event.target.value)}
-                placeholder="Optional reminder note"
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>Reminder</span>
-              <select value={planReminderDays} onChange={(event) => setPlanReminderDays(event.target.value)}>
-                {REMINDER_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className={styles.actions}>
-            <button type="button" className={styles.primaryButton} onClick={handleSaveRecurringPlan}>
-              {editingPlanId ? 'Save Plan' : 'Create Plan'}
-            </button>
-            <button type="button" className={styles.secondaryButton} onClick={resetRecurringForm}>
-              Clear Plan
-            </button>
-          </div>
-
-          <div className={styles.recurringSummaryList}>
-            {recurringPlans.length === 0 ? (
-              <p className={styles.emptyState}>No recurring expenses added yet.</p>
-            ) : (
-              recurringPlans.map((plan) => (
-                <article key={plan.id} className={styles.recurringPlanCard}>
-                  <div>
-                    <div className={styles.historyTopRow}>
-                      <p className={styles.historyName}>{plan.label}</p>
-                      <span className={styles.recurringBadge}>{plan.frequency}</span>
-                    </div>
-                    <p className={styles.historyNote}>{plan.category} · Next due {plan.nextDueDate} · Remind {plan.reminderDays} day{plan.reminderDays === 1 ? '' : 's'} before</p>
-                    <p className={styles.historyDate}>{plan.note || 'No note added'}</p>
-                  </div>
-                  <div className={styles.historyActions}>
-                    <strong>{formatMoney(plan.amount)}</strong>
-                    <button type="button" onClick={() => handleEditRecurringPlan(plan)}>Edit</button>
-                    <button type="button" onClick={() => handleDeleteRecurringPlan(plan.id)}>Delete</button>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
-
-          {dueSoonPlans.length > 0 && (
-            <div className={styles.alertList}>
-              {dueSoonPlans.map(({ plan, alert }) => (
-                <article key={`${plan.id}:${plan.nextDueDate}`} className={styles.alertCard}>
-                  <div>
-                    <p className={styles.alertTitle}>{plan.label}</p>
-                    <p className={styles.alertMeta}>
-                      Due {plan.nextDueDate} · {alert.isDueToday ? 'Due today' : `Due in ${alert.dueInDays} day${alert.dueInDays === 1 ? '' : 's'}`}
-                    </p>
-                    <p className={styles.alertMeta}>{plan.category} · {formatMoney(plan.amount)}</p>
-                  </div>
-                  <span className={styles.alertPulse}>Alert</span>
-                </article>
-              ))}
-            </div>
-          )}
-
-          {recurringSummary.nextDuePlan && (
-            <p className={styles.message}>
-              Next due: {recurringSummary.nextDuePlan.label} on {recurringSummary.nextDuePlan.nextDueDate}
-            </p>
-          )}
-        </article>
-
-        <article className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.cardLabel}>Overview</p>
-              <h2 className={styles.sectionTitle}>Money patterns this month</h2>
-            </div>
-            <div className={styles.filterRow}>
-              {['all', 'expense', 'income'].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={`${styles.filterButton} ${filter === value ? styles.filterButtonActive : ''}`}
-                  onClick={() => setFilter(value)}
-                >
-                  {value === 'all' ? 'All' : ENTRY_TYPES[value]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.categoryList}>
-            {categoryTotals.length === 0 ? (
-              <p className={styles.emptyState}>No entries yet. Add your first income or expense.</p>
-            ) : (
-              categoryTotals.map((item) => (
-                <div key={`${item.kind}:${item.entryCategory}`} className={styles.categoryItem}>
-                  <div>
-                    <p className={styles.categoryName}>{item.entryCategory}</p>
-                    <p className={styles.categoryMeta}>{ENTRY_TYPES[item.kind]}</p>
-                  </div>
-                  <strong>{formatMoney(item.total)}</strong>
+            {/* Entries List */}
+            <div className={styles.entriesListCard}>
+              <div className={styles.entriesHeader}>
+                <h3 className={styles.cardTitle}>All Entries</h3>
+                <div className={styles.filterButtons}>
+                  {['all', 'expense', 'income'].map((f) => (
+                    <button
+                      key={f}
+                      className={`${styles.filterBtn} ${filter === f ? styles.filterBtnActive : ''}`}
+                      onClick={() => setFilter(f)}
+                    >
+                      {f === 'all' ? 'All' : ENTRY_TYPES[f]}
+                    </button>
+                  ))}
                 </div>
-              ))
-            )}
-          </div>
+              </div>
 
-          <p className={styles.historyTitle}>Recent entries</p>
-          <div className={styles.historyList}>
-            {filteredEntries.length === 0 ? (
-              <p className={styles.emptyState}>No entries found for this filter.</p>
-            ) : (
-              filteredEntries.slice(0, 10).map((entry) => (
-                <article key={entry.id} className={styles.historyItem}>
-                  <div className={styles.historyMetaGroup}>
-                    <div className={styles.historyTopRow}>
-                      <p className={styles.historyName}>{entry.category}</p>
-                      {entry.source === 'recurring' && <span className={styles.recurringBadge}>Recurring</span>}
-                      <span className={`${styles.typeBadge} ${entry.kind === 'income' ? styles.typeBadgeIncome : styles.typeBadgeExpense}`}>
-                        {ENTRY_TYPES[entry.kind]}
-                      </span>
+              {filteredEntries.length === 0 ? (
+                <p className={styles.emptyState}>No entries found</p>
+              ) : (
+                <div className={styles.transactionsList}>
+                  {filteredEntries.map((entry) => (
+                    <div key={entry.id} className={styles.transactionItem}>
+                      <div className={styles.transactionInfo}>
+                        <p className={styles.transactionCategory}>{entry.category}</p>
+                        <p className={styles.transactionMeta}>{entry.note || 'No note'} â€¢ {entry.date}</p>
+                      </div>
+                      <div className={styles.transactionAmountSection}>
+                        <span className={`${styles.transactionAmount} ${entry.kind === 'income' ? styles.income : styles.expense}`}>
+                          {entry.kind === 'income' ? '+' : 'âˆ’'}{formatMoney(entry.amount)}
+                        </span>
+                        <button type="button" className={styles.transactionAction} onClick={() => handleEdit(entry)}>âœŽ</button>
+                        <button type="button" className={styles.transactionAction} onClick={() => handleDelete(entry.id)}>âœ•</button>
+                      </div>
                     </div>
-                    <p className={styles.historyNote}>{entry.note || 'No note added'}</p>
-                    <p className={styles.historyDate}>{entry.date}</p>
-                  </div>
-                  <div className={styles.historyActions}>
-                    <strong>{formatMoney(entry.amount)}</strong>
-                    <button type="button" onClick={() => handleEdit(entry)}>Edit</button>
-                    <button type="button" onClick={() => handleDelete(entry.id)}>Delete</button>
-                  </div>
-                </article>
-              ))
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Recurring Tab */}
+        {activeNavTab === 'recurring' && (
+          <div className={styles.tabContent}>
+            <div className={styles.formCard}>
+              <h3 className={styles.cardTitle}>{editingPlanId ? 'Edit Recurring Plan' : 'Create Recurring Plan'}</h3>
+
+              {message && <p className={styles.message}>{message}</p>}
+
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>Plan Name</span>
+                  <input
+                    type="text"
+                    value={planLabel}
+                    onChange={(e) => setPlanLabel(e.target.value)}
+                    placeholder="e.g., Rent, Data subscription"
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Amount</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={planAmount}
+                    onChange={(e) => setPlanAmount(e.target.value)}
+                    placeholder="0.00"
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Category</span>
+                  <select value={planCategory} onChange={(e) => setPlanCategory(e.target.value)}>
+                    {CATEGORY_OPTIONS.expense.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Frequency</span>
+                  <select value={planFrequency} onChange={(e) => setPlanFrequency(e.target.value)}>
+                    {RECURRING_FREQUENCIES.map((freq) => (
+                      <option key={freq.value} value={freq.value}>{freq.label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Start Date</span>
+                  <input
+                    type="date"
+                    value={planStartDate}
+                    onChange={(e) => setPlanStartDate(e.target.value)}
+                  />
+                </label>
+
+                <label className={styles.formField}>
+                  <span>Reminder (days before)</span>
+                  <select value={planReminderDays} onChange={(e) => setPlanReminderDays(e.target.value)}>
+                    {REMINDER_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className={styles.formField} style={{ gridColumn: '1 / -1' }}>
+                  <span>Note</span>
+                  <input
+                    type="text"
+                    value={planNote}
+                    onChange={(e) => setPlanNote(e.target.value)}
+                    placeholder="Optional reminder note"
+                  />
+                </label>
+              </div>
+
+              <div className={styles.formActions}>
+                <button type="button" className={styles.primaryButton} onClick={handleSaveRecurringPlan}>
+                  {editingPlanId ? 'Update Plan' : 'Create Plan'}
+                </button>
+                <button type="button" className={styles.secondaryButton} onClick={resetRecurringForm}>
+                  Clear
+                </button>
+              </div>
+
+              {/* Presets */}
+              <div className={styles.presetsSection}>
+                <p className={styles.presetsTitle}>Quick Presets</p>
+                <div className={styles.presetsGrid}>
+                  {RECURRING_PRESETS.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      className={styles.presetBtn}
+                      onClick={() => applyRecurringPreset(preset)}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Active Plans */}
+            <div className={styles.plansCard}>
+              <h3 className={styles.cardTitle}>Active Plans</h3>
+              {recurringPlans.length === 0 ? (
+                <p className={styles.emptyState}>No recurring plans yet</p>
+              ) : (
+                <div className={styles.plansList}>
+                  {recurringPlans.map((plan) => (
+                    <div key={plan.id} className={`${styles.planItem} ${!plan.active ? styles.planInactive : ''}`}>
+                      <div className={styles.planInfo}>
+                        <p className={styles.planName}>{plan.label}</p>
+                        <p className={styles.planMeta}>
+                          {plan.category} â€¢ {plan.frequency} â€¢ Next: {plan.nextDueDate}
+                        </p>
+                        {plan.note && <p className={styles.planNote}>{plan.note}</p>}
+                      </div>
+                      <div className={styles.planActions}>
+                        <span className={styles.planAmount}>{formatMoney(plan.amount)}</span>
+                        <button type="button" className={styles.transactionAction} onClick={() => handleEditRecurringPlan(plan)}>âœŽ</button>
+                        <button type="button" className={styles.transactionAction} onClick={() => handleDeleteRecurringPlan(plan.id)}>âœ•</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Due Soon Alerts */}
+            {dueSoonPlans.length > 0 && (
+              <div className={styles.alertsCard}>
+                <h3 className={styles.cardTitle}>âš ï¸ Due Soon</h3>
+                <div className={styles.alertsList}>
+                  {dueSoonPlans.map(({ plan, alert }) => (
+                    <div key={`${plan.id}:${plan.nextDueDate}`} className={styles.alertItem}>
+                      <div className={styles.alertContent}>
+                        <p className={styles.alertTitle}>{plan.label}</p>
+                        <p className={styles.alertMeta}>
+                          {alert.isDueToday ? 'ðŸ”´ DUE TODAY' : `Due in ${alert.dueInDays} day${alert.dueInDays === 1 ? '' : 's'}`}
+                        </p>
+                      </div>
+                      <span className={styles.alertAmount}>{formatMoney(plan.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
-        </article>
-      </section>
+        )}
 
-      <section className={styles.hintStrip}>
-        <p className={styles.hintTitle}>Student categories included</p>
-        <p className={styles.hintText}>
-          Meals, transport, books, stationery, data, accommodation, project costs, exam fees, and campus income like allowance or part-time work.
-        </p>
-        <div className={styles.hintRow}>
-          {STUDENT_SPENDING_HINTS.map((hint) => (
-            <span key={hint} className={styles.hintPill}>{hint}</span>
-          ))}
-        </div>
-      </section>
+        {/* Settings Tab */}
+        {activeNavTab === 'settings' && (
+          <div className={styles.tabContent}>
+            <div className={styles.settingsCard}>
+              <h3 className={styles.cardTitle}>Financial Preferences</h3>
+
+              <div className={styles.settingGroup}>
+                <label className={styles.settingLabel}>
+                  <span>Savings Goal (Monthly)</span>
+                  <select
+                    value={financePrefs.savingsGoalAmount}
+                    onChange={(e) => setFinancePrefs((prev) => ({ ...prev, savingsGoalAmount: Number(e.target.value) }))}
+                  >
+                    {SAVINGS_GOAL_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className={styles.settingGroup}>
+                <label className={styles.settingLabel}>
+                  <span>Low Balance Alert Threshold</span>
+                  <select
+                    value={financePrefs.lowBalanceThreshold}
+                    onChange={(e) => setFinancePrefs((prev) => ({ ...prev, lowBalanceThreshold: Number(e.target.value) }))}
+                  >
+                    {LOW_BALANCE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className={styles.settingGroup}>
+                <p className={styles.settingInfo}>Current Balance: <strong>{formatMoney(entryStats.balance)}</strong></p>
+                <p className={styles.settingInfo}>Monthly Savings: <strong>{formatMoney(monthlySummary.monthSavings)}</strong></p>
+                <p className={styles.settingInfo}>Monthly Expenses: <strong>{formatMoney(entryStats.monthExpense)}</strong></p>
+              </div>
+
+              {lowBalanceWarning.isCritical && (
+                <div className={styles.warningBox}>
+                  <p className={styles.warningTitle}>âš ï¸ Financial Alert</p>
+                  {lowBalanceWarning.warnings.map((warning, idx) => (
+                    <p key={idx} className={styles.warningText}>{warning}</p>
+                  ))}
+                </div>
+              )}
+
+              <div className={styles.settingGroup}>
+                <button type="button" className={styles.primaryButton} onClick={handleEnableBrowserAlerts}>
+                  Enable Browser Notifications
+                </button>
+              </div>
+            </div>
+
+            {/* Category Guide */}
+            <div className={styles.guideCard}>
+              <h3 className={styles.cardTitle}>Student Category Guide</h3>
+              <p className={styles.guideText}>
+                Our categories are designed for student life. Track everything from meals and transport to exam fees and campus income.
+              </p>
+              <div className={styles.tagsGrid}>
+                {STUDENT_SPENDING_HINTS.map((hint) => (
+                  <span key={hint} className={styles.tag}>{hint}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
