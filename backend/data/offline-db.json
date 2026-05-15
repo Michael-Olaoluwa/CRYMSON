@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "crymsonId": "269876S",
+      "fullName": "uyoyo",
+      "email": "a@gmail.com",
+      "department": "hjvyb",
+      "level": "100",
+      "passwordHash": "$2a$10$VnIObSkGbnasqU7kzsn/9u6f6UYWvN3UZyLHYyxeEvw.Q4gbRrnyW",
+      "createdAt": "2026-05-15T15:30:18.602Z"
+    }
+  ]
+}

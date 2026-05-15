@@ -1,19 +1,20 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './TimeTracker.module.css';
-import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
-import { useTimer } from '../context/TimerContext';
-import { getAuthToken } from '../utils/authSession';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import styles from "./TimeTracker.module.css";
+import { formatClock, getStudyStreakStats } from "../utils/timeFormatting";
+import { useTimer } from "../context/TimerContext";
+import { getAuthToken } from "../utils/authSession";
 
-const STORAGE_KEY_BASE = 'crymson_time_tracker_sessions';
-const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
-const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
-const TEST_TASK_TYPES = new Set(['test-1', 'test-2', 'exam', 'exam-timetable']);
+const STORAGE_KEY_BASE = "crymson_time_tracker_sessions";
+const USER_CGPA_STATE_KEY_BASE = "crymson_user_cgpa_state_v1";
+const TODO_STORAGE_KEY_BASE = "crymson_todo_tasks";
+const AUTH_API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  `${window.location.protocol}//${window.location.hostname}:5000`;
+const TEST_TASK_TYPES = new Set(["test-1", "test-2", "exam", "exam-timetable"]);
 const COURSE_TOTAL_FILTERS = [
-  { id: 'week', label: 'This Week' },
-  { id: '7days', label: 'Last 7 Days' },
-  { id: 'all', label: 'All Time' },
+  { id: "week", label: "This Week" },
+  { id: "7days", label: "Last 7 Days" },
+  { id: "all", label: "All Time" },
 ];
 
 const getLocalDateTimeParts = (date) => {
@@ -25,7 +26,7 @@ const getLocalDateTimeParts = (date) => {
   };
 };
 
-function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
+function TimeTracker({ activeUserId = "guest", onNavigateHome }) {
   const {
     isRunning: contextIsRunning,
     elapsedSeconds: contextElapsedSeconds,
@@ -36,24 +37,36 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     setSessionStartIso: contextSetSessionStartIso,
   } = useTimer();
 
-  const storageKey = useMemo(() => `${STORAGE_KEY_BASE}:${activeUserId || 'guest'}`, [activeUserId]);
-  const userCgpaStateKey = useMemo(() => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`, [activeUserId]);
+  const storageKey = useMemo(
+    () => `${STORAGE_KEY_BASE}:${activeUserId || "guest"}`,
+    [activeUserId],
+  );
+  const userCgpaStateKey = useMemo(
+    () => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || "guest"}`,
+    [activeUserId],
+  );
   const [sessions, setSessions] = useState([]);
   const [isRunning, setIsRunning] = useState(contextIsRunning);
   const [elapsedSeconds, setElapsedSeconds] = useState(contextElapsedSeconds);
-  const [note, setNote] = useState('');
-  const [courseTag, setCourseTag] = useState('General Study');
+  const [note, setNote] = useState("");
+  const [courseTag, setCourseTag] = useState("General Study");
   const [availableCourseTags, setAvailableCourseTags] = useState([]);
-  const [courseTotalsRange, setCourseTotalsRange] = useState('week');
+  const [courseTotalsRange, setCourseTotalsRange] = useState("week");
   const [calendarTasks, setCalendarTasks] = useState([]);
-  const [manualDurationMinutes, setManualDurationMinutes] = useState('');
-  const [manualCourseTag, setManualCourseTag] = useState('General Study');
-  const [manualNote, setManualNote] = useState('');
-  const [manualDate, setManualDate] = useState(() => getLocalDateTimeParts(new Date()).date);
-  const [manualTime, setManualTime] = useState(() => getLocalDateTimeParts(new Date()).time);
-  const [manualError, setManualError] = useState('');
-  const [editingManualSessionId, setEditingManualSessionId] = useState('');
-  const [sessionStartIso, setSessionStartIso] = useState(contextSessionStartIso);
+  const [manualDurationMinutes, setManualDurationMinutes] = useState("");
+  const [manualCourseTag, setManualCourseTag] = useState("General Study");
+  const [manualNote, setManualNote] = useState("");
+  const [manualDate, setManualDate] = useState(
+    () => getLocalDateTimeParts(new Date()).date,
+  );
+  const [manualTime, setManualTime] = useState(
+    () => getLocalDateTimeParts(new Date()).time,
+  );
+  const [manualError, setManualError] = useState("");
+  const [editingManualSessionId, setEditingManualSessionId] = useState("");
+  const [sessionStartIso, setSessionStartIso] = useState(
+    contextSessionStartIso,
+  );
   const timerRef = useRef(null);
   const hasHydratedSessionsRef = useRef(false);
   const hasHydratedRemoteSessionsRef = useRef(false);
@@ -108,18 +121,23 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
       }
 
       try {
-        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/time-sessions`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `${AUTH_API_BASE_URL}/api/user-state/time-sessions`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const payload = await response.json().catch(() => ({}));
         if (!response.ok || cancelled) {
           return;
         }
 
-        const remoteSessions = Array.isArray(payload.sessions) ? payload.sessions : [];
+        const remoteSessions = Array.isArray(payload.sessions)
+          ? payload.sessions
+          : [];
         if (remoteSessions.length > 0) {
           setSessions(remoteSessions);
         }
@@ -138,7 +156,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
   }, [activeUserId]);
 
   useEffect(() => {
-    const token = getStoredToken();
+    const token = getAuthToken();
     if (!token || !hasHydratedRemoteSessionsRef.current) {
       return undefined;
     }
@@ -150,9 +168,9 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     sessionSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
         await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
@@ -181,7 +199,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
       const parsed = JSON.parse(raw);
       const courses = Array.isArray(parsed?.courses) ? parsed.courses : [];
       const tags = courses
-        .map((course) => String(course?.courseName || '').trim())
+        .map((course) => String(course?.courseName || "").trim())
         .filter(Boolean);
 
       setAvailableCourseTags([...new Set(tags)]);
@@ -191,7 +209,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
   }, [userCgpaStateKey]);
 
   useEffect(() => {
-    const scopedTasksKey = `${TODO_STORAGE_KEY_BASE}:${activeUserId || 'guest'}`;
+    const scopedTasksKey = `${TODO_STORAGE_KEY_BASE}:${activeUserId || "guest"}`;
 
     try {
       const raw = localStorage.getItem(scopedTasksKey);
@@ -206,15 +224,18 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     }
 
     const loadRemoteTasks = async () => {
-      const token = getStoredToken();
+      const token = getAuthToken();
       if (!token) return;
 
       try {
-        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `${AUTH_API_BASE_URL}/api/user-state/tasks`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) return;
@@ -255,19 +276,23 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
   }, [isRunning, contextSetElapsedSeconds]);
 
   const totalTrackedSeconds = useMemo(
-    () => sessions.reduce((sum, session) => sum + (Number(session.durationSeconds) || 0), 0),
-    [sessions]
+    () =>
+      sessions.reduce(
+        (sum, session) => sum + (Number(session.durationSeconds) || 0),
+        0,
+      ),
+    [sessions],
   );
 
   const studyStreakStats = useMemo(
     () => getStudyStreakStats(sessions),
-    [sessions]
+    [sessions],
   );
 
   const todayTrackedSeconds = useMemo(() => {
     const today = new Date().toDateString();
     return sessions.reduce((sum, session) => {
-      const startedAt = new Date(session.startedAt || '');
+      const startedAt = new Date(session.startedAt || "");
       if (startedAt.toDateString() !== today) return sum;
       return sum + (Number(session.durationSeconds) || 0);
     }, 0);
@@ -277,27 +302,28 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     const now = new Date();
     const rangeStart = new Date(now);
 
-    if (courseTotalsRange === 'week') {
+    if (courseTotalsRange === "week") {
       rangeStart.setHours(0, 0, 0, 0);
       rangeStart.setDate(now.getDate() - now.getDay());
     }
 
-    if (courseTotalsRange === '7days') {
+    if (courseTotalsRange === "7days") {
       rangeStart.setHours(0, 0, 0, 0);
       rangeStart.setDate(now.getDate() - 6);
     }
 
     const totals = sessions.reduce((acc, session) => {
-      const startedAt = new Date(session.startedAt || '');
+      const startedAt = new Date(session.startedAt || "");
       if (Number.isNaN(startedAt.getTime())) {
         return acc;
       }
 
-      if (courseTotalsRange !== 'all' && startedAt < rangeStart) {
+      if (courseTotalsRange !== "all" && startedAt < rangeStart) {
         return acc;
       }
 
-      const tag = String(session.courseTag || 'General Study').trim() || 'General Study';
+      const tag =
+        String(session.courseTag || "General Study").trim() || "General Study";
       const duration = Number(session.durationSeconds) || 0;
       acc[tag] = (acc[tag] || 0) + duration;
       return acc;
@@ -313,42 +339,52 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
 
   const lowStudyWarnings = useMemo(() => {
     const now = Date.now();
-    const sevenDaysFromNow = now + (7 * 24 * 60 * 60 * 1000);
-    const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+    const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
 
     const recentStudyByCourse = sessions.reduce((acc, session) => {
-      const startedAt = new Date(session.startedAt || '').getTime();
+      const startedAt = new Date(session.startedAt || "").getTime();
       if (!Number.isFinite(startedAt) || startedAt < sevenDaysAgo) {
         return acc;
       }
 
-      const tag = String(session.courseTag || 'General Study').trim() || 'General Study';
+      const tag =
+        String(session.courseTag || "General Study").trim() || "General Study";
       acc[tag] = (acc[tag] || 0) + (Number(session.durationSeconds) || 0);
       return acc;
     }, {});
 
     const upcomingTests = calendarTasks
       .filter((task) => !task?.completed)
-      .filter((task) => TEST_TASK_TYPES.has(String(task?.taskType || '').toLowerCase()))
+      .filter((task) =>
+        TEST_TASK_TYPES.has(String(task?.taskType || "").toLowerCase()),
+      )
       .map((task) => {
-        const dueAtTime = new Date(task.dueAt || '').getTime();
+        const dueAtTime = new Date(task.dueAt || "").getTime();
         return {
-          id: String(task.id || ''),
-          title: String(task.title || 'Upcoming test').trim(),
-          courseTag: String(task.courseTag || 'General Study').trim() || 'General Study',
-          taskType: String(task.taskType || '').toLowerCase(),
+          id: String(task.id || ""),
+          title: String(task.title || "Upcoming test").trim(),
+          courseTag:
+            String(task.courseTag || "General Study").trim() || "General Study",
+          taskType: String(task.taskType || "").toLowerCase(),
           dueAtTime,
         };
       })
-      .filter((task) => Number.isFinite(task.dueAtTime) && task.dueAtTime >= now && task.dueAtTime <= sevenDaysFromNow)
+      .filter(
+        (task) =>
+          Number.isFinite(task.dueAtTime) &&
+          task.dueAtTime >= now &&
+          task.dueAtTime <= sevenDaysFromNow,
+      )
       .sort((left, right) => left.dueAtTime - right.dueAtTime);
 
     const warnings = upcomingTests
       .map((task) => {
         const studiedSeconds = recentStudyByCourse[task.courseTag] || 0;
-        const recommendedSeconds = (task.taskType === 'exam' || task.taskType === 'exam-timetable')
-          ? 4 * 60 * 60
-          : 2 * 60 * 60;
+        const recommendedSeconds =
+          task.taskType === "exam" || task.taskType === "exam-timetable"
+            ? 4 * 60 * 60
+            : 2 * 60 * 60;
         const deficitSeconds = recommendedSeconds - studiedSeconds;
 
         if (deficitSeconds <= 0) return null;
@@ -387,19 +423,22 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     contextStopTimer();
 
     if (elapsedSeconds <= 0) {
-      setSessionStartIso('');
-      contextSetSessionStartIso('');
+      setSessionStartIso("");
+      contextSetSessionStartIso("");
       return;
     }
 
-    const startedAt = sessionStartIso || new Date(Date.now() - elapsedSeconds * 1000).toISOString();
+    const startedAt =
+      sessionStartIso ||
+      new Date(Date.now() - elapsedSeconds * 1000).toISOString();
     const endedAt = new Date().toISOString();
 
     setSessions((prev) => [
       {
         id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
         note: note.trim(),
-        courseTag: String(courseTag || 'General Study').trim() || 'General Study',
+        courseTag:
+          String(courseTag || "General Study").trim() || "General Study",
         durationSeconds: elapsedSeconds,
         startedAt,
         endedAt,
@@ -407,11 +446,11 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
       ...prev,
     ]);
 
-    setNote('');
+    setNote("");
     setElapsedSeconds(0);
     contextSetElapsedSeconds(0);
-    setSessionStartIso('');
-    contextSetSessionStartIso('');
+    setSessionStartIso("");
+    contextSetSessionStartIso("");
   };
 
   const resetCurrent = () => {
@@ -419,22 +458,26 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     contextStopTimer();
     setElapsedSeconds(0);
     contextSetElapsedSeconds(0);
-    setSessionStartIso('');
-    contextSetSessionStartIso('');
+    setSessionStartIso("");
+    contextSetSessionStartIso("");
   };
 
   const handleManualLog = () => {
-    setManualError('');
+    setManualError("");
 
     const durationMinutes = Number(manualDurationMinutes);
-    if (!Number.isFinite(durationMinutes) || durationMinutes <= 0 || durationMinutes > 24 * 60) {
-      setManualError('Duration must be between 1 and 1440 minutes.');
+    if (
+      !Number.isFinite(durationMinutes) ||
+      durationMinutes <= 0 ||
+      durationMinutes > 24 * 60
+    ) {
+      setManualError("Duration must be between 1 and 1440 minutes.");
       return;
     }
 
-    const startedAt = new Date(`${manualDate}T${manualTime || '00:00'}`);
+    const startedAt = new Date(`${manualDate}T${manualTime || "00:00"}`);
     if (Number.isNaN(startedAt.getTime())) {
-      setManualError('Choose a valid date and start time.');
+      setManualError("Choose a valid date and start time.");
       return;
     }
 
@@ -442,70 +485,82 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
     const endedAt = new Date(startedAt.getTime() + durationSeconds * 1000);
 
     if (editingManualSessionId) {
-      setSessions((prev) => prev.map((session) => {
-        if (session.id !== editingManualSessionId) return session;
-        return {
-          ...session,
-          note: manualNote.trim(),
-          courseTag: String(manualCourseTag || 'General Study').trim() || 'General Study',
-          durationSeconds,
-          startedAt: startedAt.toISOString(),
-          endedAt: endedAt.toISOString(),
-          source: 'manual',
-        };
-      }));
+      setSessions((prev) =>
+        prev.map((session) => {
+          if (session.id !== editingManualSessionId) return session;
+          return {
+            ...session,
+            note: manualNote.trim(),
+            courseTag:
+              String(manualCourseTag || "General Study").trim() ||
+              "General Study",
+            durationSeconds,
+            startedAt: startedAt.toISOString(),
+            endedAt: endedAt.toISOString(),
+            source: "manual",
+          };
+        }),
+      );
     } else {
       setSessions((prev) => [
         {
           id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
           note: manualNote.trim(),
-          courseTag: String(manualCourseTag || 'General Study').trim() || 'General Study',
+          courseTag:
+            String(manualCourseTag || "General Study").trim() ||
+            "General Study",
           durationSeconds,
           startedAt: startedAt.toISOString(),
           endedAt: endedAt.toISOString(),
-          source: 'manual',
+          source: "manual",
         },
         ...prev,
       ]);
     }
 
-    setManualDurationMinutes('');
-    setManualNote('');
-    setEditingManualSessionId('');
+    setManualDurationMinutes("");
+    setManualNote("");
+    setEditingManualSessionId("");
   };
 
   const handleEditManualSession = (session) => {
-    const startedAt = new Date(session.startedAt || '');
+    const startedAt = new Date(session.startedAt || "");
     if (Number.isNaN(startedAt.getTime())) {
-      setManualError('Cannot edit this entry because its date is invalid.');
+      setManualError("Cannot edit this entry because its date is invalid.");
       return;
     }
 
     const parts = getLocalDateTimeParts(startedAt);
-    setManualDurationMinutes(String(Math.max(1, Math.round((Number(session.durationSeconds) || 0) / 60))));
-    setManualCourseTag(String(session.courseTag || 'General Study').trim() || 'General Study');
-    setManualNote(String(session.note || ''));
+    setManualDurationMinutes(
+      String(
+        Math.max(1, Math.round((Number(session.durationSeconds) || 0) / 60)),
+      ),
+    );
+    setManualCourseTag(
+      String(session.courseTag || "General Study").trim() || "General Study",
+    );
+    setManualNote(String(session.note || ""));
     setManualDate(parts.date);
     setManualTime(parts.time);
-    setEditingManualSessionId(String(session.id || ''));
-    setManualError('');
+    setEditingManualSessionId(String(session.id || ""));
+    setManualError("");
   };
 
   const handleDeleteManualSession = (sessionId) => {
     setSessions((prev) => prev.filter((session) => session.id !== sessionId));
     if (editingManualSessionId === sessionId) {
-      setEditingManualSessionId('');
-      setManualDurationMinutes('');
-      setManualNote('');
-      setManualError('');
+      setEditingManualSessionId("");
+      setManualDurationMinutes("");
+      setManualNote("");
+      setManualError("");
     }
   };
 
   const handleCancelManualEdit = () => {
-    setEditingManualSessionId('');
-    setManualDurationMinutes('');
-    setManualNote('');
-    setManualError('');
+    setEditingManualSessionId("");
+    setManualDurationMinutes("");
+    setManualNote("");
+    setManualError("");
   };
 
   return (
@@ -514,9 +569,15 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
         <div>
           <p className={styles.eyebrow}>Crymson Tools</p>
           <h1 className={styles.title}>Time Tracker</h1>
-          <p className={styles.subtitle}>Track focused study time and review your session history.</p>
+          <p className={styles.subtitle}>
+            Track focused study time and review your session history.
+          </p>
         </div>
-        <button type="button" className={styles.backButton} onClick={onNavigateHome}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={onNavigateHome}
+        >
           Back to Home
         </button>
       </header>
@@ -535,7 +596,9 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
             >
               <option value="General Study">General Study</option>
               {availableCourseTags.map((tag) => (
-                <option key={tag} value={tag}>{tag}</option>
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
               ))}
             </select>
           </label>
@@ -551,23 +614,42 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
           </label>
 
           <div className={styles.actions}>
-            <button type="button" className={styles.primaryButton} onClick={startTimer} disabled={isRunning}>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={startTimer}
+              disabled={isRunning}
+            >
               Start
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={stopAndSaveSession} disabled={!isRunning && elapsedSeconds === 0}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={stopAndSaveSession}
+              disabled={!isRunning && elapsedSeconds === 0}
+            >
               Stop & Save
             </button>
-            <button type="button" className={styles.secondaryButton} onClick={resetCurrent} disabled={elapsedSeconds === 0 && !isRunning}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              onClick={resetCurrent}
+              disabled={elapsedSeconds === 0 && !isRunning}
+            >
               Reset
             </button>
           </div>
 
           <div className={styles.manualSection}>
-            <p className={styles.manualTitle}>{editingManualSessionId ? 'Edit Manual Entry' : 'Manual Time Entry'}</p>
+            <p className={styles.manualTitle}>
+              {editingManualSessionId
+                ? "Edit Manual Entry"
+                : "Manual Time Entry"}
+            </p>
             <p className={styles.manualHint}>
               {editingManualSessionId
-                ? 'Update this manual session and save changes.'
-                : 'Log study time retroactively for sessions you forgot to track live.'}
+                ? "Update this manual session and save changes."
+                : "Log study time retroactively for sessions you forgot to track live."}
             </p>
 
             <div className={styles.manualGrid}>
@@ -579,17 +661,24 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
                   max="1440"
                   step="1"
                   value={manualDurationMinutes}
-                  onChange={(event) => setManualDurationMinutes(event.target.value)}
+                  onChange={(event) =>
+                    setManualDurationMinutes(event.target.value)
+                  }
                   placeholder="e.g. 90"
                 />
               </label>
 
               <label className={styles.field}>
                 <span>Course tag</span>
-                <select value={manualCourseTag} onChange={(event) => setManualCourseTag(event.target.value)}>
+                <select
+                  value={manualCourseTag}
+                  onChange={(event) => setManualCourseTag(event.target.value)}
+                >
                   <option value="General Study">General Study</option>
                   {availableCourseTags.map((tag) => (
-                    <option key={`manual-${tag}`} value={tag}>{tag}</option>
+                    <option key={`manual-${tag}`} value={tag}>
+                      {tag}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -626,11 +715,19 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
             {manualError && <p className={styles.manualError}>{manualError}</p>}
 
             <div className={styles.manualActions}>
-              <button type="button" className={styles.saveButton} onClick={handleManualLog}>
-                {editingManualSessionId ? 'Save Changes' : 'Save Manual Entry'}
+              <button
+                type="button"
+                className={styles.saveButton}
+                onClick={handleManualLog}
+              >
+                {editingManualSessionId ? "Save Changes" : "Save Manual Entry"}
               </button>
               {editingManualSessionId && (
-                <button type="button" className={styles.secondaryButton} onClick={handleCancelManualEdit}>
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={handleCancelManualEdit}
+                >
                   Cancel Edit
                 </button>
               )}
@@ -644,7 +741,9 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
           <div className={styles.warningSection}>
             <p className={styles.warningTitle}>Upcoming Test Readiness</p>
             {lowStudyWarnings.upcomingTestsCount === 0 ? (
-              <p className={styles.warningMeta}>No tests due in the next 7 days.</p>
+              <p className={styles.warningMeta}>
+                No tests due in the next 7 days.
+              </p>
             ) : lowStudyWarnings.warnings.length === 0 ? (
               <p className={`${styles.warningMeta} ${styles.warningGood}`}>
                 Study time looks healthy for your upcoming tests.
@@ -653,15 +752,17 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
               <ul className={styles.warningList}>
                 {lowStudyWarnings.warnings.map((warning) => (
                   <li key={warning.id} className={styles.warningItem}>
-                    <p className={styles.warningItemTitle}>{warning.courseTag}: {warning.title}</p>
-                    <p className={styles.warningMeta}>
-                      Due: {warning.dueAt}
+                    <p className={styles.warningItemTitle}>
+                      {warning.courseTag}: {warning.title}
                     </p>
+                    <p className={styles.warningMeta}>Due: {warning.dueAt}</p>
                     <p className={styles.warningMeta}>
-                      Studied (7d): {formatClock(warning.studiedSeconds)} | Recommended: {formatClock(warning.recommendedSeconds)}
+                      Studied (7d): {formatClock(warning.studiedSeconds)} |
+                      Recommended: {formatClock(warning.recommendedSeconds)}
                     </p>
                     <p className={styles.warningRisk}>
-                      Low study-time warning: add at least {formatClock(warning.deficitSeconds)} more prep.
+                      Low study-time warning: add at least{" "}
+                      {formatClock(warning.deficitSeconds)} more prep.
                     </p>
                   </li>
                 ))}
@@ -683,11 +784,17 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
           </div>
           <div className={styles.summaryRow}>
             <span>Current Streak</span>
-            <strong>{studyStreakStats.currentStreakDays} day{studyStreakStats.currentStreakDays === 1 ? '' : 's'}</strong>
+            <strong>
+              {studyStreakStats.currentStreakDays} day
+              {studyStreakStats.currentStreakDays === 1 ? "" : "s"}
+            </strong>
           </div>
           <div className={styles.summaryRow}>
             <span>Best Streak</span>
-            <strong>{studyStreakStats.bestStreakDays} day{studyStreakStats.bestStreakDays === 1 ? '' : 's'}</strong>
+            <strong>
+              {studyStreakStats.bestStreakDays} day
+              {studyStreakStats.bestStreakDays === 1 ? "" : "s"}
+            </strong>
           </div>
 
           <div className={styles.courseTotalsHeader}>
@@ -697,7 +804,7 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
                 <button
                   key={filter.id}
                   type="button"
-                  className={`${styles.courseTotalsFilterButton} ${courseTotalsRange === filter.id ? styles.courseTotalsFilterButtonActive : ''}`}
+                  className={`${styles.courseTotalsFilterButton} ${courseTotalsRange === filter.id ? styles.courseTotalsFilterButtonActive : ""}`}
                   onClick={() => setCourseTotalsRange(filter.id)}
                 >
                   {filter.label}
@@ -706,7 +813,9 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
             </div>
           </div>
           {weeklyCourseTotals.length === 0 ? (
-            <p className={styles.empty}>No tracked sessions found in this range.</p>
+            <p className={styles.empty}>
+              No tracked sessions found in this range.
+            </p>
           ) : (
             <ul className={styles.courseTotalsList}>
               {weeklyCourseTotals.map((item) => (
@@ -726,14 +835,32 @@ function TimeTracker({ activeUserId = 'guest', onNavigateHome }) {
               {sessions.slice(0, 8).map((session) => (
                 <li key={session.id} className={styles.historyItem}>
                   <div>
-                    <p className={styles.historyNote}>{session.note || 'Focused Session'}</p>
-                    <p className={styles.historyTag}>{session.courseTag || 'General Study'}</p>
-                    {session.source === 'manual' && <p className={styles.manualSourceTag}>Manual</p>}
-                    <p className={styles.historyMeta}>{new Date(session.startedAt).toLocaleString()}</p>
-                    {session.source === 'manual' && (
+                    <p className={styles.historyNote}>
+                      {session.note || "Focused Session"}
+                    </p>
+                    <p className={styles.historyTag}>
+                      {session.courseTag || "General Study"}
+                    </p>
+                    {session.source === "manual" && (
+                      <p className={styles.manualSourceTag}>Manual</p>
+                    )}
+                    <p className={styles.historyMeta}>
+                      {new Date(session.startedAt).toLocaleString()}
+                    </p>
+                    {session.source === "manual" && (
                       <div className={styles.historyActions}>
-                        <button type="button" onClick={() => handleEditManualSession(session)}>Edit</button>
-                        <button type="button" onClick={() => handleDeleteManualSession(session.id)}>Delete</button>
+                        <button
+                          type="button"
+                          onClick={() => handleEditManualSession(session)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteManualSession(session.id)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     )}
                   </div>

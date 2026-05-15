@@ -1,33 +1,42 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './ToDoPlanner.module.css';
-import { getAuthToken } from '../utils/authSession';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import styles from "./ToDoPlanner.module.css";
+import { getAuthToken } from "../utils/authSession";
 
-const STORAGE_KEY_BASE = 'crymson_todo_tasks';
-const NOTIFIED_TASKS_KEY_BASE = 'crymson_todo_notified_tasks';
-const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
+const STORAGE_KEY_BASE = "crymson_todo_tasks";
+const NOTIFIED_TASKS_KEY_BASE = "crymson_todo_notified_tasks";
+const USER_CGPA_STATE_KEY_BASE = "crymson_user_cgpa_state_v1";
+const AUTH_API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  `${window.location.protocol}//${window.location.hostname}:5000`;
 const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
-  'test-1': 24 * 60,
-  'test-2': 24 * 60,
+  "test-1": 24 * 60,
+  "test-2": 24 * 60,
   exam: 24 * 60,
-  'exam-timetable': 24 * 60,
-  'submission-deadline': 6 * 60,
+  "exam-timetable": 24 * 60,
+  "submission-deadline": 6 * 60,
 };
 const REMINDER_WINDOW_MS = 10 * 60 * 1000;
 const REMINDER_CHECK_INTERVAL_MS = 30 * 1000;
 
 const INITIAL_DRAFT = {
-  title: '',
-  dueAt: '',
-  details: '',
-  courseTag: '',
-  priority: 'medium',
-  recurrence: 'none',
-  taskType: 'general',
+  title: "",
+  dueAt: "",
+  details: "",
+  courseTag: "",
+  priority: "medium",
+  recurrence: "none",
+  taskType: "general",
 };
 
-const createTask = ({ title, dueAt, details, taskType, courseTag, priority, recurrence }) => ({
+const createTask = ({
+  title,
+  dueAt,
+  details,
+  taskType,
+  courseTag,
+  priority,
+  recurrence,
+}) => ({
   id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
   title,
   dueAt,
@@ -40,11 +49,11 @@ const createTask = ({ title, dueAt, details, taskType, courseTag, priority, recu
   createdAt: new Date().toISOString(),
 });
 
-const VALID_RECURRENCE = new Set(['none', 'daily', 'weekly', 'monthly']);
+const VALID_RECURRENCE = new Set(["none", "daily", "weekly", "monthly"]);
 
 const normalizeRecurrence = (value) => {
-  const normalized = String(value || 'none').toLowerCase();
-  return VALID_RECURRENCE.has(normalized) ? normalized : 'none';
+  const normalized = String(value || "none").toLowerCase();
+  return VALID_RECURRENCE.has(normalized) ? normalized : "none";
 };
 
 const toLocalDateTimeInputValue = (date) => {
@@ -54,21 +63,21 @@ const toLocalDateTimeInputValue = (date) => {
 
 const getNextDueAt = (dueAt, recurrence) => {
   const parsed = new Date(dueAt);
-  if (Number.isNaN(parsed.getTime())) return '';
+  if (Number.isNaN(parsed.getTime())) return "";
 
   const next = new Date(parsed);
   const normalized = normalizeRecurrence(recurrence);
 
-  if (normalized === 'daily') next.setDate(next.getDate() + 1);
-  if (normalized === 'weekly') next.setDate(next.getDate() + 7);
-  if (normalized === 'monthly') next.setMonth(next.getMonth() + 1);
+  if (normalized === "daily") next.setDate(next.getDate() + 1);
+  if (normalized === "weekly") next.setDate(next.getDate() + 7);
+  if (normalized === "monthly") next.setMonth(next.getMonth() + 1);
 
-  if (normalized === 'none') return '';
+  if (normalized === "none") return "";
   return toLocalDateTimeInputValue(next);
 };
 
 const getCGPACourses = (activeUserId) => {
-  const scopedCgpaKey = `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`;
+  const scopedCgpaKey = `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || "guest"}`;
 
   try {
     const raw = localStorage.getItem(scopedCgpaKey);
@@ -76,7 +85,9 @@ const getCGPACourses = (activeUserId) => {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed.courses)) return [];
     return parsed.courses
-      .filter((course) => course?.courseName && String(course.courseName).trim())
+      .filter(
+        (course) => course?.courseName && String(course.courseName).trim(),
+      )
       .map((course) => String(course.courseName).trim())
       .sort();
   } catch (error) {
@@ -85,26 +96,34 @@ const getCGPACourses = (activeUserId) => {
 };
 
 const getAcademicReminderDelayMinutes = (taskType) => {
-  const normalized = String(taskType || '').toLowerCase();
+  const normalized = String(taskType || "").toLowerCase();
   return ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE[normalized] || 24 * 60;
 };
 
-function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
+function ToDoPlanner({ activeUserId = "guest", onNavigateHome }) {
   const [tasks, setTasks] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draftTask, setDraftTask] = useState(INITIAL_DRAFT);
-  const [editingTaskId, setEditingTaskId] = useState('');
-  const [saveStatus, setSaveStatus] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
   const [notificationPermission, setNotificationPermission] = useState(
-    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'unsupported'
+    typeof window !== "undefined" && "Notification" in window
+      ? Notification.permission
+      : "unsupported",
   );
   const [cgpaCourses, setCgpaCourses] = useState([]);
   const hasHydratedTaskStateRef = useRef(false);
   const taskSyncTimeoutRef = useRef(null);
   const notifiedTaskIdsRef = useRef(new Set());
-  const scopedTasksKey = useMemo(() => `${STORAGE_KEY_BASE}:${activeUserId}`, [activeUserId]);
-  const scopedNotifiedTasksKey = useMemo(() => `${NOTIFIED_TASKS_KEY_BASE}:${activeUserId}`, [activeUserId]);
+  const scopedTasksKey = useMemo(
+    () => `${STORAGE_KEY_BASE}:${activeUserId}`,
+    [activeUserId],
+  );
+  const scopedNotifiedTasksKey = useMemo(
+    () => `${NOTIFIED_TASKS_KEY_BASE}:${activeUserId}`,
+    [activeUserId],
+  );
 
   useEffect(() => {
     try {
@@ -115,10 +134,12 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
         // Keep backward compatibility with earlier task shape.
         const normalized = parsed.map((task) => ({
           ...task,
-          courseTag: String(task.courseTag || task.subject || ''),
-          priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
+          courseTag: String(task.courseTag || task.subject || ""),
+          priority: ["high", "medium", "low"].includes(
+            String(task.priority || "").toLowerCase(),
+          )
             ? String(task.priority).toLowerCase()
-            : 'medium',
+            : "medium",
           recurrence: normalizeRecurrence(task.recurrence),
         }));
         setTasks(normalized);
@@ -139,11 +160,14 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
       }
 
       try {
-        const response = await fetch(`${AUTH_API_BASE_URL}/api/user-state/tasks`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `${AUTH_API_BASE_URL}/api/user-state/tasks`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -157,10 +181,12 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
         if (remoteTasks.length > 0) {
           const normalized = remoteTasks.map((task) => ({
             ...task,
-            courseTag: String(task.courseTag || task.subject || ''),
-            priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
+            courseTag: String(task.courseTag || task.subject || ""),
+            priority: ["high", "medium", "low"].includes(
+              String(task.priority || "").toLowerCase(),
+            )
               ? String(task.priority).toLowerCase()
-              : 'medium',
+              : "medium",
             recurrence: normalizeRecurrence(task.recurrence),
           }));
           setTasks(normalized);
@@ -183,7 +209,7 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   }, [tasks, scopedTasksKey]);
 
   useEffect(() => {
-    const token = getStoredToken();
+    const token = getAuthToken();
     if (!token || !hasHydratedTaskStateRef.current) return undefined;
 
     if (taskSyncTimeoutRef.current) {
@@ -193,9 +219,9 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
     taskSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
         await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
@@ -236,7 +262,7 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   }, [isModalOpen, activeUserId]);
 
   useEffect(() => {
-    if (notificationPermission !== 'granted') return undefined;
+    if (notificationPermission !== "granted") return undefined;
 
     const maybeNotifyNearDueTasks = () => {
       const now = Date.now();
@@ -248,39 +274,48 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
         if (Number.isNaN(dueTime)) return;
 
         const timeUntilDue = dueTime - now;
-        const shouldNotify = timeUntilDue > 0 && timeUntilDue <= REMINDER_WINDOW_MS;
+        const shouldNotify =
+          timeUntilDue > 0 && timeUntilDue <= REMINDER_WINDOW_MS;
         const alreadyNotified = notifiedTaskIdsRef.current.has(task.id);
 
         if (!shouldNotify || alreadyNotified) return;
 
         const minutesLeft = Math.max(1, Math.round(timeUntilDue / 60000));
-        new Notification('Crymson Task Reminder', {
-          body: `${task.title} is due in about ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''}.`,
+        new Notification("Crymson Task Reminder", {
+          body: `${task.title} is due in about ${minutesLeft} minute${minutesLeft > 1 ? "s" : ""}.`,
           tag: `task-${task.id}`,
         });
 
         notifiedTaskIdsRef.current.add(task.id);
       });
 
-      localStorage.setItem(scopedNotifiedTasksKey, JSON.stringify([...notifiedTaskIdsRef.current]));
+      localStorage.setItem(
+        scopedNotifiedTasksKey,
+        JSON.stringify([...notifiedTaskIdsRef.current]),
+      );
     };
 
     maybeNotifyNearDueTasks();
-    const intervalId = window.setInterval(maybeNotifyNearDueTasks, REMINDER_CHECK_INTERVAL_MS);
+    const intervalId = window.setInterval(
+      maybeNotifyNearDueTasks,
+      REMINDER_CHECK_INTERVAL_MS,
+    );
     return () => {
       window.clearInterval(intervalId);
     };
   }, [tasks, notificationPermission, scopedNotifiedTasksKey]);
 
   const visibleTasks = useMemo(() => {
-    if (activeFilter === 'active') {
+    if (activeFilter === "active") {
       return tasks.filter((task) => !task.completed);
     }
-    if (activeFilter === 'completed') {
+    if (activeFilter === "completed") {
       return tasks.filter((task) => task.completed);
     }
-    if (activeFilter === 'academic') {
-      return tasks.filter((task) => task.taskType && task.taskType !== 'general');
+    if (activeFilter === "academic") {
+      return tasks.filter(
+        (task) => task.taskType && task.taskType !== "general",
+      );
     }
     return tasks;
   }, [tasks, activeFilter]);
@@ -296,7 +331,9 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
   const academicCalendar = useMemo(() => {
     const academicTasks = tasks
-      .filter((task) => task.taskType && task.taskType !== 'general' && task.dueAt)
+      .filter(
+        (task) => task.taskType && task.taskType !== "general" && task.dueAt,
+      )
       .map((task) => ({
         ...task,
         dueDate: new Date(task.dueAt),
@@ -315,22 +352,25 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
     return Object.entries(grouped).map(([dateKey, items]) => ({
       dateKey,
-      displayDate: new Date(`${dateKey}T00:00:00`).toLocaleDateString(undefined, {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      }),
+      displayDate: new Date(`${dateKey}T00:00:00`).toLocaleDateString(
+        undefined,
+        {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        },
+      ),
       items,
     }));
   }, [tasks]);
 
   const formatTaskTypeLabel = (taskType) => {
     const labels = {
-      'test-1': 'Test 1',
-      'test-2': 'Test 2',
-      'submission-deadline': 'Submission Deadline',
-      'exam-timetable': 'Exam Timetable',
+      "test-1": "Test 1",
+      "test-2": "Test 2",
+      "submission-deadline": "Submission Deadline",
+      "exam-timetable": "Exam Timetable",
     };
 
     return labels[taskType] || taskType;
@@ -340,60 +380,67 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
     if (!isModalOpen) return undefined;
 
     const handleEscape = (event) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsModalOpen(false);
       }
     };
 
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isModalOpen]);
 
   const handleOpenModal = () => {
-    setEditingTaskId('');
+    setEditingTaskId("");
     setDraftTask(INITIAL_DRAFT);
-    setSaveStatus('');
+    setSaveStatus("");
     setIsModalOpen(true);
   };
 
   const handleEditTask = (task) => {
     setEditingTaskId(task.id);
     setDraftTask({
-      title: task.title || '',
-      dueAt: task.dueAt || '',
-      details: task.details || '',
-      courseTag: task.courseTag || '',
-      priority: ['high', 'medium', 'low'].includes(String(task.priority || '').toLowerCase())
+      title: task.title || "",
+      dueAt: task.dueAt || "",
+      details: task.details || "",
+      courseTag: task.courseTag || "",
+      priority: ["high", "medium", "low"].includes(
+        String(task.priority || "").toLowerCase(),
+      )
         ? String(task.priority).toLowerCase()
-        : 'medium',
+        : "medium",
       recurrence: normalizeRecurrence(task.recurrence),
-      taskType: task.taskType || 'general',
+      taskType: task.taskType || "general",
     });
-    setSaveStatus('');
+    setSaveStatus("");
     setIsModalOpen(true);
   };
 
   const removeAcademicEventBySourceTaskId = async (token, sourceTaskId) => {
     if (!token || !sourceTaskId) return;
 
-    const listResponse = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const listResponse = await fetch(
+      `${AUTH_API_BASE_URL}/api/academic-events`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     if (!listResponse.ok) return;
 
     const listPayload = await listResponse.json().catch(() => ({}));
     const events = Array.isArray(listPayload.events) ? listPayload.events : [];
-    const linked = events.find((event) => String(event.sourceTaskId || '') === String(sourceTaskId));
+    const linked = events.find(
+      (event) => String(event.sourceTaskId || "") === String(sourceTaskId),
+    );
 
     if (!linked) return;
 
     await fetch(`${AUTH_API_BASE_URL}/api/academic-events/${linked.id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -401,14 +448,14 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   };
 
   const createAcademicEventFromTask = async (token, task) => {
-    if (!token || !task || task.taskType === 'general') return;
+    if (!token || !task || task.taskType === "general") return;
 
     const reminderDelayMinutes = getAcademicReminderDelayMinutes(task.taskType);
 
     const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
@@ -423,7 +470,7 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
     });
 
     if (!response.ok) {
-      throw new Error('Academic reminder sync failed.');
+      throw new Error("Academic reminder sync failed.");
     }
   };
 
@@ -431,19 +478,21 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
     event.preventDefault();
     const cleanedTitle = draftTask.title.trim();
     const cleanedCourseTag = draftTask.courseTag.trim();
-    const normalizedPriority = ['high', 'medium', 'low'].includes(String(draftTask.priority).toLowerCase())
+    const normalizedPriority = ["high", "medium", "low"].includes(
+      String(draftTask.priority).toLowerCase(),
+    )
       ? String(draftTask.priority).toLowerCase()
-      : 'medium';
+      : "medium";
     const normalizedRecurrence = normalizeRecurrence(draftTask.recurrence);
-    const isAcademicTask = draftTask.taskType !== 'general';
+    const isAcademicTask = draftTask.taskType !== "general";
 
     if (!cleanedTitle || !draftTask.dueAt) return;
     if (isAcademicTask && !cleanedCourseTag) {
-      setSaveStatus('Please enter a course tag for academic calendar entries.');
+      setSaveStatus("Please enter a course tag for academic calendar entries.");
       return;
     }
 
-    setSaveStatus('');
+    setSaveStatus("");
 
     const baseTask = {
       title: cleanedTitle,
@@ -459,18 +508,23 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
       ? {
           ...baseTask,
           id: editingTaskId,
-          completed: tasks.find((item) => item.id === editingTaskId)?.completed || false,
-          createdAt: tasks.find((item) => item.id === editingTaskId)?.createdAt || new Date().toISOString(),
+          completed:
+            tasks.find((item) => item.id === editingTaskId)?.completed || false,
+          createdAt:
+            tasks.find((item) => item.id === editingTaskId)?.createdAt ||
+            new Date().toISOString(),
         }
       : createTask(baseTask);
 
     if (editingTaskId) {
-      setTasks((prev) => prev.map((item) => (item.id === editingTaskId ? task : item)));
+      setTasks((prev) =>
+        prev.map((item) => (item.id === editingTaskId ? task : item)),
+      );
     } else {
       setTasks((prev) => [task, ...prev]);
     }
 
-    const token = getStoredToken();
+    const token = getAuthToken();
 
     if (token && editingTaskId) {
       try {
@@ -481,27 +535,32 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
     }
 
     if (isAcademicTask) {
-
       if (token) {
         try {
           await createAcademicEventFromTask(token, task);
 
-          setSaveStatus(editingTaskId
-            ? 'Task updated and academic reminder synced.'
-            : 'Academic reminder saved for shared tracker alerts.');
+          setSaveStatus(
+            editingTaskId
+              ? "Task updated and academic reminder synced."
+              : "Academic reminder saved for shared tracker alerts.",
+          );
         } catch (error) {
-          setSaveStatus(editingTaskId
-            ? 'Task updated locally, but reminder sync failed.'
-            : 'Saved locally, but could not sync the academic reminder to the shared backend yet.');
+          setSaveStatus(
+            editingTaskId
+              ? "Task updated locally, but reminder sync failed."
+              : "Saved locally, but could not sync the academic reminder to the shared backend yet.",
+          );
         }
       } else {
-        setSaveStatus('Saved locally. Sign in to sync academic reminders across devices.');
+        setSaveStatus(
+          "Saved locally. Sign in to sync academic reminders across devices.",
+        );
       }
     } else if (token && editingTaskId) {
-      setSaveStatus('Task updated successfully.');
+      setSaveStatus("Task updated successfully.");
     }
 
-    setEditingTaskId('');
+    setEditingTaskId("");
     setDraftTask(INITIAL_DRAFT);
     setIsModalOpen(false);
   };
@@ -519,18 +578,23 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
         return { ...task, completed: !task.completed };
       });
 
-      if (isCompleting && normalizeRecurrence(targetTask.recurrence) !== 'none') {
+      if (
+        isCompleting &&
+        normalizeRecurrence(targetTask.recurrence) !== "none"
+      ) {
         const nextDueAt = getNextDueAt(targetTask.dueAt, targetTask.recurrence);
         if (nextDueAt) {
           generatedRecurringTask = createTask({
             title: targetTask.title,
             dueAt: nextDueAt,
-            details: targetTask.details || '',
-            taskType: targetTask.taskType || 'general',
-            courseTag: targetTask.courseTag || '',
-            priority: ['high', 'medium', 'low'].includes(String(targetTask.priority || '').toLowerCase())
+            details: targetTask.details || "",
+            taskType: targetTask.taskType || "general",
+            courseTag: targetTask.courseTag || "",
+            priority: ["high", "medium", "low"].includes(
+              String(targetTask.priority || "").toLowerCase(),
+            )
               ? String(targetTask.priority).toLowerCase()
-              : 'medium',
+              : "medium",
             recurrence: normalizeRecurrence(targetTask.recurrence),
           });
 
@@ -541,10 +605,10 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
       return next;
     });
 
-    const token = getStoredToken();
+    const token = getAuthToken();
     if (!token || !isCompleting) return;
 
-    if (targetTask.taskType && targetTask.taskType !== 'general') {
+    if (targetTask.taskType && targetTask.taskType !== "general") {
       try {
         await removeAcademicEventBySourceTaskId(token, targetTask.id);
       } catch (error) {
@@ -552,7 +616,10 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
       }
     }
 
-    if (generatedRecurringTask && generatedRecurringTask.taskType !== 'general') {
+    if (
+      generatedRecurringTask &&
+      generatedRecurringTask.taskType !== "general"
+    ) {
       try {
         await createAcademicEventFromTask(token, generatedRecurringTask);
       } catch (error) {
@@ -570,8 +637,8 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   };
 
   const handleEnableNotifications = async () => {
-    if (!('Notification' in window)) {
-      setNotificationPermission('unsupported');
+    if (!("Notification" in window)) {
+      setNotificationPermission("unsupported");
       return;
     }
 
@@ -580,23 +647,27 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
   };
 
   const getDueLabel = (dueAt) => {
-    if (!dueAt) return 'No due time set';
+    if (!dueAt) return "No due time set";
     const parsed = new Date(dueAt);
-    if (Number.isNaN(parsed.getTime())) return 'No due time set';
+    if (Number.isNaN(parsed.getTime())) return "No due time set";
     return parsed.toLocaleString();
   };
 
   const getPriorityClass = (priority) => {
-    const normalized = String(priority || 'medium').toLowerCase();
-    if (normalized === 'high') return styles.priorityHigh;
-    if (normalized === 'low') return styles.priorityLow;
+    const normalized = String(priority || "medium").toLowerCase();
+    if (normalized === "high") return styles.priorityHigh;
+    if (normalized === "low") return styles.priorityLow;
     return styles.priorityMedium;
   };
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <button type="button" className={styles.backButton} onClick={onNavigateHome}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={onNavigateHome}
+        >
           ← Back To Home
         </button>
 
@@ -604,13 +675,18 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
           <p className={styles.eyebrow}>Productivity</p>
           <h1 className={styles.title}>To-Do Planner</h1>
           <p className={styles.subtitle}>
-            Plan your day with clear priorities, then track progress task by task.
+            Plan your day with clear priorities, then track progress task by
+            task.
           </p>
         </header>
 
         <section className={styles.card}>
           <div className={styles.topActions}>
-            <button type="button" className={styles.primaryButton} onClick={handleOpenModal}>
+            <button
+              type="button"
+              className={styles.primaryButton}
+              onClick={handleOpenModal}
+            >
               Add Task
             </button>
 
@@ -619,25 +695,27 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
               className={styles.notificationButton}
               onClick={handleEnableNotifications}
               disabled={
-                notificationPermission === 'granted'
-                || notificationPermission === 'unsupported'
+                notificationPermission === "granted" ||
+                notificationPermission === "unsupported"
               }
             >
-              {notificationPermission === 'granted'
-                ? 'Notifications Enabled'
-                : 'Enable Device Alerts'}
+              {notificationPermission === "granted"
+                ? "Notifications Enabled"
+                : "Enable Device Alerts"}
             </button>
           </div>
 
           <p className={styles.notificationHint}>
-            {notificationPermission === 'unsupported'
-              ? 'This device/browser does not support system notifications.'
-              : notificationPermission === 'denied'
-                ? 'Notification permission is blocked. Enable notifications for this site in your browser settings.'
-                : 'You will receive a system alert about 10 minutes before a task is due while this app is open.'}
+            {notificationPermission === "unsupported"
+              ? "This device/browser does not support system notifications."
+              : notificationPermission === "denied"
+                ? "Notification permission is blocked. Enable notifications for this site in your browser settings."
+                : "You will receive a system alert about 10 minutes before a task is due while this app is open."}
           </p>
 
-          {saveStatus && <p className={styles.notificationHint}>{saveStatus}</p>}
+          {saveStatus && (
+            <p className={styles.notificationHint}>{saveStatus}</p>
+          )}
 
           <div className={styles.stats}>
             <span>Total: {stats.total}</span>
@@ -648,29 +726,29 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
           <div className={styles.filters}>
             <button
               type="button"
-              className={`${styles.filterButton} ${activeFilter === 'all' ? styles.filterButtonActive : ''}`}
-              onClick={() => setActiveFilter('all')}
+              className={`${styles.filterButton} ${activeFilter === "all" ? styles.filterButtonActive : ""}`}
+              onClick={() => setActiveFilter("all")}
             >
               All
             </button>
             <button
               type="button"
-              className={`${styles.filterButton} ${activeFilter === 'active' ? styles.filterButtonActive : ''}`}
-              onClick={() => setActiveFilter('active')}
+              className={`${styles.filterButton} ${activeFilter === "active" ? styles.filterButtonActive : ""}`}
+              onClick={() => setActiveFilter("active")}
             >
               Active
             </button>
             <button
               type="button"
-              className={`${styles.filterButton} ${activeFilter === 'completed' ? styles.filterButtonActive : ''}`}
-              onClick={() => setActiveFilter('completed')}
+              className={`${styles.filterButton} ${activeFilter === "completed" ? styles.filterButtonActive : ""}`}
+              onClick={() => setActiveFilter("completed")}
             >
               Completed
             </button>
             <button
               type="button"
-              className={`${styles.filterButton} ${activeFilter === 'academic' ? styles.filterButtonActive : ''}`}
-              onClick={() => setActiveFilter('academic')}
+              className={`${styles.filterButton} ${activeFilter === "academic" ? styles.filterButtonActive : ""}`}
+              onClick={() => setActiveFilter("academic")}
             >
               Academic
             </button>
@@ -688,10 +766,14 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
         <section className={styles.listCard}>
           <h2 className={styles.calendarTitle}>Academic Calendar</h2>
-          <p className={styles.calendarHint}>Tests, submissions, and exam timetable entries grouped by date.</p>
+          <p className={styles.calendarHint}>
+            Tests, submissions, and exam timetable entries grouped by date.
+          </p>
 
           {academicCalendar.length === 0 ? (
-            <p className={styles.emptyState}>No academic calendar entries yet. Add one from Add Task.</p>
+            <p className={styles.emptyState}>
+              No academic calendar entries yet. Add one from Add Task.
+            </p>
           ) : (
             <div className={styles.calendarGroups}>
               {academicCalendar.map((group) => (
@@ -699,14 +781,29 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
                   <h3 className={styles.calendarDate}>{group.displayDate}</h3>
                   <ul className={styles.calendarItems}>
                     {group.items.map((item) => (
-                      <li key={item.id} className={`${styles.calendarItem} ${getPriorityClass(item.priority)}`}>
-                        <span className={styles.calendarBadge}>{formatTaskTypeLabel(item.taskType)}</span>
+                      <li
+                        key={item.id}
+                        className={`${styles.calendarItem} ${getPriorityClass(item.priority)}`}
+                      >
+                        <span className={styles.calendarBadge}>
+                          {formatTaskTypeLabel(item.taskType)}
+                        </span>
                         <div className={styles.calendarContent}>
-                          <p className={styles.calendarTaskTitle}>{item.title}</p>
+                          <p className={styles.calendarTaskTitle}>
+                            {item.title}
+                          </p>
                           <p className={styles.calendarMeta}>
-                            {item.courseTag || 'No course tag'} {' | '}
-                            {item.dueDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            {' | '} Priority: <span className={`${styles.priorityTag} ${getPriorityClass(item.priority)}`}>{(item.priority || 'medium').toUpperCase()}</span>
+                            {item.courseTag || "No course tag"} {" | "}
+                            {item.dueDate.toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                            {" | "} Priority:{" "}
+                            <span
+                              className={`${styles.priorityTag} ${getPriorityClass(item.priority)}`}
+                            >
+                              {(item.priority || "medium").toUpperCase()}
+                            </span>
                           </p>
                         </div>
                       </li>
@@ -720,11 +817,16 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
 
         <section className={styles.listCard}>
           {visibleTasks.length === 0 ? (
-            <p className={styles.emptyState}>No tasks in this view yet. Add one to get started.</p>
+            <p className={styles.emptyState}>
+              No tasks in this view yet. Add one to get started.
+            </p>
           ) : (
             <ul className={styles.list}>
               {visibleTasks.map((task) => (
-                <li key={task.id} className={`${styles.item} ${getPriorityClass(task.priority)}`}>
+                <li
+                  key={task.id}
+                  className={`${styles.item} ${getPriorityClass(task.priority)}`}
+                >
                   <label className={styles.checkboxWrap}>
                     <input
                       type="checkbox"
@@ -732,26 +834,49 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
                       onChange={() => handleToggleTask(task.id)}
                     />
                     <div>
-                      <span className={task.completed ? styles.itemDone : styles.itemTitle}>{task.title}</span>
-                      <p className={styles.itemMeta}>Due: {getDueLabel(task.dueAt)}</p>
+                      <span
+                        className={
+                          task.completed ? styles.itemDone : styles.itemTitle
+                        }
+                      >
+                        {task.title}
+                      </span>
+                      <p className={styles.itemMeta}>
+                        Due: {getDueLabel(task.dueAt)}
+                      </p>
                       {task.courseTag ? (
                         <p className={styles.itemMeta}>
-                          Course: {task.courseTag} {' | '} Priority: <span className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}>{(task.priority || 'medium').toUpperCase()}</span>
+                          Course: {task.courseTag} {" | "} Priority:{" "}
+                          <span
+                            className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}
+                          >
+                            {(task.priority || "medium").toUpperCase()}
+                          </span>
                         </p>
                       ) : (
                         <p className={styles.itemMeta}>
-                          Priority: <span className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}>{(task.priority || 'medium').toUpperCase()}</span>
+                          Priority:{" "}
+                          <span
+                            className={`${styles.priorityTag} ${getPriorityClass(task.priority)}`}
+                          >
+                            {(task.priority || "medium").toUpperCase()}
+                          </span>
                         </p>
                       )}
-                      {normalizeRecurrence(task.recurrence) !== 'none' && (
-                        <p className={styles.itemMeta}>Repeats: {normalizeRecurrence(task.recurrence)}</p>
+                      {normalizeRecurrence(task.recurrence) !== "none" && (
+                        <p className={styles.itemMeta}>
+                          Repeats: {normalizeRecurrence(task.recurrence)}
+                        </p>
                       )}
-                      {task.taskType && task.taskType !== 'general' && (
+                      {task.taskType && task.taskType !== "general" && (
                         <p className={styles.itemDetails}>
-                          Academic event: {task.taskType.replace('-', ' ')}{task.courseTag ? ` for ${task.courseTag}` : ''}
+                          Academic event: {task.taskType.replace("-", " ")}
+                          {task.courseTag ? ` for ${task.courseTag}` : ""}
                         </p>
                       )}
-                      {task.details && <p className={styles.itemDetails}>{task.details}</p>}
+                      {task.details && (
+                        <p className={styles.itemDetails}>{task.details}</p>
+                      )}
                     </div>
                   </label>
 
@@ -779,7 +904,10 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
         </section>
 
         {isModalOpen && (
-          <div className={styles.modalOverlay} onMouseDown={() => setIsModalOpen(false)}>
+          <div
+            className={styles.modalOverlay}
+            onMouseDown={() => setIsModalOpen(false)}
+          >
             <section
               className={styles.modal}
               role="dialog"
@@ -797,31 +925,47 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
               </button>
 
               <p className={styles.modalEyebrow}>Planner</p>
-              <h2 className={styles.modalTitle}>{editingTaskId ? 'Edit Task' : 'Add New Task'}</h2>
+              <h2 className={styles.modalTitle}>
+                {editingTaskId ? "Edit Task" : "Add New Task"}
+              </h2>
               <p className={styles.modalSubtext}>
                 {editingTaskId
-                  ? 'Update your task details, due date, and priority.'
-                  : 'Set your task, completion time, and any useful details.'}
+                  ? "Update your task details, due date, and priority."
+                  : "Set your task, completion time, and any useful details."}
               </p>
 
               <form className={styles.form} onSubmit={handleAddTask}>
-                <label className={styles.label} htmlFor="newTaskType">Task Type</label>
+                <label className={styles.label} htmlFor="newTaskType">
+                  Task Type
+                </label>
                 <select
                   id="newTaskType"
                   className={styles.input}
                   value={draftTask.taskType}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, taskType: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      taskType: event.target.value,
+                    }))
+                  }
                 >
                   <option value="general">General task</option>
                   <option value="test-1">Test 1</option>
                   <option value="test-2">Test 2</option>
-                  <option value="submission-deadline">Submission Deadline</option>
+                  <option value="submission-deadline">
+                    Submission Deadline
+                  </option>
                   <option value="exam-timetable">Exam Timetable</option>
                 </select>
 
                 <label className={styles.label} htmlFor="newTaskCourseTag">
                   Course Tag (Academic only)
-                  {cgpaCourses.length > 0 && <span className={styles.labelHint}> — Select from your CGPA courses</span>}
+                  {cgpaCourses.length > 0 && (
+                    <span className={styles.labelHint}>
+                      {" "}
+                      — Select from your CGPA courses
+                    </span>
+                  )}
                 </label>
                 <input
                   id="newTaskCourseTag"
@@ -829,7 +973,12 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
                   className={styles.input}
                   list="cgpaCoursesList"
                   value={draftTask.courseTag}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, courseTag: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      courseTag: event.target.value,
+                    }))
+                  }
                   placeholder="Optional for general tasks (e.g. CSC 205)"
                 />
                 {cgpaCourses.length > 0 && (
@@ -840,24 +989,38 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
                   </datalist>
                 )}
 
-                <label className={styles.label} htmlFor="newTaskPriority">Priority</label>
+                <label className={styles.label} htmlFor="newTaskPriority">
+                  Priority
+                </label>
                 <select
                   id="newTaskPriority"
                   className={styles.input}
                   value={draftTask.priority}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, priority: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      priority: event.target.value,
+                    }))
+                  }
                 >
                   <option value="high">High</option>
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
                 </select>
 
-                <label className={styles.label} htmlFor="newTaskRecurrence">Recurrence</label>
+                <label className={styles.label} htmlFor="newTaskRecurrence">
+                  Recurrence
+                </label>
                 <select
                   id="newTaskRecurrence"
                   className={styles.input}
                   value={draftTask.recurrence}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, recurrence: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      recurrence: event.target.value,
+                    }))
+                  }
                 >
                   <option value="none">Does not repeat</option>
                   <option value="daily">Daily</option>
@@ -865,39 +1028,64 @@ function ToDoPlanner({ activeUserId = 'guest', onNavigateHome }) {
                   <option value="monthly">Monthly</option>
                 </select>
 
-                <label className={styles.label} htmlFor="newTaskTime">Due Date</label>
+                <label className={styles.label} htmlFor="newTaskTime">
+                  Due Date
+                </label>
                 <input
                   id="newTaskTime"
                   type="datetime-local"
                   className={styles.input}
                   value={draftTask.dueAt}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, dueAt: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      dueAt: event.target.value,
+                    }))
+                  }
                   required
                 />
 
-                <label className={styles.label} htmlFor="newTaskTitle">Task</label>
+                <label className={styles.label} htmlFor="newTaskTitle">
+                  Task
+                </label>
                 <input
                   id="newTaskTitle"
                   type="text"
                   className={styles.input}
                   value={draftTask.title}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, title: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      title: event.target.value,
+                    }))
+                  }
                   placeholder="e.g. Revise CST 305 notes"
                   required
                 />
 
-                <label className={styles.label} htmlFor="newTaskDetails">Other Details</label>
+                <label className={styles.label} htmlFor="newTaskDetails">
+                  Other Details
+                </label>
                 <textarea
                   id="newTaskDetails"
                   className={styles.textarea}
                   value={draftTask.details}
-                  onChange={(event) => setDraftTask((prev) => ({ ...prev, details: event.target.value }))}
+                  onChange={(event) =>
+                    setDraftTask((prev) => ({
+                      ...prev,
+                      details: event.target.value,
+                    }))
+                  }
                   placeholder="Optional notes, links, or reminders"
                   rows={4}
                 />
 
-                <button type="submit" className={styles.primaryButton}>{editingTaskId ? 'Save Changes' : 'Save Task'}</button>
-                {saveStatus && <p className={styles.notificationHint}>{saveStatus}</p>}
+                <button type="submit" className={styles.primaryButton}>
+                  {editingTaskId ? "Save Changes" : "Save Task"}
+                </button>
+                {saveStatus && (
+                  <p className={styles.notificationHint}>{saveStatus}</p>
+                )}
               </form>
             </section>
           </div>
