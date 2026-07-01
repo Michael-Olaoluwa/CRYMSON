@@ -22,36 +22,33 @@ async function migrateFromJsonIfNeeded() {
     let upsertedEvents = 0;
 
     if (users.length > 0) {
-      const operations = users
-        .map((user) => {
-          const crymsonId = String(user.crymsonId || "")
-            .trim()
-            .toUpperCase();
-          if (!crymsonId) return null;
+      const operations = users.flatMap((user) => {
+        const crymsonId = String(user.crymsonId || "")
+          .trim()
+          .toUpperCase();
+        if (!crymsonId) return [];
 
-          return {
-            updateOne: {
-              filter: { crymsonId },
-              update: {
-                $setOnInsert: {
-                  crymsonId,
-                  fullName: String(user.fullName || "").trim(),
-                  email: String(user.email || "")
-                    .trim()
-                    .toLowerCase(),
-                  department: String(user.department || "").trim(),
-                  level: String(user.level || "").trim(),
-                  passwordHash: String(user.passwordHash || ""),
-                  createdAt: user.createdAt
-                    ? new Date(user.createdAt)
-                    : new Date(),
-                },
+        return [{
+          updateOne: {
+            filter: { crymsonId },
+            update: {
+              $setOnInsert: {
+                crymsonId,
+                fullName: String(user.fullName || "").trim(),
+                email: String(user.email || "")
+                  .trim()
+                  .toLowerCase(),
+                department: String(user.department || "").trim(),
+                level: String(user.level || "").trim(),
+                passwordHash: String(user.passwordHash || ""),
+                createdAt: user.createdAt
+                  ? new Date(user.createdAt)
+                  : new Date(),
               },
-              upsert: true,
             },
-          };
-        })
-        .filter(Boolean);
+            upsert: true,
+          },
+        }];
 
       if (operations.length > 0) {
         const result = await User.bulkWrite(operations, { ordered: false });
@@ -60,46 +57,43 @@ async function migrateFromJsonIfNeeded() {
     }
 
     if (academicEvents.length > 0) {
-      const operations = academicEvents
-        .map((event) => {
-          const id = String(event.id || "").trim();
-          if (!id) return null;
+      const operations = academicEvents.flatMap((event) => {
+        const id = String(event.id || "").trim();
+        if (!id) return [];
 
-          return {
-            updateOne: {
-              filter: { id },
-              update: {
-                $setOnInsert: {
-                  id,
-                  userId: String(event.userId || "")
-                    .trim()
-                    .toUpperCase(),
-                  subject: String(event.subject || "").trim(),
-                  title: String(event.title || "").trim(),
-                  taskType: String(event.taskType || "")
-                    .trim()
-                    .toLowerCase(),
-                  dueAt: event.dueAt ? new Date(event.dueAt) : new Date(),
-                  reminderDelayMinutes:
-                    Number(event.reminderDelayMinutes) || 60,
-                  acknowledgedAt: event.acknowledgedAt
-                    ? new Date(event.acknowledgedAt)
-                    : null,
-                  createdAt: event.createdAt
-                    ? new Date(event.createdAt)
-                    : new Date(),
-                  updatedAt: event.updatedAt
-                    ? new Date(event.updatedAt)
-                    : new Date(),
-                  sourceTaskId: String(event.sourceTaskId || "").trim(),
-                  notes: String(event.notes || "").trim(),
-                },
+        return [{
+          updateOne: {
+            filter: { id },
+            update: {
+              $setOnInsert: {
+                id,
+                userId: String(event.userId || "")
+                  .trim()
+                  .toUpperCase(),
+                subject: String(event.subject || "").trim(),
+                title: String(event.title || "").trim(),
+                taskType: String(event.taskType || "")
+                  .trim()
+                  .toLowerCase(),
+                dueAt: event.dueAt ? new Date(event.dueAt) : new Date(),
+                reminderDelayMinutes:
+                  Number(event.reminderDelayMinutes) || 60,
+                acknowledgedAt: event.acknowledgedAt
+                  ? new Date(event.acknowledgedAt)
+                  : null,
+                createdAt: event.createdAt
+                  ? new Date(event.createdAt)
+                  : new Date(),
+                updatedAt: event.updatedAt
+                  ? new Date(event.updatedAt)
+                  : new Date(),
+                sourceTaskId: String(event.sourceTaskId || "").trim(),
+                notes: String(event.notes || "").trim(),
               },
-              upsert: true,
             },
-          };
-        })
-        .filter(Boolean);
+            upsert: true,
+          },
+        }];
 
       if (operations.length > 0) {
         const result = await AcademicEvent.bulkWrite(operations, {

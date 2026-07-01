@@ -198,9 +198,10 @@ function TimeTracker({ activeUserId = "guest", onNavigateHome }) {
 
       const parsed = JSON.parse(raw);
       const courses = Array.isArray(parsed?.courses) ? parsed.courses : [];
-      const tags = courses
-        .map((course) => String(course?.courseName || "").trim())
-        .filter(Boolean);
+      const tags = courses.flatMap((course) => {
+        const courseName = String(course?.courseName || "").trim();
+        return courseName ? [courseName] : [];
+      });
 
       setAvailableCourseTags([...new Set(tags)]);
     } catch (error) {

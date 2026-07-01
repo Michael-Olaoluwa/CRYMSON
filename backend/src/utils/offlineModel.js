@@ -1,14 +1,17 @@
-const fs = require('fs/promises');
-const path = require('path');
-const mongoose = require('mongoose');
+const fs = require("fs/promises");
+const path = require("path");
+const mongoose = require("mongoose");
 
-const offlineDbPath = path.join(__dirname, '../../data/offline-db.json');
+const offlineDbPath = path.join(__dirname, "../../data/offline-db.json");
 
 let storeCache = null;
 let writeQueue = Promise.resolve();
 
 function useOfflineDb() {
-  return process.env.CRYMSON_OFFLINE_DB === '1' || mongoose.connection.readyState !== 1;
+  return (
+    process.env.CRYMSON_OFFLINE_DB === "1" ||
+    mongoose.connection.readyState !== 1
+  );
 }
 
 function deepClone(value) {
@@ -16,7 +19,7 @@ function deepClone(value) {
 }
 
 function normalizeCollectionName(name) {
-  return String(name || '').trim();
+  return String(name || "").trim();
 }
 
 async function loadStore() {
@@ -25,8 +28,8 @@ async function loadStore() {
   }
 
   try {
-    const raw = await fs.readFile(offlineDbPath, 'utf8');
-    storeCache = JSON.parse(raw || '{}');
+    const raw = await fs.readFile(offlineDbPath, "utf8");
+    storeCache = JSON.parse(raw || "{}");
   } catch (error) {
     storeCache = {};
   }
@@ -37,7 +40,11 @@ async function loadStore() {
 async function saveStore(store) {
   storeCache = deepClone(store);
   await fs.mkdir(path.dirname(offlineDbPath), { recursive: true });
-  await fs.writeFile(offlineDbPath, `${JSON.stringify(storeCache, null, 2)}\n`, 'utf8');
+  await fs.writeFile(
+    offlineDbPath,
+    `${JSON.stringify(storeCache, null, 2)}\n`,
+    "utf8",
+  );
 }
 
 function enqueueWrite(task) {
@@ -47,23 +54,33 @@ function enqueueWrite(task) {
 
 function matchesCondition(docValue, filterValue) {
   if (filterValue instanceof RegExp) {
-    return filterValue.test(String(docValue || ''));
+    return filterValue.test(String(docValue || ""));
   }
 
-  if (filterValue && typeof filterValue === 'object' && !Array.isArray(filterValue)) {
-    if (Object.prototype.hasOwnProperty.call(filterValue, '$regex')) {
+  if (
+    filterValue &&
+    typeof filterValue === "object" &&
+    !Array.isArray(filterValue)
+  ) {
+    if (Object.prototype.hasOwnProperty.call(filterValue, "$regex")) {
       const pattern = filterValue.$regex;
-      const flags = filterValue.$options || '';
-      const regex = pattern instanceof RegExp ? pattern : new RegExp(String(pattern), flags);
-      return regex.test(String(docValue || ''));
+      const flags = filterValue.$options || "";
+      const regex =
+        pattern instanceof RegExp
+          ? pattern
+          : new RegExp(String(pattern), flags);
+      return regex.test(String(docValue || ""));
     }
 
-    if (Object.prototype.hasOwnProperty.call(filterValue, '$in') && Array.isArray(filterValue.$in)) {
+    if (
+      Object.prototype.hasOwnProperty.call(filterValue, "$in") &&
+      Array.isArray(filterValue.$in)
+    ) {
       return filterValue.$in.some((item) => String(item) === String(docValue));
     }
   }
 
-  return String(docValue ?? '') === String(filterValue ?? '');
+  return String(docValue ?? "") === String(filterValue ?? "");
 }
 
 function matchesFilter(doc, filter = {}) {
@@ -73,7 +90,7 @@ function matchesFilter(doc, filter = {}) {
   }
 
   for (const [key, value] of entries) {
-    if (key === '$or' && Array.isArray(value)) {
+    if (key === "$or" && Array.isArray(value)) {
       if (value.some((item) => matchesFilter(doc, item))) {
         continue;
       }
@@ -119,7 +136,7 @@ function applyProjection(doc, projection) {
 }
 
 function applySort(docs, sortSpec) {
-  if (!sortSpec || typeof sortSpec !== 'object') {
+  if (!sortSpec || typeof sortSpec !== "object") {
     return docs;
   }
 
@@ -164,15 +181,19 @@ function wrapDocument(collectionName, primaryKey, document) {
 
   const wrapped = deepClone(document);
 
-  Object.defineProperty(wrapped, 'save', {
+  Object.defineProperty(wrapped, "save", {
     enumerable: false,
     value: async function save() {
       const payload = deepClone(this);
       return enqueueWrite(async () => {
         const store = await loadStore();
-        const collection = Array.isArray(store[collectionName]) ? store[collectionName] : [];
+        const collection = Array.isArray(store[collectionName])
+          ? store[collectionName]
+          : [];
         const idValue = payload[primaryKey];
-        const index = collection.findIndex((item) => String(item?.[primaryKey]) === String(idValue));
+        const index = collection.findIndex(
+          (item) => String(item?.[primaryKey]) === String(idValue),
+        );
 
         if (index === -1) {
           collection.unshift(payload);
@@ -187,7 +208,7 @@ function wrapDocument(collectionName, primaryKey, document) {
     },
   });
 
-  Object.defineProperty(wrapped, 'toObject', {
+  Object.defineProperty(wrapped, "toObject", {
     enumerable: false,
     value: function toObject() {
       return deepClone(this);
@@ -197,7 +218,13 @@ function wrapDocument(collectionName, primaryKey, document) {
   return wrapped;
 }
 
-function createOfflineQuery(collectionName, primaryKey, filter, projection, single) {
+function createOfflineQuery(
+  collectionName,
+  primaryKey,
+  filter,
+  projection,
+  single,
+) {
   const state = {
     filter: filter || {},
     projection: projection || null,
@@ -227,8 +254,12 @@ function createOfflineQuery(collectionName, primaryKey, filter, projection, sing
     },
     async exec() {
       const store = await loadStore();
-      const collection = Array.isArray(store[collectionName]) ? store[collectionName] : [];
-      let results = collection.filter((doc) => matchesFilter(doc, state.filter));
+      const collection = Array.isArray(store[collectionName])
+        ? store[collectionName]
+        : [];
+      let results = collection.filter((doc) =>
+        matchesFilter(doc, state.filter),
+      );
       results = applySort(results, state.sortSpec);
 
       if (state.skipCount > 0) {
@@ -243,14 +274,18 @@ function createOfflineQuery(collectionName, primaryKey, filter, projection, sing
 
       if (state.single) {
         const item = results[0] || null;
-        return state.leanMode ? item : wrapDocument(collectionName, primaryKey, item);
+        return state.leanMode
+          ? item
+          : wrapDocument(collectionName, primaryKey, item);
       }
 
       if (state.leanMode) {
         return results;
       }
 
-      return results.map((item) => wrapDocument(collectionName, primaryKey, item));
+      return results.map((item) =>
+        wrapDocument(collectionName, primaryKey, item),
+      );
     },
     then(resolve, reject) {
       return query.exec().then(resolve, reject);
@@ -274,7 +309,7 @@ async function getCollection(collectionName) {
 }
 
 function getPrimaryKey(config) {
-  return config.primaryKey || 'id';
+  return config.primaryKey || "id";
 }
 
 function createOfflineModelProxy(realModel, config) {
@@ -287,13 +322,19 @@ function createOfflineModelProxy(realModel, config) {
     const document = deepClone(payload || {});
     const idValue = document[primaryKey];
 
-    if (idValue === undefined || idValue === null || String(idValue).trim() === '') {
+    if (
+      idValue === undefined ||
+      idValue === null ||
+      String(idValue).trim() === ""
+    ) {
       throw new Error(`Missing required key: ${primaryKey}`);
     }
 
-    const existingIndex = collection.findIndex((item) => String(item?.[primaryKey]) === String(idValue));
+    const existingIndex = collection.findIndex(
+      (item) => String(item?.[primaryKey]) === String(idValue),
+    );
     if (existingIndex !== -1) {
-      const error = new Error('Duplicate key error');
+      const error = new Error("Duplicate key error");
       error.code = 11000;
       throw error;
     }
@@ -331,10 +372,12 @@ function createOfflineModelProxy(realModel, config) {
 
   function applyUpdatePayload(target, update, options = {}) {
     const nextTarget = target || {};
-    const setPayload = update?.$set && typeof update.$set === 'object' ? update.$set : {};
-    const setOnInsertPayload = update?.$setOnInsert && typeof update.$setOnInsert === 'object'
-      ? update.$setOnInsert
-      : {};
+    const setPayload =
+      update?.$set && typeof update.$set === "object" ? update.$set : {};
+    const setOnInsertPayload =
+      update?.$setOnInsert && typeof update.$setOnInsert === "object"
+        ? update.$setOnInsert
+        : {};
 
     Object.assign(nextTarget, setPayload);
     if (options.isInsert) {
@@ -357,14 +400,16 @@ function createOfflineModelProxy(realModel, config) {
       const inserted = applyUpdatePayload(
         { ...extractEqualityFields(filter), ...update?.$setOnInsert },
         update,
-        { isInsert: true }
+        { isInsert: true },
       );
       collection.unshift(inserted);
       await saveStore(store);
       return { matchedCount: 0, modifiedCount: 0, upsertedCount: 1 };
     }
 
-    collection[index] = applyUpdatePayload(collection[index], update, { isInsert: false });
+    collection[index] = applyUpdatePayload(collection[index], update, {
+      isInsert: false,
+    });
     await saveStore(store);
     return { matchedCount: 1, modifiedCount: 1, upsertedCount: 0 };
   }
@@ -382,14 +427,18 @@ function createOfflineModelProxy(realModel, config) {
       const inserted = applyUpdatePayload(
         { ...extractEqualityFields(filter), ...update?.$setOnInsert },
         update,
-        { isInsert: true }
+        { isInsert: true },
       );
       collection.unshift(inserted);
       await saveStore(store);
-      return options.new === false ? null : wrapDocument(collectionName, primaryKey, inserted);
+      return options.new === false
+        ? null
+        : wrapDocument(collectionName, primaryKey, inserted);
     }
 
-    collection[index] = applyUpdatePayload(collection[index], update, { isInsert: false });
+    collection[index] = applyUpdatePayload(collection[index], update, {
+      isInsert: false,
+    });
     await saveStore(store);
     return wrapDocument(collectionName, primaryKey, collection[index]);
   }
@@ -397,15 +446,23 @@ function createOfflineModelProxy(realModel, config) {
   async function bulkWrite(operations = []) {
     let upsertedCount = 0;
 
-    for (const operation of operations) {
-      if (!operation || !operation.updateOne) {
-        continue;
-      }
+    const results = await Promise.all(
+      operations
+        .filter((operation) => operation && operation.updateOne)
+        .map(async (operation) => {
+          const {
+            filter = {},
+            update = {},
+            upsert = false,
+          } = operation.updateOne;
+          return updateMatching(filter, update, { upsert });
+        }),
+    );
 
-      const { filter = {}, update = {}, upsert = false } = operation.updateOne;
-      const result = await updateMatching(filter, update, { upsert });
-      upsertedCount += result.upsertedCount || 0;
-    }
+    const upsertedCount = results.reduce(
+      (sum, result) => sum + (result.upsertedCount || 0),
+      0,
+    );
 
     return { upsertedCount };
   }
@@ -413,7 +470,7 @@ function createOfflineModelProxy(realModel, config) {
   function extractEqualityFields(filter = {}) {
     const result = {};
     for (const [key, value] of Object.entries(filter)) {
-      if (key.startsWith('$')) {
+      if (key.startsWith("$")) {
         continue;
       }
 
@@ -421,7 +478,7 @@ function createOfflineModelProxy(realModel, config) {
         continue;
       }
 
-      if (value && typeof value === 'object') {
+      if (value && typeof value === "object") {
         continue;
       }
 
@@ -433,22 +490,38 @@ function createOfflineModelProxy(realModel, config) {
 
   const offlineMethods = {
     find(filter = {}, projection = null) {
-      return createOfflineQuery(collectionName, primaryKey, filter, projection, false);
+      return createOfflineQuery(
+        collectionName,
+        primaryKey,
+        filter,
+        projection,
+        false,
+      );
     },
     findOne(filter = {}, projection = null) {
-      return createOfflineQuery(collectionName, primaryKey, filter, projection, true);
+      return createOfflineQuery(
+        collectionName,
+        primaryKey,
+        filter,
+        projection,
+        true,
+      );
     },
     async create(payload) {
       return createDocument(payload);
     },
     async exists(filter = {}) {
       const store = await loadStore();
-      const collection = Array.isArray(store[collectionName]) ? store[collectionName] : [];
+      const collection = Array.isArray(store[collectionName])
+        ? store[collectionName]
+        : [];
       return collection.some((item) => matchesFilter(item, filter));
     },
     async countDocuments(filter = {}) {
       const store = await loadStore();
-      const collection = Array.isArray(store[collectionName]) ? store[collectionName] : [];
+      const collection = Array.isArray(store[collectionName])
+        ? store[collectionName]
+        : [];
       return collection.filter((item) => matchesFilter(item, filter)).length;
     },
     async deleteOne(filter = {}) {
@@ -472,7 +545,7 @@ function createOfflineModelProxy(realModel, config) {
     get(target, prop, receiver) {
       if (!useOfflineDb()) {
         const value = Reflect.get(target, prop, receiver);
-        return typeof value === 'function' ? value.bind(target) : value;
+        return typeof value === "function" ? value.bind(target) : value;
       }
 
       if (Object.prototype.hasOwnProperty.call(offlineMethods, prop)) {
@@ -480,7 +553,7 @@ function createOfflineModelProxy(realModel, config) {
       }
 
       const value = Reflect.get(target, prop, receiver);
-      return typeof value === 'function' ? value.bind(target) : value;
+      return typeof value === "function" ? value.bind(target) : value;
     },
   });
 }
