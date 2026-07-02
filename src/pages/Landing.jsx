@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import TopBar from '../parts/welcome-page/TopBar';
 import BigHero from '../parts/welcome-page/BigHero';
+import ToolCards from '../parts/welcome-page/ToolCards';
+import IdExplainer from '../parts/welcome-page/IdExplainer';
+import PreviewPanel from '../parts/welcome-page/PreviewPanel';
+import WhyUseCrymson from '../parts/welcome-page/WhyUseCrymson';
 import BottomBar from '../parts/welcome-page/BottomBar';
 import CreateAccountDialog from '../parts/welcome-page/CreateAccountDialog';
 import SignupSuccessDialog from '../parts/welcome-page/SignupSuccessDialog';
@@ -233,6 +237,18 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
 
       <main>
         <BigHero />
+        <div className={styles.line} />
+        {!isAdmin && (
+          <ToolCards
+            onNavigateToCGPA={onNavigateToCGPA}
+            onNavigateToTodo={onNavigateToTodo}
+            onNavigateToTime={onNavigateToTime}
+            onNavigateToFinance={onNavigateToFinance}
+          />
+        )}
+        <IdExplainer />
+        <PreviewPanel />
+        <WhyUseCrymson />
       </main>
 
       <BottomBar />
