@@ -1,6 +1,13 @@
 .cgpaTracker {
-  background: var(--white);
-  color: var(--black);
+  background:
+    radial-gradient(circle at 8% 8%, rgba(59, 130, 246, 0.12), transparent 34%),
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(16, 185, 129, 0.1),
+      transparent 34%
+    ),
+    #f9fafb;
+  color: var(--finance-gray-900);
   min-height: 100vh;
 }
 
@@ -11,12 +18,12 @@
 }
 
 .footer {
-  border-top: 1px solid var(--grey);
+  border-top: 1px solid var(--finance-gray-200);
   padding: 2.5rem 1.5rem;
   text-align: center;
   font-size: 0.85rem;
-  color: var(--black);
-  background: var(--white);
+  color: var(--finance-gray-700);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .toastContainer {

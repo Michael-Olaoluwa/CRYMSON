@@ -1,37 +1,59 @@
-import React, { useEffect, useState } from 'react';
-import WelcomeScreen from './screens/WelcomeScreen.jsx';
-import GradeTrackerScreen from './screens/GradeTrackerScreen';
-import TaskPlannerScreen from './screens/TaskPlannerScreen';
-import HomeScreen from './screens/HomeScreen';
-import MyGradeTrackerScreen from './screens/MyGradeTrackerScreen';
-import TimeTrackerScreen from './screens/TimeTrackerScreen';
-import FinanceTrackerScreen from './screens/FinanceTrackerScreen';
-import Admin from './pages/Admin';
-import { TimerProvider } from './context/TimerContext';
-import { clearAuthSession, getAuthToken, setAuthToken } from './utils/authSession';
+import React, { useEffect, useState } from "react";
+import WelcomeScreen from "./screens/WelcomeScreen.jsx";
+import GradeTrackerScreen from "./screens/GradeTrackerScreen";
+import TaskPlannerScreen from "./screens/TaskPlannerScreen";
+import HomeScreen from "./screens/HomeScreen";
+import MyGradeTrackerScreen from "./screens/MyGradeTrackerScreen";
+import TimeTrackerScreen from "./screens/TimeTrackerScreen";
+import FinanceTrackerScreen from "./screens/FinanceTrackerScreen";
+import Admin from "./pages/Admin";
+import { TimerProvider } from "./context/TimerContext";
+import {
+  clearAuthSession,
+  getAuthToken,
+  setAuthToken,
+} from "./utils/authSession";
 
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
-const APP_STATE_KEY = 'crymson_app_state';
-const ALLOWED_PAGES = new Set(['landing', 'home', 'cgpa', 'user-cgpa', 'todo', 'time', 'finance', 'admin']);
+const AUTH_API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  `${window.location.protocol}//${window.location.hostname}:5000`;
+const APP_STATE_KEY = "crymson_app_state";
+const ALLOWED_PAGES = new Set([
+  "landing",
+  "home",
+  "cgpa",
+  "user-cgpa",
+  "todo",
+  "time",
+  "finance",
+  "admin",
+]);
 
 const getSavedAppState = () => {
   try {
     const raw = localStorage.getItem(APP_STATE_KEY);
     if (!raw) {
-      return { currentPage: 'landing', activeUserId: '', activeUserName: '' };
+      return { currentPage: "landing", activeUserId: "", activeUserName: "" };
     }
 
     const parsed = JSON.parse(raw);
-    const page = typeof parsed.currentPage === 'string' && ALLOWED_PAGES.has(parsed.currentPage)
-      ? parsed.currentPage
-      : 'landing';
-    const userId = typeof parsed.activeUserId === 'string' ? parsed.activeUserId : '';
-    const userName = typeof parsed.activeUserName === 'string' ? parsed.activeUserName : '';
+    const page =
+      typeof parsed.currentPage === "string" &&
+      ALLOWED_PAGES.has(parsed.currentPage)
+        ? parsed.currentPage
+        : "landing";
+    const userId =
+      typeof parsed.activeUserId === "string" ? parsed.activeUserId : "";
+    const userName =
+      typeof parsed.activeUserName === "string" ? parsed.activeUserName : "";
 
-    return { currentPage: page, activeUserId: userId, activeUserName: userName };
+    return {
+      currentPage: page,
+      activeUserId: userId,
+      activeUserName: userName,
+    };
   } catch (error) {
-    return { currentPage: 'landing', activeUserId: '', activeUserName: '' };
+    return { currentPage: "landing", activeUserId: "", activeUserName: "" };
   }
 };
 
@@ -41,11 +63,11 @@ const clearSessionStorage = () => {
 };
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('landing');
-  const [activeUserId, setActiveUserId] = useState('');
-  const [activeUserName, setActiveUserName] = useState('');
+  const [currentPage, setCurrentPage] = useState("landing");
+  const [activeUserId, setActiveUserId] = useState("");
+  const [activeUserName, setActiveUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [sessionNotice, setSessionNotice] = useState('');
+  const [sessionNotice, setSessionNotice] = useState("");
 
   useEffect(() => {
     let isCancelled = false;
@@ -55,8 +77,10 @@ function App() {
       const savedState = getSavedAppState();
 
       if (!token) {
-        if (savedState.currentPage !== 'landing') {
-          setSessionNotice('This tab does not share the signed-in session. Please sign in again to continue.');
+        if (savedState.currentPage !== "landing") {
+          setSessionNotice(
+            "This tab does not share the signed-in session. Please sign in again to continue.",
+          );
         }
         clearSessionStorage();
         return;
@@ -64,48 +88,59 @@ function App() {
 
       try {
         const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/session`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const payload = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(payload.message || 'Invalid session.');
+          throw new Error(payload.message || "Invalid session.");
         }
 
         if (isCancelled) {
           return;
         }
 
-        const restoredUserId = payload?.user?.crymsonId || savedState.activeUserId;
-        const restoredUserName = payload?.user?.fullName || savedState.activeUserName;
-        const restoredPage = savedState.currentPage && savedState.currentPage !== 'landing'
-          ? savedState.currentPage
-          : (payload?.user?.isAdmin ? 'admin' : 'home');
+        const restoredUserId =
+          payload?.user?.crymsonId || savedState.activeUserId;
+        const restoredUserName =
+          payload?.user?.fullName || savedState.activeUserName;
+        const restoredPage =
+          savedState.currentPage && savedState.currentPage !== "landing"
+            ? savedState.currentPage
+            : payload?.user?.isAdmin
+              ? "admin"
+              : "home";
 
         if (!restoredUserId) {
-          throw new Error('Invalid session user.');
+          throw new Error("Invalid session user.");
         }
 
         setActiveUserId(restoredUserId);
         setActiveUserName(restoredUserName);
         setIsAdmin(Boolean(payload?.user?.isAdmin));
-        setSessionNotice('');
-        setCurrentPage(Boolean(payload?.user?.isAdmin) && restoredPage === 'home' ? 'admin' : restoredPage);
+        setSessionNotice("");
+        setCurrentPage(
+          Boolean(payload?.user?.isAdmin) && restoredPage === "home"
+            ? "admin"
+            : restoredPage,
+        );
       } catch (error) {
         if (isCancelled) {
           return;
         }
 
         clearSessionStorage();
-        setActiveUserId('');
-        setActiveUserName('');
+        setActiveUserId("");
+        setActiveUserName("");
         setIsAdmin(false);
-        setSessionNotice('Your session expired. Please sign in again to continue.');
-        setCurrentPage('landing');
+        setSessionNotice(
+          "Your session expired. Please sign in again to continue.",
+        );
+        setCurrentPage("landing");
       }
     };
 
@@ -119,62 +154,62 @@ function App() {
   useEffect(() => {
     localStorage.setItem(
       APP_STATE_KEY,
-      JSON.stringify({ currentPage, activeUserId, activeUserName })
+      JSON.stringify({ currentPage, activeUserId, activeUserName }),
     );
   }, [currentPage, activeUserId, activeUserName]);
 
   const navigateToCGPA = () => {
-    setCurrentPage('cgpa');
+    setCurrentPage("cgpa");
   };
 
   const navigateToUserCGPA = () => {
-    setCurrentPage('user-cgpa');
+    setCurrentPage("user-cgpa");
   };
 
   const navigateToTodo = () => {
-    setCurrentPage('todo');
+    setCurrentPage("todo");
   };
 
   const navigateToTimeTracker = () => {
-    setCurrentPage('time');
+    setCurrentPage("time");
   };
 
   const navigateToFinanceTracker = () => {
-    setCurrentPage('finance');
+    setCurrentPage("finance");
   };
 
   const navigateToAdmin = () => {
-    setCurrentPage('admin');
+    setCurrentPage("admin");
   };
 
   const navigateToUserHome = (userId, userName, token, adminFlag = false) => {
-    if (typeof token === 'string' && token) {
+    if (typeof token === "string" && token) {
       setAuthToken(token);
     }
 
     setActiveUserId(userId);
-    setActiveUserName(userName || '');
+    setActiveUserName(userName || "");
     setIsAdmin(Boolean(adminFlag));
-    setSessionNotice('');
-    setCurrentPage(Boolean(adminFlag) ? 'admin' : 'home');
+    setSessionNotice("");
+    setCurrentPage(Boolean(adminFlag) ? "admin" : "home");
   };
 
   const navigateHome = () => {
-    setCurrentPage('landing');
+    setCurrentPage("landing");
   };
 
   const handleLogout = () => {
     clearSessionStorage();
-    setActiveUserId('');
-    setActiveUserName('');
-    setSessionNotice('');
-    setCurrentPage('landing');
+    setActiveUserId("");
+    setActiveUserName("");
+    setSessionNotice("");
+    setCurrentPage("landing");
   };
 
   return (
     <TimerProvider>
-      <div className="App">
-        {currentPage === 'landing' && (
+      <div className={`App financeTheme page-${currentPage}`}>
+        {currentPage === "landing" && (
           <WelcomeScreen
             onNavigateToCGPA={navigateToCGPA}
             onNavigateToTodo={navigateToTodo}
@@ -186,7 +221,7 @@ function App() {
           />
         )}
 
-        {currentPage === 'home' && (
+        {currentPage === "home" && (
           <HomeScreen
             userId={activeUserId}
             userName={activeUserName}
@@ -200,34 +235,44 @@ function App() {
           />
         )}
 
-        {currentPage === 'cgpa' && (
+        {currentPage === "cgpa" && (
           <GradeTrackerScreen onNavigateHome={navigateHome} />
         )}
 
-        {currentPage === 'user-cgpa' && (
-          <MyGradeTrackerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
+        {currentPage === "user-cgpa" && (
+          <MyGradeTrackerScreen
+            activeUserId={activeUserId}
+            onNavigateHome={() => setCurrentPage("home")}
+          />
         )}
 
-        {currentPage === 'todo' && (
-          <TaskPlannerScreen activeUserId={activeUserId} onNavigateHome={() => setCurrentPage('home')} />
+        {currentPage === "todo" && (
+          <TaskPlannerScreen
+            activeUserId={activeUserId}
+            onNavigateHome={() => setCurrentPage("home")}
+          />
         )}
 
-        {currentPage === 'time' && (
+        {currentPage === "time" && (
           <TimeTrackerScreen
             activeUserId={activeUserId}
-            onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
+            onNavigateHome={() =>
+              setCurrentPage(activeUserId ? "home" : "landing")
+            }
           />
         )}
 
-        {currentPage === 'finance' && (
+        {currentPage === "finance" && (
           <FinanceTrackerScreen
             activeUserId={activeUserId}
-            onNavigateHome={() => setCurrentPage(activeUserId ? 'home' : 'landing')}
+            onNavigateHome={() =>
+              setCurrentPage(activeUserId ? "home" : "landing")
+            }
           />
         )}
 
-        {currentPage === 'admin' && (
-          <Admin onNavigateHome={() => setCurrentPage('home')} />
+        {currentPage === "admin" && (
+          <Admin onNavigateHome={() => setCurrentPage("home")} />
         )}
       </div>
     </TimerProvider>

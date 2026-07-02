@@ -1,7 +1,14 @@
 .container {
   min-height: 100vh;
   padding: 24px;
-  background: #f5f7fa;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(59, 130, 246, 0.12), transparent 36%),
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(16, 185, 129, 0.1),
+      transparent 34%
+    ),
+    #f9fafb;
 }
 
 .header {
@@ -14,22 +21,24 @@
 .header h1 {
   margin: 0;
   font-size: 32px;
-  color: #0f172a;
+  color: #111827;
 }
 
 .backBtn {
   padding: 8px 16px;
-  background: #6366f1;
+  background: #3b82f6;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
 }
 
 .backBtn:hover {
-  background: #4f46e5;
+  background: #2563eb;
 }
 
 .error {
@@ -51,16 +60,17 @@
 .searchInput {
   flex: 1;
   max-width: 400px;
-  padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
   font-size: 14px;
+  background: #fff;
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.13);
 }
 
 .createBtn {
@@ -68,11 +78,13 @@
   background: #10b981;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
   white-space: nowrap;
 }
 
@@ -90,9 +102,10 @@
 
 .tableWrapper {
   background: white;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   overflow-x: auto;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.08);
   margin-bottom: 24px;
 }
 
@@ -103,25 +116,25 @@
 }
 
 .table thead {
-  background: #f1f5f9;
-  border-bottom: 1px solid #e2e8f0;
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .table th {
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
-  color: #334155;
+  color: #374151;
 }
 
 .table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #e2e8f0;
-  color: #475569;
+  border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
 }
 
 .table tbody tr:hover {
-  background: #f8fafc;
+  background: #f9fafb;
 }
 
 .id {
@@ -134,10 +147,12 @@
   background: #ef4444;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
 }
 
 .deleteBtn:hover {
@@ -146,10 +161,11 @@
 
 .createForm {
   background: white;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.08);
 }
 
 .createForm h3 {
@@ -168,9 +184,9 @@
 .createForm input[type="text"],
 .createForm input[type="email"],
 .createForm input[type="password"] {
-  padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
   font-size: 14px;
 }
 
@@ -178,8 +194,8 @@
 .createForm input[type="email"]:focus,
 .createForm input[type="password"]:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.13);
 }
 
 .checkboxLabel {
@@ -188,9 +204,9 @@
   gap: 8px;
   font-size: 14px;
   cursor: pointer;
-  padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
 }
 
 .checkboxLabel input[type="checkbox"] {
@@ -202,11 +218,13 @@
   background: #10b981;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s;
 }
 
 .submitBtn:hover:not(:disabled) {
@@ -228,17 +246,17 @@
 .pagination button {
   padding: 8px 16px;
   background: white;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .pagination button:hover:not(:disabled) {
-  background: #6366f1;
+  background: #3b82f6;
   color: white;
-  border-color: #6366f1;
+  border-color: #3b82f6;
 }
 
 .pagination button:disabled {
@@ -298,9 +316,10 @@
 
 .card {
   background: white;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.08);
 }
 
 .logs {
@@ -310,4 +329,3 @@
   font-size: 13px;
   color: #334155;
 }
-

@@ -9,5 +9,34 @@
       "passwordHash": "$2a$10$VnIObSkGbnasqU7kzsn/9u6f6UYWvN3UZyLHYyxeEvw.Q4gbRrnyW",
       "createdAt": "2026-05-15T15:30:18.602Z"
     }
+  ],
+  "userStates": [
+    {
+      "userId": "269876S",
+      "updatedAt": "2026-05-15T16:33:30.835Z",
+      "cgpaState": {
+        "courses": [
+          {
+            "id": 1,
+            "courseName": "",
+            "creditUnits": "",
+            "test1Score": "",
+            "test2Score": "",
+            "examScore": ""
+          }
+        ],
+        "nextId": 2,
+        "goalCgpa": "4.5",
+        "remainingUnits": "",
+        "cgpa": null,
+        "classification": null,
+        "showDashboardCard": true,
+        "showDashboardClassification": true,
+        "onboardingCompleted": true,
+        "currentSemester": 1,
+        "totalSemesters": 8,
+        "previousSemesters": []
+      }
+    }
   ]
 }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap");
 
 :root {
   --burgundy: #800020;
@@ -8,6 +8,22 @@
   --grey: #d9d4cf;
   --soft-grey: #f4f1ed;
   --transition-fast: 0.22s ease;
+  --finance-primary: #3b82f6;
+  --finance-primary-strong: #2563eb;
+  --finance-success: #10b981;
+  --finance-danger: #ef4444;
+  --finance-warning: #f59e0b;
+  --finance-gray-50: #f9fafb;
+  --finance-gray-100: #f3f4f6;
+  --finance-gray-200: #e5e7eb;
+  --finance-gray-300: #d1d5db;
+  --finance-gray-500: #6b7280;
+  --finance-gray-700: #374151;
+  --finance-gray-900: #111827;
+  --finance-radius: 10px;
+  --finance-radius-lg: 14px;
+  --finance-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.08);
+  --finance-shadow-md: 0 8px 20px rgba(17, 24, 39, 0.08);
 }
 
 * {
@@ -23,13 +39,68 @@ body,
 }
 
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   color: var(--black);
   background:
-    radial-gradient(1200px 550px at 90% -10%, rgba(128, 0, 32, 0.08), transparent 65%),
-    radial-gradient(850px 450px at -10% 25%, rgba(0, 0, 0, 0.06), transparent 60%),
+    radial-gradient(
+      1200px 550px at 90% -10%,
+      rgba(128, 0, 32, 0.08),
+      transparent 65%
+    ),
+    radial-gradient(
+      850px 450px at -10% 25%,
+      rgba(0, 0, 0, 0.06),
+      transparent 60%
+    ),
     #f8f5f0;
   line-height: 1.55;
+}
+
+.App.financeTheme {
+  min-height: 100vh;
+  color: var(--finance-gray-900);
+}
+
+.App.financeTheme:not(.page-landing) {
+  background:
+    radial-gradient(
+      1200px 520px at 88% -8%,
+      rgba(59, 130, 246, 0.12),
+      transparent 65%
+    ),
+    radial-gradient(
+      900px 420px at -12% 22%,
+      rgba(16, 185, 129, 0.09),
+      transparent 62%
+    ),
+    var(--finance-gray-50);
+}
+
+.App.financeTheme button {
+  border-radius: var(--finance-radius);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.App.financeTheme button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.App.financeTheme input,
+.App.financeTheme select,
+.App.financeTheme textarea {
+  border-radius: var(--finance-radius);
+}
+
+.App.financeTheme input:focus,
+.App.financeTheme select:focus,
+.App.financeTheme textarea:focus {
+  outline: none;
+  border-color: var(--finance-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
 }
 
 a {
