@@ -444,8 +444,6 @@ function createOfflineModelProxy(realModel, config) {
   }
 
   async function bulkWrite(operations = []) {
-    let upsertedCount = 0;
-
     const results = await Promise.all(
       operations
         .filter((operation) => operation && operation.updateOne)
