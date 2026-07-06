@@ -4,6 +4,7 @@ import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import TimerWidget from '../components/TimerWidget';
 import { getAuthToken } from '../utils/authSession';
 import { iconMap, WaveIcon, CalmIcon, ExhaleIcon, FireIcon } from '../utils/icons';
+import ExtensionBridge from '../components/ExtensionBridge';
 
 const BadgeIcon = ({ icon }) => {
   const Icon = iconMap[icon];
@@ -815,6 +816,9 @@ function UserHome({
             <span />
           </div>
         </div>
+        <div style={{ maxWidth: 420, margin: "0 auto" }}>
+          <ExtensionBridge />
+        </div>
       </div>
     );
   }
@@ -847,6 +851,8 @@ function UserHome({
             </button>
           </div>
         </header>
+
+        <ExtensionBridge />
 
         <div className={`${styles.moodBar} ${styles.startupReveal} ${styles.revealDelay2}`}>
           <p className={styles.moodText}>{moodMessage}</p>

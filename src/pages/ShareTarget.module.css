@@ -1,0 +1,266 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg, #0f0f1a);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--color-surface, #1a1a2e);
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 12px;
+  padding: 32px;
+  align-self: flex-start;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text, #e0e0e0);
+  margin: 0 0 8px;
+}
+
+.heading svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--color-accent, #800020);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--color-text-muted, #999);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 8px;
+  background: var(--color-bg, #0f0f1a);
+  color: var(--color-text, #e0e0e0);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 120px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-muted, #666);
+}
+
+.detectBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-accent, #800020);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.detectBtn:hover {
+  opacity: 0.9;
+}
+
+.detectBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--color-danger, #dc2626);
+  font-size: 13px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.results {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border, #2d2d44);
+}
+
+.resultHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text, #e0e0e0);
+  margin: 0 0 16px;
+}
+
+.resultHeading svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-success, #16a34a);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+  margin-bottom: 8px;
+}
+
+.item:hover {
+  background: var(--color-hover, rgba(255, 255, 255, 0.03));
+}
+
+.selected {
+  border-color: var(--color-accent, #800020);
+  background: rgba(128, 0, 32, 0.08);
+}
+
+.checkbox {
+  flex-shrink: 0;
+  margin-top: 3px;
+  line-height: 1;
+  display: inline-flex;
+  color: var(--color-accent, #800020);
+}
+
+.checkbox svg {
+  width: 18px;
+  height: 18px;
+}
+
+.itemBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.itemTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text, #e0e0e0);
+}
+
+.itemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted, #999);
+  align-items: center;
+}
+
+.courseTag {
+  color: var(--color-accent, #800020);
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.task {
+  background: rgba(22, 163, 74, 0.15);
+  color: #16a34a;
+}
+
+.deadline {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.grade_weight {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+}
+
+.exam {
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+.sourceText {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--color-text-muted, #666);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.confidence {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent, #800020);
+  font-variant-numeric: tabular-nums;
+}
+
+.acceptBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-success, #16a34a);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.acceptBtn:hover {
+  opacity: 0.9;
+}
+
+.acceptBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.noResults {
+  text-align: center;
+  color: var(--color-text-muted, #999);
+  font-size: 14px;
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px dashed var(--color-border, #2d2d44);
+  border-radius: 8px;
+}

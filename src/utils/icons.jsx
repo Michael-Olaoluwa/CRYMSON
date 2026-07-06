@@ -275,6 +275,40 @@ export const LightbulbIcon = (props) => (
   </svg>
 );
 
+export const SearchIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+export const CheckSquareIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
+    <polyline points="9 11 12 14 22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+);
+
+export const SquareIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+  </svg>
+);
+
+export const ThumbsUpIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
+    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+    <polyline points="7 22 7 13" />
+  </svg>
+);
+
+export const ThumbsDownIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
+    <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z" />
+    <polyline points="17 2 17 11" />
+  </svg>
+);
+
 export const iconMap = {
   fire: FireIcon,
   sparkles: SparklesIcon,
@@ -309,4 +343,10 @@ export const iconMap = {
   trash: TrashIcon,
   lightbulb: LightbulbIcon,
   pencil: PencilIcon,
+  search: SearchIcon,
+  checkSquare: CheckSquareIcon,
+  square: SquareIcon,
+  thumbsUp: ThumbsUpIcon,
+  thumbsDown: ThumbsDownIcon,
+  detect: SearchIcon,
 };

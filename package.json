@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Crymson - A unified productivity ecosystem",
   "private": true,
+  "main": "electron/main.js",
   "dependencies": {
     "mongodb": "^7.2.0",
     "mongodb-memory-server": "^11.1.0",
@@ -22,7 +23,9 @@
     "test:ci": "react-scripts test --watchAll=false --passWithNoTests",
     "test:smoke": "npm run test:ci && npm --prefix backend run test",
     "eject": "react-scripts eject",
-    "doctor": "npx react-doctor@latest"
+    "doctor": "npx react-doctor@latest",
+    "start:electron": "electron .",
+    "build:electron": "npm run build && electron-builder"
   },
   "browserslist": {
     "production": [
@@ -38,6 +41,9 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "electron": "^43.0.0",
+    "electron-builder": "^26.15.3",
+    "electron-store": "^11.0.2",
     "postcss": "^8.5.8",
     "react-doctor": "^0.5.1"
   }

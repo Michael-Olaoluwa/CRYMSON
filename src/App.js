@@ -8,6 +8,11 @@ import TimeTrackerScreen from "./screens/TimeTrackerScreen";
 import FinanceTrackerScreen from "./screens/FinanceTrackerScreen";
 import Admin from "./pages/Admin";
 import AppLayout from "./components/AppLayout";
+import DetectionPrompt from "./components/DetectionPrompt";
+import PermissionsPanel from "./components/PermissionsPanel";
+import TextCaptureWidget from "./components/TextCaptureWidget";
+import { DetectionProvider } from "./hooks/useTextDetection";
+import ShareTarget from "./pages/ShareTarget";
 import { TimerProvider } from "./context/TimerContext";
 import {
   clearAuthSession,
@@ -28,6 +33,7 @@ const ALLOWED_PAGES = new Set([
   "time",
   "finance",
   "admin",
+  "share-target",
 ]);
 
 const getSavedAppState = () => {
@@ -221,6 +227,12 @@ function App() {
     setCurrentPage("landing");
   };
 
+  const navigateToShareTarget = () => {
+    setCurrentPage("share-target");
+  };
+
+  const shouldShowShareTarget = currentPage === "share-target";
+
   const handleLogout = () => {
     clearSessionStorage();
     setActiveUserId("");
@@ -231,81 +243,91 @@ function App() {
 
   return (
     <TimerProvider>
-      <div className={`App financeTheme page-${currentPage}`} data-theme={theme}>
-        {currentPage === "landing" && (
-          <WelcomeScreen
-            onNavigateToCGPA={navigateToCGPA}
-            onNavigateToTodo={navigateToTodo}
-            onNavigateToTime={navigateToTimeTracker}
-            onNavigateToFinance={navigateToFinanceTracker}
-            onLoginSuccess={navigateToUserHome}
-            isAdmin={isAdmin}
-            sessionNotice={sessionNotice}
-          />
-        )}
+      <DetectionProvider>
+        <div className={`App financeTheme page-${currentPage}`} data-theme={theme}>
+          {currentPage === "landing" && (
+            <WelcomeScreen
+              onNavigateToCGPA={navigateToCGPA}
+              onNavigateToTodo={navigateToTodo}
+              onNavigateToTime={navigateToTimeTracker}
+              onNavigateToFinance={navigateToFinanceTracker}
+              onLoginSuccess={navigateToUserHome}
+              isAdmin={isAdmin}
+              sessionNotice={sessionNotice}
+            />
+          )}
 
-        {currentPage !== "landing" && (
-          <AppLayout
-            activePage={currentPage}
-            userId={activeUserId}
-            userName={activeUserName}
-            isAdmin={isAdmin}
-            onNavigate={(page) => setCurrentPage(page)}
-            onLogout={handleLogout}
-            darkMode={darkMode}
-            onToggleDark={handleToggleDark}
-          >
-            {currentPage === "home" && (
-              <HomeScreen
-                userId={activeUserId}
-                userName={activeUserName}
-                onNavigateToUserCGPA={navigateToUserCGPA}
-                onNavigateToTodo={navigateToTodo}
-                onNavigateToTime={navigateToTimeTracker}
-                onNavigateToFinance={navigateToFinanceTracker}
-                onNavigateToAdmin={navigateToAdmin}
-                isAdmin={isAdmin}
-              />
-            )}
+          {shouldShowShareTarget && (
+            <ShareTarget />
+          )}
 
-            {currentPage === "cgpa" && (
-              <GradeTrackerScreen />
-            )}
+          {currentPage !== "landing" && !shouldShowShareTarget && (
+            <AppLayout
+              activePage={currentPage}
+              userId={activeUserId}
+              userName={activeUserName}
+              isAdmin={isAdmin}
+              onNavigate={(page) => setCurrentPage(page)}
+              onLogout={handleLogout}
+              darkMode={darkMode}
+              onToggleDark={handleToggleDark}
+            >
+              {currentPage === "home" && (
+                <HomeScreen
+                  userId={activeUserId}
+                  userName={activeUserName}
+                  onNavigateToUserCGPA={navigateToUserCGPA}
+                  onNavigateToTodo={navigateToTodo}
+                  onNavigateToTime={navigateToTimeTracker}
+                  onNavigateToFinance={navigateToFinanceTracker}
+                  onNavigateToAdmin={navigateToAdmin}
+                  isAdmin={isAdmin}
+                />
+              )}
 
-            {currentPage === "user-cgpa" && (
-              <MyGradeTrackerScreen
-                activeUserId={activeUserId}
-              />
-            )}
+              {currentPage === "cgpa" && (
+                <GradeTrackerScreen />
+              )}
 
-            {currentPage === "todo" && (
-              <TaskPlannerScreen
-                activeUserId={activeUserId}
-              />
-            )}
+              {currentPage === "user-cgpa" && (
+                <MyGradeTrackerScreen
+                  activeUserId={activeUserId}
+                />
+              )}
 
-            {currentPage === "time" && (
-              <TimeTrackerScreen
-                activeUserId={activeUserId}
-              />
-            )}
+              {currentPage === "todo" && (
+                <TaskPlannerScreen
+                  activeUserId={activeUserId}
+                />
+              )}
 
-            {currentPage === "finance" && (
-              <FinanceTrackerScreen
-                activeUserId={activeUserId}
-              />
-            )}
+              {currentPage === "time" && (
+                <TimeTrackerScreen
+                  activeUserId={activeUserId}
+                />
+              )}
 
-            {currentPage === "admin" && (
-              <Admin
-                userId={activeUserId}
-                userName={activeUserName}
-                isAdmin={true}
-              />
-            )}
-          </AppLayout>
-        )}
-      </div>
+              {currentPage === "finance" && (
+                <FinanceTrackerScreen
+                  activeUserId={activeUserId}
+                />
+              )}
+
+              {currentPage === "admin" && (
+                <Admin
+                  userId={activeUserId}
+                  userName={activeUserName}
+                  isAdmin={true}
+                />
+              )}
+            </AppLayout>
+          )}
+
+          <DetectionPrompt />
+          <PermissionsPanel />
+          <TextCaptureWidget />
+        </div>
+      </DetectionProvider>
     </TimerProvider>
   );
 }

@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Crymson Task Detector",
+  "version": "1.1.0",
+  "description": "Automatically detects academic tasks on any page. Click the + icon beside detected text to add to your Crymson tasks.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["http://localhost:5000/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "Crymson Task Detector"
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
