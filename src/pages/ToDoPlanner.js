@@ -100,7 +100,7 @@ const getAcademicReminderDelayMinutes = (taskType) => {
   return ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE[normalized] || 24 * 60;
 };
 
-function ToDoPlanner({ activeUserId = "guest", onNavigateHome }) {
+function ToDoPlanner({ activeUserId = "guest" }) {
   const [tasks, setTasks] = useState([]);
   const [activeFilter, setActiveFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -663,14 +663,6 @@ function ToDoPlanner({ activeUserId = "guest", onNavigateHome }) {
   return (
     <div className={styles.page}>
       <div className={styles.container}>
-        <button
-          type="button"
-          className={styles.backButton}
-          onClick={onNavigateHome}
-        >
-          ← Back To Home
-        </button>
-
         <header className={styles.header}>
           <p className={styles.eyebrow}>Productivity</p>
           <h1 className={styles.title}>To-Do Planner</h1>

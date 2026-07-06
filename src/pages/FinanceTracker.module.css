@@ -1,102 +1,44 @@
-.container {
+.tabNav {
   display: flex;
-  min-height: 100vh;
-  background: #161318;
-  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
-  color: #f2f0f5;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: #1a1720;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid #2f2a38;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 220px;
-  min-width: 220px;
-  background: #1c1820;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 12px;
-  gap: 8px;
-  border-right: 1px solid #2f2a38;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.sidebarHeader {
-  padding: 8px 12px;
-  margin-bottom: 16px;
-}
-
-.sidebarTitle {
-  font-size: 18px;
-  font-weight: 700;
-  color: #f2f0f5;
-  letter-spacing: -0.3px;
-}
-
-.sidebarNav {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.tabItem {
   flex: 1;
-}
-
-.navItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
   border: none;
-  background: transparent;
-  color: #9a95a3;
-  font-size: 14px;
-  font-family: inherit;
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.15s ease;
-  width: 100%;
-  text-align: left;
-}
-
-.navItem:hover {
-  background: #26212e;
-  color: #f2f0f5;
-}
-
-.navItem.active {
-  background: #2a2433;
-  color: #f2f0f5;
-  font-weight: 600;
-}
-
-.sidebarFooter {
-  padding: 8px 0;
-}
-
-.backButton {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #2f2a38;
   background: transparent;
   color: #9a95a3;
   font-size: 13px;
   font-family: inherit;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.15s ease;
-  text-align: center;
+  border-radius: 10px;
+  transition: all 0.18s ease;
 }
 
-.backButton:hover {
+.tabItem:hover {
+  color: #d4d0db;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tabActive {
   background: #2a2433;
-  color: #f87171;
-  border-color: #f8717140;
+  color: #f2f0f5;
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.12);
 }
 
-/* Main Content */
-.mainContent {
-  flex: 1;
-  padding: 28px 32px;
-  overflow-y: auto;
+.tabLabel {
+  white-space: nowrap;
 }
 
 .mainHeader {

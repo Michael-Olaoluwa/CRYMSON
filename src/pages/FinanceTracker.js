@@ -349,7 +349,7 @@ const getStorageKey = (activeUserId) =>
 const getRecurringStorageKey = (activeUserId) =>
   `${RECURRING_STORAGE_KEY_BASE}:${activeUserId || "guest"}`;
 
-function FinanceTracker({ activeUserId = "guest", onNavigateHome }) {
+function FinanceTracker({ activeUserId = "guest" }) {
   const storageKey = useMemo(() => getStorageKey(activeUserId), [activeUserId]);
   const recurringStorageKey = useMemo(
     () => getRecurringStorageKey(activeUserId),
@@ -1150,62 +1150,33 @@ function FinanceTracker({ activeUserId = "guest", onNavigateHome }) {
   const [activeNavTab, setActiveNavTab] = useState("dashboard");
 
   return (
-    <div className={styles.container}>
-      {/* Sidebar Navigation */}
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Finance</h2>
+    <div>
+      {/* Header */}
+      <header className={styles.mainHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Finance Tracker</h1>
+          <p className={styles.pageSubtitle}>
+            Manage your income and expenses efficiently
+          </p>
         </div>
+      </header>
 
-        <nav className={styles.sidebarNav}>
+      {/* Tab Navigation */}
+      <nav className={styles.tabNav}>
+        {["dashboard", "entries", "recurring", "settings"].map((tab) => (
           <button
-            className={`${styles.navItem} ${activeNavTab === "dashboard" ? styles.active : ""}`}
-            onClick={() => setActiveNavTab("dashboard")}
+            key={tab}
+            className={`${styles.tabItem} ${activeNavTab === tab ? styles.tabActive : ""}`}
+            onClick={() => setActiveNavTab(tab)}
           >
-            ðŸ“Š Dashboard
+            {tab === "dashboard" && "📊"} {tab === "entries" && "📝"}
+            {tab === "recurring" && "🔄"} {tab === "settings" && "⚙️"}
+            <span className={styles.tabLabel}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </span>
           </button>
-          <button
-            className={`${styles.navItem} ${activeNavTab === "entries" ? styles.active : ""}`}
-            onClick={() => setActiveNavTab("entries")}
-          >
-            ðŸ“ Entries
-          </button>
-          <button
-            className={`${styles.navItem} ${activeNavTab === "recurring" ? styles.active : ""}`}
-            onClick={() => setActiveNavTab("recurring")}
-          >
-            ðŸ”„ Recurring
-          </button>
-          <button
-            className={`${styles.navItem} ${activeNavTab === "settings" ? styles.active : ""}`}
-            onClick={() => setActiveNavTab("settings")}
-          >
-            âš™ï¸ Settings
-          </button>
-        </nav>
-
-        <div className={styles.sidebarFooter}>
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={onNavigateHome}
-          >
-            â† Back to Home
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className={styles.mainContent}>
-        {/* Header */}
-        <header className={styles.mainHeader}>
-          <div>
-            <h1 className={styles.pageTitle}>Finance Tracker</h1>
-            <p className={styles.pageSubtitle}>
-              Manage your income and expenses efficiently
-            </p>
-          </div>
-        </header>
+        ))}
+      </nav>
 
         {/* Dashboard Tab */}
         {activeNavTab === "dashboard" && (
@@ -1857,7 +1828,6 @@ function FinanceTracker({ activeUserId = "guest", onNavigateHome }) {
             </div>
           </div>
         )}
-      </main>
     </div>
   );
 }

@@ -26,7 +26,7 @@ const getLocalDateTimeParts = (date) => {
   };
 };
 
-function TimeTracker({ activeUserId = "guest", onNavigateHome }) {
+function TimeTracker({ activeUserId = "guest" }) {
   const {
     isRunning: contextIsRunning,
     elapsedSeconds: contextElapsedSeconds,
@@ -574,13 +574,6 @@ function TimeTracker({ activeUserId = "guest", onNavigateHome }) {
             Track focused study time and review your session history.
           </p>
         </div>
-        <button
-          type="button"
-          className={styles.backButton}
-          onClick={onNavigateHome}
-        >
-          Back to Home
-        </button>
       </header>
 
       <section className={styles.grid}>

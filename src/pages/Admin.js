@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getApiBaseUrl } from '../utils/apiBaseUrl';
-import { clearAuthSession, getAuthToken } from '../utils/authSession';
+import { getAuthToken } from '../utils/authSession';
 import styles from './Admin.module.css';
 
 const AUTH_API_BASE_URL = getApiBaseUrl();
 
-export default function Admin({ userId = 'Admin', userName = 'Admin', isAdmin = true, onLogout = () => {}, onNavigateHome = () => {} }) {
+export default function Admin() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,10 +41,6 @@ export default function Admin({ userId = 'Admin', userName = 'Admin', isAdmin = 
 
   function getToken() {
     return getAuthToken();
-  }
-
-  function handleLogout() {
-    if (onLogout) onLogout();
   }
 
   async function fetchUsers() {
@@ -218,33 +214,10 @@ export default function Admin({ userId = 'Admin', userName = 'Admin', isAdmin = 
   const featureKeys = Object.keys(settings || {}).filter((k) => String(k).startsWith('feature_'));
 
   return (
-    <div className={styles.dashboard}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <div className={styles.avatar}>{userName.charAt(0).toUpperCase()}</div>
-          <div className={styles.userInfo}>
-            <h3>{userName}</h3>
-            <p>{userId}</p>
-          </div>
-        </div>
-        <nav className={styles.sidebarNav}>
-          <button className={`${styles.navItem} ${styles.active}`} onClick={() => {}}>
-            <span>⚙</span> Admin Panel
-          </button>
-          <button className={styles.navItem} onClick={onNavigateHome}>
-            <span>⌂</span> Home
-          </button>
-        </nav>
-        <div className={styles.sidebarFooter}>
-          <button className={styles.navItem} onClick={handleLogout}>
-            <span>↩</span> Log Out
-          </button>
-        </div>
-      </aside>
-      <main className={styles.mainContent}>
-        <div className={styles.header}>
-          <h1>Admin Panel</h1>
-        </div>
+    <div>
+      <div className={styles.header}>
+        <h1>Admin Panel</h1>
+      </div>
 
       {error && <div className={styles.error}>{error}</div>}
 
@@ -393,7 +366,6 @@ export default function Admin({ userId = 'Admin', userName = 'Admin', isAdmin = 
           </div>
         </div>
         </div>
-      </main>
     </div>
   );
 }

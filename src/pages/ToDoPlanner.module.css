@@ -1,7 +1,4 @@
 .page {
-  min-height: 100vh;
-  padding: 2.2rem clamp(1rem, 4vw, 3rem);
-  background: #161318;
   color: #f2f0f5;
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
@@ -9,23 +6,6 @@
 .container {
   max-width: 980px;
   margin: 0 auto;
-}
-
-.backButton {
-  border: 1px solid #2f2a38;
-  border-radius: 999px;
-  background: transparent;
-  color: #a78bfa;
-  padding: 0.5rem 0.95rem;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.backButton:hover {
-  background: #2a2433;
-  border-color: #8b5cf6;
 }
 
 .header {

@@ -60,7 +60,7 @@ const escapeCsvCell = (value) => {
   return /[",\n]/.test(raw) ? `"${escaped}"` : escaped;
 };
 
-function CGPATracker({ onNavigateHome }) {
+function CGPATracker() {
   const initialState = useMemo(getInitialTrackerState, []);
   const [courses, setCourses] = useState(initialState.courses);
   const [nextId, setNextId] = useState(initialState.nextId);
@@ -212,7 +212,6 @@ function CGPATracker({ onNavigateHome }) {
   return (
     <div className={styles.cgpaTracker}>
       <div className={styles.container}>
-        <button type="button" onClick={onNavigateHome}>← Back To Landing</button>
         <TitleBlock />
         <ActionButtons
           onAddCourse={handleAddCourse}

@@ -2,7 +2,7 @@ import React from 'react';
 import MyTrackerWidget from '../parts/grade-tools/MyTrackerWidget';
 import styles from './UserCGPATracker.module.css';
 
-function UserCGPATracker({ activeUserId = 'guest', onNavigateHome }) {
+function UserCGPATracker({ activeUserId = 'guest' }) {
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
@@ -14,10 +14,6 @@ function UserCGPATracker({ activeUserId = 'guest', onNavigateHome }) {
               Tune your semester strategy, monitor trajectory, and project your final class with confidence.
             </p>
           </div>
-
-          <button type="button" className={styles.backButton} onClick={onNavigateHome}>
-            Back To User Home
-          </button>
         </header>
 
         <section className={styles.kpiRow}>

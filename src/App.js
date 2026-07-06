@@ -7,6 +7,7 @@ import MyGradeTrackerScreen from "./screens/MyGradeTrackerScreen";
 import TimeTrackerScreen from "./screens/TimeTrackerScreen";
 import FinanceTrackerScreen from "./screens/FinanceTrackerScreen";
 import Admin from "./pages/Admin";
+import AppLayout from "./components/AppLayout";
 import { TimerProvider } from "./context/TimerContext";
 import {
   clearAuthSession,
@@ -221,64 +222,64 @@ function App() {
           />
         )}
 
-        {currentPage === "home" && (
-          <HomeScreen
+        {currentPage !== "landing" && (
+          <AppLayout
+            activePage={currentPage}
             userId={activeUserId}
             userName={activeUserName}
-            onNavigateToUserCGPA={navigateToUserCGPA}
-            onNavigateToTodo={navigateToTodo}
-            onNavigateToTime={navigateToTimeTracker}
-            onNavigateToFinance={navigateToFinanceTracker}
-            onNavigateToAdmin={navigateToAdmin}
-            onLogout={handleLogout}
             isAdmin={isAdmin}
-          />
-        )}
-
-        {currentPage === "cgpa" && (
-          <GradeTrackerScreen onNavigateHome={navigateHome} />
-        )}
-
-        {currentPage === "user-cgpa" && (
-          <MyGradeTrackerScreen
-            activeUserId={activeUserId}
-            onNavigateHome={() => setCurrentPage("home")}
-          />
-        )}
-
-        {currentPage === "todo" && (
-          <TaskPlannerScreen
-            activeUserId={activeUserId}
-            onNavigateHome={() => setCurrentPage("home")}
-          />
-        )}
-
-        {currentPage === "time" && (
-          <TimeTrackerScreen
-            activeUserId={activeUserId}
-            onNavigateHome={() =>
-              setCurrentPage(activeUserId ? "home" : "landing")
-            }
-          />
-        )}
-
-        {currentPage === "finance" && (
-          <FinanceTrackerScreen
-            activeUserId={activeUserId}
-            onNavigateHome={() =>
-              setCurrentPage(activeUserId ? "home" : "landing")
-            }
-          />
-        )}
-
-        {currentPage === "admin" && (
-          <Admin
-            userId={activeUserId}
-            userName={activeUserName}
-            isAdmin={true}
+            onNavigate={(page) => setCurrentPage(page)}
             onLogout={handleLogout}
-            onNavigateHome={() => setCurrentPage("home")}
-          />
+          >
+            {currentPage === "home" && (
+              <HomeScreen
+                userId={activeUserId}
+                userName={activeUserName}
+                onNavigateToUserCGPA={navigateToUserCGPA}
+                onNavigateToTodo={navigateToTodo}
+                onNavigateToTime={navigateToTimeTracker}
+                onNavigateToFinance={navigateToFinanceTracker}
+                onNavigateToAdmin={navigateToAdmin}
+                isAdmin={isAdmin}
+              />
+            )}
+
+            {currentPage === "cgpa" && (
+              <GradeTrackerScreen />
+            )}
+
+            {currentPage === "user-cgpa" && (
+              <MyGradeTrackerScreen
+                activeUserId={activeUserId}
+              />
+            )}
+
+            {currentPage === "todo" && (
+              <TaskPlannerScreen
+                activeUserId={activeUserId}
+              />
+            )}
+
+            {currentPage === "time" && (
+              <TimeTrackerScreen
+                activeUserId={activeUserId}
+              />
+            )}
+
+            {currentPage === "finance" && (
+              <FinanceTrackerScreen
+                activeUserId={activeUserId}
+              />
+            )}
+
+            {currentPage === "admin" && (
+              <Admin
+                userId={activeUserId}
+                userName={activeUserName}
+                isAdmin={true}
+              />
+            )}
+          </AppLayout>
         )}
       </div>
     </TimerProvider>

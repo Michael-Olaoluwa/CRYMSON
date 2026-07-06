@@ -1,8 +1,6 @@
 .page {
   --ink-900: #131722;
   --ease-premium: cubic-bezier(0.22, 0.76, 0.2, 1);
-  min-height: 100vh;
-  background: #161318;
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   color: #f2f0f5;
 }
@@ -47,25 +45,6 @@
   color: #9a95a3;
   line-height: 1.62;
   max-width: 62ch;
-}
-
-.backButton {
-  align-self: flex-start;
-  border: 1px solid #2f2a38;
-  border-radius: 999px;
-  background: transparent;
-  color: #a78bfa;
-  padding: 0.56rem 0.92rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
-}
-
-.backButton:hover {
-  transform: translateY(-1px);
-  border-color: #8b5cf6;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .kpiRow {
