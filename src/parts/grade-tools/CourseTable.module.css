@@ -1,10 +1,10 @@
 .tableWrapper {
   overflow-x: auto;
-  background: var(--soft-grey);
+  background: var(--clr-bg-secondary);
   border-radius: 18px;
-  border: 1px solid var(--grey);
+  border: 1px solid var(--clr-border);
   padding: 1rem;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
   margin-bottom: 2rem;
 }
 
@@ -14,20 +14,20 @@ table {
 }
 
 thead {
-  background: var(--black);
-  color: var(--white);
+  background: var(--clr-bg-elevated);
+  color: var(--clr-text);
 }
 
 th {
   padding: 1rem;
   text-align: left;
-  border-bottom: 3px solid var(--burgundy);
+  border-bottom: 3px solid var(--clr-accent);
   font-weight: 600;
 }
 
 td {
   padding: 0.75rem;
-  border-bottom: 1px solid var(--grey);
+  border-bottom: 1px solid var(--clr-border);
 }
 
 tfoot td {
@@ -35,12 +35,12 @@ tfoot td {
 }
 
 .summaryRow td {
-  background: rgba(139, 92, 246, 0.08);
+  background: var(--clr-bg-hover);
   font-weight: 700;
 }
 
 .summaryRow td:first-child {
-  color: var(--burgundy);
+  color: var(--clr-accent);
 }
 
 input[type="text"],
@@ -54,19 +54,19 @@ input[type="number"] {
   width: 100%;
   padding: 0.65rem;
   border-radius: 6px;
-  border: 1px solid var(--grey);
+  border: 1px solid var(--clr-border);
   outline: none;
   transition: border-color 0.22s ease;
   background: var(--clr-bg-elevated);
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 input:focus {
-  border-color: var(--burgundy);
+  border-color: var(--clr-accent);
 }
 
 input[readonly] {
-  background: #151219;
+  background: var(--clr-bg);
   cursor: not-allowed;
 }
 
@@ -74,7 +74,7 @@ input[type="checkbox"] {
   cursor: pointer;
   width: 18px;
   height: 18px;
-  accent-color: var(--burgundy);
+  accent-color: var(--clr-accent);
 }
 
 .controls {
@@ -87,8 +87,8 @@ input[type="checkbox"] {
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
   border: none;
-  background: var(--burgundy);
-  color: var(--white);
+  background: var(--clr-accent);
+  color: var(--clr-text-inverse);
   cursor: pointer;
   font-weight: 600;
   text-transform: uppercase;
@@ -98,7 +98,7 @@ input[type="checkbox"] {
 }
 
 .btnDanger:hover {
-  background: #7c3aed;
+  filter: brightness(0.85);
 }
 
 .btnDanger:disabled {

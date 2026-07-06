@@ -1,9 +1,9 @@
 .toast {
   padding: 1rem 1.5rem;
   border-radius: 8px;
-  background: #800020;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--clr-accent);
+  color: var(--clr-text-inverse);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   font-weight: 500;
   animation: slideIn 0.3s ease forwards;
 }
@@ -20,13 +20,13 @@
 }
 
 .toast.error {
-  background: #5a0a1c;
+  background: var(--clr-accent-red);
 }
 
 .toast.success {
-  background: #800020;
+  background: var(--clr-accent-green);
 }
 
 .toast.warning {
-  background: #1f1f1f;
+  background: var(--clr-text-secondary);
 }

@@ -133,8 +133,8 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 700;
-  color: #2d4a82;
-  background: rgba(52, 120, 246, 0.1);
+  color: var(--clr-accent);
+  background: color-mix(in srgb, var(--clr-accent) 12%, transparent);
 }
 
 .todayPlanDuration {
@@ -566,13 +566,13 @@
 }
 
 .toolHubStatusLive {
-  background: rgba(44, 207, 163, 0.15);
-  color: #1c6f58;
+  background: color-mix(in srgb, var(--clr-accent-green) 15%, transparent);
+  color: var(--clr-accent-green);
 }
 
 .toolHubStatusPending {
-  background: rgba(var(--uh-slate-rgb), 0.16);
-  color: #4f5d72;
+  background: color-mix(in srgb, var(--clr-text-muted) 15%, transparent);
+  color: var(--clr-text-muted);
 }
 
 .moodButton {
@@ -927,8 +927,8 @@
   display: inline-flex;
   margin-bottom: 0.38rem;
   border-radius: 999px;
-  background: rgba(255, 111, 97, 0.16);
-  color: #8b3d34;
+  background: color-mix(in srgb, var(--clr-accent-red) 15%, transparent);
+  color: var(--clr-accent-red);
   padding: 0.14rem 0.4rem;
   font-size: 0.62rem;
   letter-spacing: 0.08em;
@@ -1214,7 +1214,7 @@
   font-size: 0.82rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #2d4a82;
+  color: var(--clr-accent);
 }
 
 .aiToast p {

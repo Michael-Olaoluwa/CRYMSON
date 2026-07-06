@@ -3,10 +3,10 @@
  */
 
 .container {
-  background: white;
+  background: var(--clr-bg-card);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
 }
 
@@ -14,7 +14,7 @@
   margin: 0 0 20px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: var(--clr-text);
 }
 
 .section {
@@ -27,7 +27,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #666;
+  color: var(--clr-text-secondary);
 }
 
 .section:last-child {
@@ -91,8 +91,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border: 2px dashed #667eea;
+  background: var(--clr-bg-hover);
+  border: 2px dashed var(--clr-accent);
   border-radius: 12px;
   padding: 20px;
 }
@@ -110,19 +110,19 @@
 .nextBadgeTitle {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--clr-text);
   margin-bottom: 4px;
 }
 
 .nextBadgeDesc {
   font-size: 13px;
-  color: #666;
+  color: var(--clr-text-secondary);
   margin-bottom: 12px;
 }
 
 .progressText {
   font-size: 12px;
-  color: #667eea;
+  color: var(--clr-accent);
   font-weight: 600;
 }
 
@@ -130,7 +130,7 @@
 .empty {
   text-align: center;
   padding: 40px 20px;
-  color: #999;
+  color: var(--clr-text-muted);
 }
 
 .empty p {

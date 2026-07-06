@@ -1,11 +1,5 @@
 .cgpaTracker {
-  --burgundy: #8b5cf6;
-  --olive: #2dd4a7;
-  --soft-grey: #211d26;
-  --grey: #2f2a38;
-  --black: #1a1720;
-  --white: #f2f0f5;
-  color: #f2f0f5;
+  color: var(--clr-text);
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
 

@@ -1,16 +1,16 @@
 .widget {
-  background: var(--white);
-  border: 1px solid var(--grey);
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
   transition: box-shadow 280ms cubic-bezier(0.22, 0.76, 0.2, 1), border-color 280ms cubic-bezier(0.22, 0.76, 0.2, 1);
 }
 
 .widget:hover {
-  border-color: rgba(59, 130, 246, 0.18);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.1);
+  border-color: var(--clr-accent);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35);
 }
 
 .title {
@@ -20,12 +20,12 @@
   margin: 0 0 0.5rem 0;
   line-height: 1.18;
   letter-spacing: 0.01em;
-  color: var(--black);
+  color: var(--clr-text);
 }
 
 .subtitle {
   font-size: 0.95rem;
-  color: #666;
+  color: var(--clr-text-secondary);
   margin: 0 0 1.5rem 0;
   line-height: 1.62;
 }
@@ -40,7 +40,7 @@
   gap: 0.55rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #2f2f33;
+  color: var(--clr-text);
   line-height: 1.45;
 }
 
@@ -50,8 +50,8 @@
 }
 
 .semesterInfo {
-  background: rgba(59, 130, 246, 0.06);
-  border-left: 4px solid var(--finance-primary);
+  background: var(--clr-bg-secondary);
+  border-left: 4px solid var(--clr-accent);
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 1.5rem;
@@ -60,17 +60,17 @@
 
 .semesterText {
   margin: 0 0 6px 0;
-  color: #333;
+  color: var(--clr-text);
 }
 
 .semesterText strong {
-  color: var(--finance-primary);
+  color: var(--clr-accent);
   font-weight: 600;
 }
 
 .historyText {
   margin: 0;
-  color: #666;
+  color: var(--clr-text-secondary);
   font-size: 0.85rem;
 }
 
@@ -79,8 +79,8 @@
 }
 
 .btnAdvanceSemester {
-  background: #2563eb;
-  color: var(--white);
+  background: var(--clr-accent);
+  color: var(--clr-text-inverse);
   border: none;
   border-radius: 8px;
   padding: 0.55rem 0.95rem;
@@ -91,9 +91,9 @@
 }
 
 .btnAdvanceSemester:hover:not(:disabled) {
-  background: #193f6c;
+  filter: brightness(0.8);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(31, 76, 130, 0.22);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .btnAdvanceSemester:disabled {
@@ -104,7 +104,7 @@
 
 .semesterNotice {
   margin: 0.55rem 0 0;
-  color: #2f4f37;
+  color: var(--clr-accent-green);
   font-size: 0.84rem;
   line-height: 1.5;
 }
@@ -113,20 +113,20 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(42, 72, 118, 0.15);
-  background: linear-gradient(160deg, rgba(42, 72, 118, 0.06), rgba(255, 255, 255, 0.85));
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-secondary);
 }
 
 .historyTitle {
   margin: 0;
   font-size: 1.02rem;
-  color: var(--black);
+  color: var(--clr-text);
   line-height: 1.28;
 }
 
 .historyHint {
   margin: 0.35rem 0 0;
-  color: #5e5e5e;
+  color: var(--clr-text-secondary);
   font-size: 0.9rem;
   line-height: 1.55;
 }
@@ -139,8 +139,8 @@
 }
 
 .historyHighlightCard {
-  border: 1px solid rgba(42, 72, 118, 0.14);
-  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-card);
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
 }
@@ -150,24 +150,24 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #5f6773;
+  color: var(--clr-text-muted);
 }
 
 .historyHighlightValue {
   margin: 0.22rem 0 0;
-  color: #273144;
+  color: var(--clr-text);
   font-size: 0.9rem;
   line-height: 1.45;
   font-weight: 700;
 }
 
 .historyHighlightToneRisk {
-  color: #9a302a;
+  color: var(--clr-accent-red);
 }
 
 .historyEmpty {
   margin: 0.75rem 0 0;
-  color: #666;
+  color: var(--clr-text-secondary);
   font-size: 0.88rem;
 }
 
@@ -178,14 +178,14 @@
 .historyChart {
   width: 100%;
   height: 130px;
-  background: #fff;
+  background: var(--clr-bg-card);
   border-radius: 8px;
-  border: 1px solid rgba(42, 72, 118, 0.14);
+  border: 1px solid var(--clr-border);
 }
 
 .historyLine {
   fill: none;
-  stroke: #2563eb;
+  stroke: var(--clr-accent);
   stroke-width: 2.2;
 }
 
@@ -201,28 +201,28 @@
 }
 
 .historyTable thead {
-  background: rgba(42, 72, 118, 0.1);
+  background: var(--clr-bg-secondary);
 }
 
 .historyTable th,
 .historyTable td {
   padding: 0.5rem 0.55rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--clr-border);
   text-align: left;
 }
 
 .historyMovementUp {
-  color: #1d7f4e;
+  color: var(--clr-accent-green);
   font-weight: 700;
 }
 
 .historyMovementDown {
-  color: #b0403a;
+  color: var(--clr-accent-red);
   font-weight: 700;
 }
 
 .historyMovementFlat {
-  color: #5f5f5f;
+  color: var(--clr-text-muted);
   font-weight: 600;
 }
 
@@ -230,33 +230,33 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  background: rgba(59, 130, 246, 0.04);
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-secondary);
 }
 
 .reminderTitle {
   margin: 0;
   font-size: 1.05rem;
-  color: var(--black);
+  color: var(--clr-text);
   line-height: 1.28;
 }
 
 .reminderHint {
   margin: 0.35rem 0 0;
-  color: #5e5e5e;
+  color: var(--clr-text-secondary);
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
 .reminderNotice {
   margin: 0.75rem 0 0;
-  color: #8a5b00;
+  color: var(--clr-text);
   font-size: 0.88rem;
 }
 
 .reminderEmpty {
   margin: 0.75rem 0 0;
-  color: #666;
+  color: var(--clr-text-secondary);
   font-size: 0.9rem;
 }
 
@@ -273,16 +273,16 @@
   align-items: flex-start;
   padding: 0.9rem 1rem;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid rgba(59, 130, 246, 0.12);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.04);
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.15);
   transition: transform 220ms cubic-bezier(0.22, 0.76, 0.2, 1), box-shadow 220ms cubic-bezier(0.22, 0.76, 0.2, 1), border-color 220ms cubic-bezier(0.22, 0.76, 0.2, 1);
 }
 
 .reminderCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(59, 130, 246, 0.24);
-  box-shadow: 0 14px 22px rgba(0, 0, 0, 0.08);
+  border-color: var(--clr-accent);
+  box-shadow: 0 14px 22px rgba(0, 0, 0, 0.2);
 }
 
 .reminderBadge {
@@ -290,8 +290,8 @@
   margin: 0 0 0.35rem;
   padding: 0.18rem 0.55rem;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.08);
-  color: var(--finance-primary);
+  background: var(--clr-bg-hover);
+  color: var(--clr-accent);
   text-transform: uppercase;
   font-size: 0.72rem;
   font-weight: 700;
@@ -301,52 +301,52 @@
 .reminderSubject {
   margin: 0;
   font-size: 1rem;
-  color: var(--black);
+  color: var(--clr-text);
 }
 
 .reminderMeta {
   margin: 0.2rem 0 0;
-  color: #666;
+  color: var(--clr-text-secondary);
   font-size: 0.84rem;
   line-height: 1.55;
 }
 
 .reminderButton {
-  background: var(--finance-primary);
-  color: var(--white);
+  background: var(--clr-accent);
+  color: var(--clr-text-inverse);
   white-space: nowrap;
 }
 
 .reminderButton:hover {
-  background: #a00028;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  filter: brightness(0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .examAlertSection {
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: 12px;
-  border: 1px solid rgba(30, 47, 94, 0.12);
-  background: rgba(30, 47, 94, 0.04);
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-secondary);
 }
 
 .examAlertTitle {
   margin: 0;
   font-size: 1.02rem;
-  color: var(--black);
+  color: var(--clr-text);
   line-height: 1.28;
 }
 
 .examAlertHint {
   margin: 0.35rem 0 0;
-  color: #5e5e5e;
+  color: var(--clr-text-secondary);
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
 .examAlertEmpty {
   margin: 0.75rem 0 0;
-  color: #666;
+  color: var(--clr-text-secondary);
   font-size: 0.88rem;
 }
 
@@ -360,27 +360,27 @@
   border: 1px solid transparent;
   border-radius: 10px;
   padding: 0.7rem 0.85rem;
-  background: #fff;
+  background: var(--clr-bg-card);
 }
 
 .examAlertNeed {
-  border-color: rgba(59, 130, 246, 0.18);
-  background: rgba(59, 130, 246, 0.05);
+  border-color: var(--clr-accent);
+  background: var(--clr-bg-hover);
 }
 
 .examAlertRisk {
-  border-color: rgba(179, 62, 35, 0.26);
-  background: rgba(179, 62, 35, 0.09);
+  border-color: var(--clr-accent-red);
+  background: var(--clr-bg-card);
 }
 
 .examAlertSecured {
-  border-color: rgba(45, 118, 90, 0.26);
-  background: rgba(45, 118, 90, 0.08);
+  border-color: var(--clr-accent-green);
+  background: var(--clr-bg-card);
 }
 
 .examAlertMessage {
   margin: 0;
-  color: #2f2f33;
+  color: var(--clr-text);
   font-size: 0.9rem;
   line-height: 1.55;
 }
@@ -397,26 +397,26 @@
 }
 
 .table thead {
-  background: rgba(59, 130, 246, 0.08);
-  border-bottom: 2px solid var(--finance-primary);
+  background: var(--clr-bg-secondary);
+  border-bottom: 2px solid var(--clr-accent);
 }
 
 .table th {
   padding: 0.75rem;
   text-align: left;
   font-weight: 700;
-  color: var(--finance-primary);
+  color: var(--clr-accent);
 }
 
 .table td {
   padding: 0.75rem;
-  border-bottom: 1px solid var(--grey);
+  border-bottom: 1px solid var(--clr-border);
 }
 
 .input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid var(--grey);
+  border: 1px solid var(--clr-border);
   border-radius: 6px;
   font-family: inherit;
   font-size: 0.9rem;
@@ -425,20 +425,20 @@
 }
 
 .input:focus {
-  border-color: var(--finance-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  border-color: var(--clr-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--clr-accent) 15%, transparent);
 }
 
 .gradeCell {
   text-align: center;
   font-weight: 600;
-  color: var(--finance-primary);
+  color: var(--clr-accent);
 }
 
 .removeBtn {
   background: transparent;
   border: none;
-  color: #d9534f;
+  color: var(--clr-accent-red);
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0.25rem 0.5rem;
@@ -447,7 +447,8 @@
 }
 
 .removeBtn:hover {
-  color: #c9302c;
+  color: var(--clr-accent-red);
+  filter: brightness(0.8);
 }
 
 .controls {
@@ -470,24 +471,26 @@ button {
 
 .btnAdd,
 .btnCalculate {
-  background: var(--finance-primary);
-  color: var(--white);
+  background: var(--clr-accent);
+  color: var(--clr-text-inverse);
 }
 
 .btnAdd:hover,
 .btnCalculate:hover {
-  background: #a00028;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  filter: brightness(0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transform: translateY(-1px);
 }
 
 .btnReset {
-  background: var(--black);
-  color: var(--white);
+  background: var(--clr-text-inverse);
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border);
 }
 
 .btnReset:hover {
-  background: #2a2a2a;
+  background: var(--clr-bg-elevated);
+  border-color: var(--clr-accent);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
   transform: translateY(-1px);
 }
@@ -503,12 +506,12 @@ button:focus-visible,
 .input:focus-visible,
 .removeBtn:focus-visible {
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--clr-accent) 15%, transparent);
 }
 
 .results {
-  background: rgba(59, 130, 246, 0.05);
-  border-left: 4px solid var(--finance-primary);
+  background: var(--clr-bg-secondary);
+  border-left: 4px solid var(--clr-accent);
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
@@ -526,31 +529,31 @@ button:focus-visible,
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #666;
+  color: var(--clr-text-secondary);
   margin-bottom: 0.5rem;
 }
 
 .resultValue {
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--finance-primary);
+  color: var(--clr-accent);
 }
 
 .goalSection {
   margin-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid var(--clr-border);
   padding-top: 1.5rem;
 }
 
 .goalTitle {
   margin: 0;
   font-size: 1.2rem;
-  color: var(--black);
+  color: var(--clr-text);
 }
 
 .goalHint {
   margin: 0.4rem 0 1rem;
-  color: #5e5e5e;
+  color: var(--clr-text-secondary);
   font-size: 0.92rem;
   line-height: 1.6;
 }
@@ -568,7 +571,7 @@ button:focus-visible,
   gap: 0.35rem;
   font-size: 0.84rem;
   font-weight: 600;
-  color: #444;
+  color: var(--clr-text);
   line-height: 1.45;
 }
 
@@ -579,18 +582,18 @@ button:focus-visible,
 }
 
 .projectionGood {
-  background: rgba(59, 130, 246, 0.05);
-  border-color: rgba(59, 130, 246, 0.22);
+  background: var(--clr-bg-secondary);
+  border-color: var(--clr-accent);
 }
 
 .projectionRisk {
-  background: rgba(178, 47, 47, 0.08);
-  border-color: rgba(178, 47, 47, 0.25);
+  background: var(--clr-bg-card);
+  border-color: var(--clr-accent-red);
 }
 
 .projectionLine {
   margin: 0 0 0.45rem;
-  color: #2c2c2c;
+  color: var(--clr-text);
   line-height: 1.55;
 }
 
@@ -601,8 +604,8 @@ button:focus-visible,
 
 .chartSection {
   margin-top: 1rem;
-  background: rgba(59, 130, 246, 0.04);
-  border: 1px solid rgba(59, 130, 246, 0.12);
+  background: var(--clr-bg-secondary);
+  border: 1px solid var(--clr-border);
   border-radius: 10px;
   padding: 0.9rem;
 }
@@ -610,26 +613,26 @@ button:focus-visible,
 .chartTitle {
   margin: 0 0 0.6rem;
   font-weight: 700;
-  color: var(--black);
+  color: var(--clr-text);
 }
 
 .chart {
   width: 100%;
   height: 160px;
-  background: #fff;
+  background: var(--clr-bg-card);
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--clr-border);
 }
 
 .targetLine {
-  stroke: #b22f2f;
+  stroke: var(--clr-accent-red);
   stroke-width: 1.4;
   stroke-dasharray: 2 2;
 }
 
 .progressLine {
   fill: none;
-  stroke: var(--black);
+  stroke: var(--clr-accent);
   stroke-width: 2.2;
 }
 
@@ -639,7 +642,7 @@ button:focus-visible,
   gap: 0.8rem;
   margin-top: 0.45rem;
   font-size: 0.8rem;
-  color: #5d6776;
+  color: var(--clr-text-muted);
   line-height: 1.5;
 }
 
@@ -651,8 +654,8 @@ button:focus-visible,
 }
 
 .semesterItem {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
   border-radius: 8px;
   padding: 0.45rem 0.6rem;
   display: flex;
@@ -663,7 +666,7 @@ button:focus-visible,
 .currentInfo {
   margin: 0.75rem 0 0;
   font-size: 0.84rem;
-  color: rgba(0, 0, 0, 0.72);
+  color: var(--clr-text-secondary);
   line-height: 1.5;
 }
 
