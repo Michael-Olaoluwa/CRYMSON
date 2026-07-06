@@ -483,7 +483,7 @@ button {
 }
 
 .btnReset {
-  background: var(--clr-text-inverse);
+  background: var(--clr-accent);
   color: var(--clr-text);
   border: 1px solid var(--clr-border);
 }
