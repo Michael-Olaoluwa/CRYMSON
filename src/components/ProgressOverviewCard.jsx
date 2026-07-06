@@ -5,6 +5,7 @@
 
 import React, { useMemo } from "react";
 import styles from "./ProgressOverviewCard.module.css";
+import { FireIcon, SparklesIcon, TargetIcon, CheckIcon, BookIcon, ClipboardIcon } from "../utils/icons";
 
 export const ProgressOverviewCard = ({
   cgpaHistory = [],
@@ -86,7 +87,7 @@ export const ProgressOverviewCard = ({
         <div className={styles.metric}>
           <div className={styles.metricLabel}>Study Streak</div>
           <div className={styles.metricValue}>{currentStreak}</div>
-          <div className={styles.metricSubtext}>days 🔥</div>
+          <div className={styles.metricSubtext}>days <FireIcon /></div>
           <div className={styles.progressBar}>
             <div
               className={`${styles.fill} ${styles[getStatusColor(streakProgress, 50)]}`}
@@ -130,27 +131,27 @@ export const ProgressOverviewCard = ({
       <div className={styles.insights}>
         {currentStreak >= 7 && (
           <div className={styles.insight + " " + styles.positive}>
-            ✨ Amazing streak! Keep it going for day {currentStreak + 1}
+            <SparklesIcon /> Amazing streak! Keep it going for day {currentStreak + 1}
           </div>
         )}
         {cgpaProgress >= 90 && (
           <div className={styles.insight + " " + styles.positive}>
-            🎯 You're very close to your CGPA goal!
+            <TargetIcon /> You're very close to your CGPA goal!
           </div>
         )}
         {taskProgress >= 80 && (
           <div className={styles.insight + " " + styles.positive}>
-            ✓ Excellent task completion rate!
+            <CheckIcon /> Excellent task completion rate!
           </div>
         )}
         {currentStreak === 0 && (
           <div className={styles.insight + " " + styles.warning}>
-            Start a study session to begin your streak 📚
+            <BookIcon /> Start a study session to begin your streak
           </div>
         )}
         {taskProgress < 50 && (
           <div className={styles.insight + " " + styles.warning}>
-            Consider reviewing upcoming tasks 📋
+            <ClipboardIcon /> Consider reviewing upcoming tasks
           </div>
         )}
       </div>

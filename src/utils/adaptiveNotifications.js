@@ -229,7 +229,7 @@ export class AdaptiveNotificationManager {
    * Adaptive notification for achievements
    */
   notifyAchievement(badge) {
-    return this.notify("Achievement Unlocked! 🎉", {
+    return this.notify("Achievement Unlocked!", {
       body: badge.description,
       priority: NOTIFICATION_PRIORITY.HIGH,
       dedupeKey: `achievement_${badge.id}`,

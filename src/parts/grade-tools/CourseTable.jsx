@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './CourseTable.module.css';
+import { TrashIcon } from '../../utils/icons';
 
 function CourseTable({ courses, stats, getGradePoint, calculateWeightedPoints, onUpdateCourse, onRemoveCourse, onRemoveSelected }) {
 	const [selectedCourses, setSelectedCourses] = useState([]);
@@ -113,7 +114,7 @@ function CourseTable({ courses, stats, getGradePoint, calculateWeightedPoints, o
 			{selectedCourses.length > 0 && (
 				<div className={styles.controls}>
 					<button className={styles.btnDanger} onClick={handleRemoveSelected}>
-						🗑️ Remove Selected
+						<TrashIcon /> Remove Selected
 					</button>
 				</div>
 			)}

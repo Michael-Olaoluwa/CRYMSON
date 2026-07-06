@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './OnboardingWizard.module.css';
+import { GraduationIcon, LightbulbIcon } from '../../utils/icons';
 
 function OnboardingWizard({ onComplete }) {
 	const [step, setStep] = useState(1); // 1: first semester?, 2: semester info, 3: previous GPA, 4: goal CGPA, 5: confirm
@@ -109,7 +110,7 @@ function OnboardingWizard({ onComplete }) {
 				{/* Step 1: First Semester? */}
 				{step === 1 && (
 					<div className={styles.step}>
-						<h2>Welcome to CGPA Tracker! 🎓</h2>
+						<h2>Welcome to CGPA Tracker! <GraduationIcon /></h2>
 						<p>Is this your first semester in university?</p>
 						<div className={styles.buttonGroup}>
 							<button
@@ -211,7 +212,7 @@ function OnboardingWizard({ onComplete }) {
 					<div className={styles.step}>
 						<h2>Your Goal</h2>
 						<p className={styles.goalNote}>
-							💡 <strong>Important:</strong> This is your target CGPA at the <strong>end of your entire program</strong>,
+							<LightbulbIcon /> <strong>Important:</strong> This is your target CGPA at the <strong>end of your entire program</strong>,
 							not just this semester or session.
 						</p>
 

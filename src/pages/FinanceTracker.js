@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./FinanceTracker.module.css";
 import { getAuthToken } from "../utils/authSession";
+import { BarChartIcon, NoteIcon, RefreshIcon, GearIcon } from "../utils/icons";
 import {
   BarChart,
   Bar,
@@ -1169,8 +1170,8 @@ function FinanceTracker({ activeUserId = "guest" }) {
             className={`${styles.tabItem} ${activeNavTab === tab ? styles.tabActive : ""}`}
             onClick={() => setActiveNavTab(tab)}
           >
-            {tab === "dashboard" && "📊"} {tab === "entries" && "📝"}
-            {tab === "recurring" && "🔄"} {tab === "settings" && "⚙️"}
+            {tab === "dashboard" && <BarChartIcon />} {tab === "entries" && <NoteIcon />}
+            {tab === "recurring" && <RefreshIcon />} {tab === "settings" && <GearIcon />}
             <span className={styles.tabLabel}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </span>

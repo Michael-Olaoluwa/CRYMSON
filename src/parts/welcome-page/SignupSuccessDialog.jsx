@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../../pages/Landing.module.css';
+import { PartyIcon } from '../../utils/icons';
 
 function SignupSuccessDialog({ generatedCrymsonId, onClose, onContinueToSignIn }) {
 	return (
@@ -20,7 +21,7 @@ function SignupSuccessDialog({ generatedCrymsonId, onClose, onContinueToSignIn }
 					×
 				</button>
 
-				<h2 className={styles.successTitle}>Signup Successful 🎉</h2>
+				<h2 className={styles.successTitle}>Signup Successful <PartyIcon /></h2>
 				<p className={styles.successText}>Your Crymson ID has been generated</p>
 				<p className={styles.generatedId}>{generatedCrymsonId}</p>
 				<p className={styles.successHint}>Save this ID - you'll need it to log in later</p>

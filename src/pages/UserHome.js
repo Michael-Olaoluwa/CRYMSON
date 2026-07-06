@@ -3,6 +3,12 @@ import styles from './UserHome.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import TimerWidget from '../components/TimerWidget';
 import { getAuthToken } from '../utils/authSession';
+import { iconMap, WaveIcon, CalmIcon, ExhaleIcon, FireIcon } from '../utils/icons';
+
+const BadgeIcon = ({ icon }) => {
+  const Icon = iconMap[icon];
+  return Icon ? <Icon /> : null;
+};
 
 const USER_CGPA_STATE_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TODO_STORAGE_KEY_BASE = 'crymson_todo_tasks';
@@ -722,7 +728,7 @@ function UserHome({
     {
       id: 'cgpa',
       name: 'CGPA Tracker',
-      icon: '🎓',
+      icon: 'graduation',
       summary: 'Track grades, CGPA trend, and semester movement.',
       status: 'Live',
       isLive: true,
@@ -735,7 +741,7 @@ function UserHome({
     {
       id: 'todo',
       name: 'Task Manager',
-      icon: '✅',
+      icon: 'checkCircle',
       summary: 'Manage assignments, reminders, and deadlines.',
       status: 'Live',
       isLive: true,
@@ -748,7 +754,7 @@ function UserHome({
     {
       id: 'time',
       name: 'Time Tracker',
-      icon: '⏱️',
+      icon: 'stopwatch',
       summary: 'Log study sessions and focus blocks.',
       status: 'Live',
       isLive: true,
@@ -761,7 +767,7 @@ function UserHome({
     {
       id: 'finance',
       name: 'Finance Tracker',
-      icon: '💳',
+      icon: 'creditCard',
       summary: 'Track spending for school and personal budgets.',
       status: 'Live',
       isLive: true,
@@ -776,7 +782,7 @@ function UserHome({
     {
       id: 'social',
       name: 'Social Layer',
-      icon: '👥',
+      icon: 'users',
       summary: 'Connect with classmates and study groups.',
       status: 'Pending',
       isLive: false,
@@ -797,7 +803,7 @@ function UserHome({
       <div className={styles.bootScreen}>
         <div className={styles.bootCard}>
           <p className={styles.bootEyebrow}>Crymson</p>
-          <h1 className={styles.bootTitle}>Welcome back, {displayName} 👋</h1>
+          <h1 className={styles.bootTitle}>Welcome back, {displayName} <WaveIcon /></h1>
           <p className={styles.bootQuote}>{bootQuote}</p>
           <div className={styles.bootProgressTrack}>
             <span className={styles.bootProgressFill} style={{ width: `${bootProgress}%` }} />
@@ -848,21 +854,21 @@ function UserHome({
               className={`${styles.moodButton} ${mood === 'focused' ? styles.moodActive : ''} ${isMoodBouncing ? styles.moodBounce : ''}`}
               onClick={() => handleMoodTap('focused')}
             >
-              😌
+              <CalmIcon />
             </button>
             <button
               type="button"
               className={`${styles.moodButton} ${mood === 'tired' ? styles.moodActive : ''} ${isMoodBouncing ? styles.moodBounce : ''}`}
               onClick={() => handleMoodTap('tired')}
             >
-              😮‍💨
+              <ExhaleIcon />
             </button>
             <button
               type="button"
               className={`${styles.moodButton} ${mood === 'motivated' ? styles.moodActive : ''} ${isMoodBouncing ? styles.moodBounce : ''}`}
               onClick={() => handleMoodTap('motivated')}
             >
-              🔥
+              <FireIcon />
             </button>
           </div>
         </div>
@@ -979,7 +985,7 @@ function UserHome({
             {toolHubItems.map((tool) => (
               <article key={tool.id} className={styles.toolHubItem}>
                 <div className={styles.toolHubMeta}>
-                  <div className={styles.toolHubIcon}>{tool.icon}</div>
+                  <div className={styles.toolHubIcon}><BadgeIcon icon={tool.icon} /></div>
                   <h3 className={styles.toolHubName}>{tool.name}</h3>
                   <p className={styles.toolHubSummary}>{tool.summary}</p>
                   <span className={`${styles.toolHubStatus} ${tool.isLive ? styles.toolHubStatusLive : styles.toolHubStatusPending}`}>

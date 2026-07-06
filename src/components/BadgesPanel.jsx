@@ -5,6 +5,12 @@
 
 import React from "react";
 import styles from "./BadgesPanel.module.css";
+import { iconMap, TrophyIcon, RocketIcon } from "../utils/icons";
+
+const BadgeIcon = ({ icon }) => {
+  const Icon = iconMap[icon];
+  return Icon ? <Icon /> : null;
+};
 
 export const BadgesPanel = ({
   badges = [],
@@ -12,14 +18,14 @@ export const BadgesPanel = ({
   completionStats = {},
 }) => {
   const getProgressText = (nextBadge) => {
-    if (!nextBadge) return "All badges earned! 🏆";
+    if (!nextBadge) return "All badges earned!";
 
-    switch (nextBadge.title) {
-      case "On Fire 🔥":
+    switch (nextBadge.icon) {
+      case "fire":
         return `${Math.ceil((completionStats.streakProgress || 0) / 10)}% to 7-day streak`;
-      case "Task Master ✓":
+      case "check":
         return `${Math.ceil((completionStats.tasksProgress || 0) / 50)}% of tasks completed`;
-      case "Finance Ninja 💰":
+      case "money":
         return `${Math.ceil((completionStats.financeProgress || 0) / 100)}% of finance entries`;
       default:
         return "Keep going!";
@@ -38,7 +44,7 @@ export const BadgesPanel = ({
             {badges.map((badge) => (
               <div key={badge.type} className={styles.badge}>
                 <div className={styles.badgeIcon}>
-                  {badge.definition.icon}
+                  <BadgeIcon icon={badge.definition.icon} />
                 </div>
                 <div className={styles.badgeTitle}>
                   {badge.definition.title}
@@ -61,7 +67,7 @@ export const BadgesPanel = ({
           <h4>Next Achievement</h4>
           <div className={styles.nextBadge}>
             <div className={styles.nextBadgeIcon}>
-              {nextBadge.icon}
+              <BadgeIcon icon={nextBadge.icon} />
             </div>
             <div className={styles.nextBadgeContent}>
               <div className={styles.nextBadgeTitle}>
@@ -81,7 +87,7 @@ export const BadgesPanel = ({
       {/* Empty state */}
       {badges.length === 0 && !nextBadge && (
         <div className={styles.empty}>
-          <p>Start using Crymson to earn badges! 🚀</p>
+          <p><RocketIcon /> Start using Crymson to earn badges!</p>
         </div>
       )}
     </div>
