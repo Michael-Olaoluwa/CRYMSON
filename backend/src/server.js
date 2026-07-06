@@ -8,6 +8,7 @@ const academicRoutes = require("./routes/academicRoutes");
 const userStateRoutes = require("./routes/userStateRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const detectionRoutes = require("./routes/detectionRoutes");
+const courseRoutes = require("./routes/courseRoutes");
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -67,6 +68,7 @@ app.use(
 // Request size limit
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use("/uploads", express.static("uploads"));
 
 app.get("/api/health", (req, res) => {
   const dbConnected = mongoose.connection.readyState === 1;
@@ -89,6 +91,7 @@ app.use("/api/academic-events", academicRoutes);
 app.use("/api/user-state", userStateRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/detect", detectionRoutes);
+app.use("/api/courses", courseRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found." });

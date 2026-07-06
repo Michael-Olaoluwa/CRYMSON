@@ -1,0 +1,81 @@
+.uploader {
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--color-surface, #1a1a2e);
+  transition: border-color 0.15s;
+}
+
+.dragOver {
+  border-color: var(--color-accent, #800020);
+  background: rgba(128, 0, 32, 0.05);
+}
+
+.inputs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 6px;
+  background: var(--color-bg, #0f0f1a);
+  color: var(--color-text, #e0e0e0);
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted, #666);
+}
+
+.select {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 6px;
+  background: var(--color-bg, #0f0f1a);
+  color: var(--color-text, #e0e0e0);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.dropZone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  border: 2px dashed var(--color-border, #2d2d44);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--color-text-muted, #999);
+  font-size: 13px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.dropZone svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dropZone:hover {
+  border-color: var(--color-accent, #800020);
+  color: var(--color-accent, #800020);
+}
+
+.uploader.dragOver .dropZone {
+  border-color: var(--color-accent, #800020);
+  color: var(--color-accent, #800020);
+}
+
+.error {
+  color: var(--color-danger, #dc2626);
+  font-size: 12px;
+  margin-top: 8px;
+}

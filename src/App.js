@@ -13,6 +13,7 @@ import PermissionsPanel from "./components/PermissionsPanel";
 import TextCaptureWidget from "./components/TextCaptureWidget";
 import { DetectionProvider } from "./hooks/useTextDetection";
 import ShareTarget from "./pages/ShareTarget";
+import CourseMaterials from "./pages/CourseMaterials";
 import { TimerProvider } from "./context/TimerContext";
 import {
   clearAuthSession,
@@ -34,6 +35,7 @@ const ALLOWED_PAGES = new Set([
   "finance",
   "admin",
   "share-target",
+  "course-materials",
 ]);
 
 const getSavedAppState = () => {
@@ -227,11 +229,19 @@ function App() {
     setCurrentPage("landing");
   };
 
+  const [activeCourseCode, setActiveCourseCode] = useState("");
+
   const navigateToShareTarget = () => {
     setCurrentPage("share-target");
   };
 
+  const navigateToCourseMaterials = (courseCode) => {
+    setActiveCourseCode(courseCode || "");
+    setCurrentPage("course-materials");
+  };
+
   const shouldShowShareTarget = currentPage === "share-target";
+  const shouldShowCourseMaterials = currentPage === "course-materials";
 
   const handleLogout = () => {
     clearSessionStorage();
@@ -261,13 +271,23 @@ function App() {
             <ShareTarget />
           )}
 
-          {currentPage !== "landing" && !shouldShowShareTarget && (
+          {shouldShowCourseMaterials && (
+            <CourseMaterials
+              courseCode={activeCourseCode}
+              onBack={() => setCurrentPage("home")}
+            />
+          )}
+
+          {currentPage !== "landing" && !shouldShowShareTarget && !shouldShowCourseMaterials && (
             <AppLayout
               activePage={currentPage}
               userId={activeUserId}
               userName={activeUserName}
               isAdmin={isAdmin}
-              onNavigate={(page) => setCurrentPage(page)}
+              onNavigate={(page) => {
+                if (page !== "course-materials") setActiveCourseCode("");
+                setCurrentPage(page);
+              }}
               onLogout={handleLogout}
               darkMode={darkMode}
               onToggleDark={handleToggleDark}
@@ -292,6 +312,7 @@ function App() {
               {currentPage === "user-cgpa" && (
                 <MyGradeTrackerScreen
                   activeUserId={activeUserId}
+                  onNavigateToCourseMaterials={navigateToCourseMaterials}
                 />
               )}
 

@@ -2,7 +2,7 @@ import React from 'react';
 import MyTrackerWidget from '../parts/grade-tools/MyTrackerWidget';
 import styles from './UserCGPATracker.module.css';
 
-function UserCGPATracker({ activeUserId = 'guest' }) {
+function UserCGPATracker({ activeUserId = 'guest', onNavigateToCourseMaterials }) {
   return (
     <div className={styles.page}>
       <div className={styles.shell}>

@@ -1,0 +1,123 @@
+.editor {
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--color-surface, #1a1a2e);
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+
+.editor:focus-within {
+  border-color: var(--color-accent, #800020);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleInput {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text, #e0e0e0);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  outline: none;
+}
+
+.titleInput:focus {
+  border-color: var(--color-border, #2d2d44);
+  background: var(--color-bg, #0f0f1a);
+}
+
+.titleInput::placeholder {
+  color: var(--color-text-muted, #666);
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.saveBtn {
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-accent, #800020);
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  transition: opacity 0.15s;
+}
+
+.saveBtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.saveBtn:hover {
+  opacity: 0.9;
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.deleteBtn {
+  padding: 6px;
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted, #999);
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  transition: color 0.15s;
+}
+
+.deleteBtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.deleteBtn:hover {
+  color: var(--color-danger, #dc2626);
+}
+
+.deleteBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.contentInput {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--color-border, #2d2d44);
+  border-radius: 6px;
+  background: var(--color-bg, #0f0f1a);
+  color: var(--color-text, #e0e0e0);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.contentInput::placeholder {
+  color: var(--color-text-muted, #666);
+}
+
+.contentInput:focus {
+  outline: none;
+  border-color: var(--color-accent, #800020);
+}
