@@ -333,20 +333,9 @@
 }
 
 .actionIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
+  font-size: 20px;
+  line-height: 1;
   flex-shrink: 0;
-}
-
-.actionBtn[data-accent="green"] .actionIcon {
-  color: var(--clr-accent-green-alt);
-}
-
-.actionBtn[data-accent="purple"] .actionIcon {
-  color: #8b5cf6;
 }
 
 .actionLabel {
