@@ -85,10 +85,10 @@ const getCGPACourses = (activeUserId) => {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed.courses)) return [];
     return parsed.courses
-      .filter(
-        (course) => course?.courseName && String(course.courseName).trim(),
-      )
-      .map((course) => String(course.courseName).trim())
+      .flatMap((course) => {
+        const name = course?.courseName && String(course.courseName).trim();
+        return name ? [name] : [];
+      })
       .sort();
   } catch (error) {
     return [];
@@ -331,14 +331,12 @@ function ToDoPlanner({ activeUserId = "guest" }) {
 
   const academicCalendar = useMemo(() => {
     const academicTasks = tasks
-      .filter(
-        (task) => task.taskType && task.taskType !== "general" && task.dueAt,
-      )
-      .map((task) => ({
-        ...task,
-        dueDate: new Date(task.dueAt),
-      }))
-      .filter((task) => !Number.isNaN(task.dueDate.getTime()))
+      .flatMap((task) => {
+        if (!task.taskType || task.taskType === "general" || !task.dueAt) return [];
+        const dueDate = new Date(task.dueAt);
+        if (Number.isNaN(dueDate.getTime())) return [];
+        return [{ ...task, dueDate }];
+      })
       .sort((left, right) => left.dueDate.getTime() - right.dueDate.getTime());
 
     const grouped = academicTasks.reduce((acc, task) => {

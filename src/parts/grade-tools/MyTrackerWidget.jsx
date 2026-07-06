@@ -81,15 +81,16 @@ const getInitialState = (storageKey) => {
     );
     const parsedCourses = Array.isArray(parsed.courses)
       ? parsed.courses
-          .filter((course) => Number.isInteger(course?.id))
-          .map((course) => ({
-            id: course.id,
-            courseName: String(course.courseName || ""),
-            creditUnits: String(course.creditUnits || ""),
-            test1Score: String(course.test1Score || ""),
-            test2Score: String(course.test2Score || ""),
-            examScore: String(course.examScore || ""),
-          }))
+          .flatMap((course) =>
+            Number.isInteger(course?.id)
+              ? [{
+                  id: course.id,
+                  courseName: String(course.courseName || ""),
+                  creditUnits: String(course.creditUnits || ""),
+                  score: String(course.score || ""),
+                }]
+              : [],
+          )
       : [];
 
     return {
@@ -224,15 +225,16 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
 
     const parsedCourses = Array.isArray(state.courses)
       ? state.courses
-          .filter((course) => Number.isInteger(course?.id))
-          .map((course) => ({
-            id: course.id,
-            courseName: String(course.courseName || ""),
-            creditUnits: String(course.creditUnits || ""),
-            test1Score: String(course.test1Score || ""),
-            test2Score: String(course.test2Score || ""),
-            examScore: String(course.examScore || ""),
-          }))
+          .flatMap((course) =>
+            Number.isInteger(course?.id)
+              ? [{
+                  id: course.id,
+                  courseName: String(course.courseName || ""),
+                  creditUnits: String(course.creditUnits || ""),
+                  score: String(course.score || ""),
+                }]
+              : [],
+          )
       : [];
 
     setCourses(parsedCourses.length > 0 ? parsedCourses : [createCourse(1)]);
@@ -440,20 +442,19 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
   const semesterHistory = useMemo(() => {
     const points = Array.isArray(previousSemesters)
       ? previousSemesters
-          .map((semester, index) => {
+          .flatMap((semester, index) => {
             const semesterNumber = Number(semester?.semester);
             const numericCgpa = Number(semester?.cgpa);
-            if (!Number.isFinite(numericCgpa)) return null;
+            if (!Number.isFinite(numericCgpa)) return [];
 
-            return {
+            return [{
               semester:
                 Number.isInteger(semesterNumber) && semesterNumber > 0
                   ? semesterNumber
                   : index + 1,
               cgpa: Math.min(5, Math.max(0, numericCgpa)),
-            };
+            }];
           })
-          .filter(Boolean)
       : [];
 
     if (Number.isFinite(currentCgpa)) {
@@ -568,45 +569,44 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
       : 40;
 
     return courses
-      .map((course) => {
+      .flatMap((course) => {
         const courseName =
           String(course.courseName || "").trim() || "Unnamed course";
         const test1 = Number(course.test1Score);
         const test2 = Number(course.test2Score);
 
         if (!Number.isFinite(test1) || !Number.isFinite(test2)) {
-          return null;
+          return [];
         }
 
         const continuousAssessmentTotal = test1 + test2;
         const requiredExam = targetFinalScore - continuousAssessmentTotal;
 
         if (requiredExam <= 0) {
-          return {
+          return [{
             courseId: course.id,
             courseName,
             type: "secured",
             message: `${courseName}: You already secured this target before exam.`,
-          };
+          }];
         }
 
         if (requiredExam > 70) {
-          return {
+          return [{
             courseId: course.id,
             courseName,
             type: "risk",
             message: `${courseName}: You need ${requiredExam.toFixed(1)} in exam (above 70, currently not feasible).`,
-          };
+          }];
         }
 
-        return {
+        return [{
           courseId: course.id,
           courseName,
           type: "need",
           message: `${courseName}: You need ${requiredExam.toFixed(1)} in exam.`,
-        };
+        }];
       })
-      .filter(Boolean)
       .sort((left, right) => {
         const leftWeight =
           left.type === "risk" ? 0 : left.type === "need" ? 1 : 2;
@@ -683,25 +683,23 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
     ]);
 
     return academicEvents
-      .filter((event) =>
-        scoreEntryTypes.has(String(event.taskType || "").toLowerCase()),
-      )
-      .filter((event) => !event.acknowledgedAt)
-      .map((event) => {
+      .flatMap((event) => {
+        if (!scoreEntryTypes.has(String(event.taskType || "").toLowerCase())) return [];
+        if (event.acknowledgedAt) return [];
         const dueTime = new Date(event.dueAt).getTime();
         const reminderDelayMinutes = getAcademicReminderDelayMinutes(
           event.taskType,
           event.reminderDelayMinutes,
         );
         const reminderAt = dueTime + reminderDelayMinutes * 60000;
-        return {
+        if (!Number.isFinite(reminderAt) || now < reminderAt) return [];
+        return [{
           ...event,
           dueTime,
           reminderAt,
-          isDue: Number.isFinite(reminderAt) && now >= reminderAt,
-        };
+          isDue: true,
+        }];
       })
-      .filter((event) => event.isDue)
       .sort((left, right) => left.reminderAt - right.reminderAt);
   }, [academicEvents, clockTick]);
 

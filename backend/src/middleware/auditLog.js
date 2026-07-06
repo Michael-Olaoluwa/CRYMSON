@@ -89,15 +89,17 @@ function getAuditLog(userId, limit = 100, offset = 0) {
 
   const lines = fs.readFileSync(logFile, "utf-8").split("\n");
   const entries = lines
-    .filter((line) => line.trim())
-    .map((line) => {
+    .flatMap((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return [];
       try {
-        return JSON.parse(line);
-      } catch {
-        return null;
-      }
+        const entry = JSON.parse(line);
+        if (entry && (!userId || entry.userId === userId)) {
+          return [entry];
+        }
+      } catch {}
+      return [];
     })
-    .filter((entry) => entry && (!userId || entry.userId === userId))
     .reverse();
 
   return entries.slice(offset, offset + limit);

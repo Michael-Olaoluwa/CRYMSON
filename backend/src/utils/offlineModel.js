@@ -111,11 +111,9 @@ function applyProjection(doc, projection) {
   }
 
   const includeKeys = Object.entries(projection)
-    .filter(([, value]) => value === 1 || value === true)
-    .map(([key]) => key);
+    .flatMap(([key, value]) => value === 1 || value === true ? [key] : []);
   const excludeKeys = Object.entries(projection)
-    .filter(([, value]) => value === 0 || value === false)
-    .map(([key]) => key);
+    .flatMap(([key, value]) => value === 0 || value === false ? [key] : []);
 
   let projected = deepClone(doc);
 
@@ -446,14 +444,14 @@ function createOfflineModelProxy(realModel, config) {
   async function bulkWrite(operations = []) {
     const results = await Promise.all(
       operations
-        .filter((operation) => operation && operation.updateOne)
-        .map(async (operation) => {
+        .flatMap((operation) => {
+          if (!operation || !operation.updateOne) return [];
           const {
             filter = {},
             update = {},
             upsert = false,
           } = operation.updateOne;
-          return updateMatching(filter, update, { upsert });
+          return [updateMatching(filter, update, { upsert })];
         }),
     );
 

@@ -29,13 +29,16 @@ const getInitialTrackerState = () => {
     const parsed = JSON.parse(raw);
     const parsedCourses = Array.isArray(parsed.courses)
       ? parsed.courses
-          .filter((course) => Number.isInteger(course?.id))
-          .map((course) => ({
-            id: course.id,
-            courseName: String(course.courseName || ''),
-            creditUnits: String(course.creditUnits || ''),
-            score: String(course.score || ''),
-          }))
+          .flatMap((course) =>
+            Number.isInteger(course?.id)
+              ? [{
+                  id: course.id,
+                  courseName: String(course.courseName || ''),
+                  creditUnits: String(course.creditUnits || ''),
+                  score: String(course.score || ''),
+                }]
+              : [],
+          )
       : [];
 
     return {

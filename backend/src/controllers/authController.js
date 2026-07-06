@@ -5,7 +5,10 @@ const Setting = require('../models/Setting');
 const { generateUniqueCrymsonId, generateAdminCrymsonId, isAdminId } = require('../utils/crymsonId');
 
 const REQUIRED_SIGNUP_FIELDS = ['fullName', 'email', 'department', 'level', 'password'];
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-change-me';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable must be set');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const TOKEN_EXPIRES_IN = '7d';
 
 function sanitizeUser(user) {

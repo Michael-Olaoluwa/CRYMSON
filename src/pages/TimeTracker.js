@@ -356,31 +356,24 @@ function TimeTracker({ activeUserId = "guest" }) {
     }, {});
 
     const upcomingTests = calendarTasks
-      .filter((task) => !task?.completed)
-      .filter((task) =>
-        TEST_TASK_TYPES.has(String(task?.taskType || "").toLowerCase()),
-      )
-      .map((task) => {
+      .flatMap((task) => {
+        if (task?.completed) return [];
+        if (!TEST_TASK_TYPES.has(String(task?.taskType || "").toLowerCase())) return [];
         const dueAtTime = new Date(task.dueAt || "").getTime();
-        return {
+        if (!Number.isFinite(dueAtTime) || dueAtTime < now || dueAtTime > sevenDaysFromNow) return [];
+        return [{
           id: String(task.id || ""),
           title: String(task.title || "Upcoming test").trim(),
           courseTag:
             String(task.courseTag || "General Study").trim() || "General Study",
           taskType: String(task.taskType || "").toLowerCase(),
           dueAtTime,
-        };
+        }];
       })
-      .filter(
-        (task) =>
-          Number.isFinite(task.dueAtTime) &&
-          task.dueAtTime >= now &&
-          task.dueAtTime <= sevenDaysFromNow,
-      )
       .sort((left, right) => left.dueAtTime - right.dueAtTime);
 
     const warnings = upcomingTests
-      .map((task) => {
+      .flatMap((task) => {
         const studiedSeconds = recentStudyByCourse[task.courseTag] || 0;
         const recommendedSeconds =
           task.taskType === "exam" || task.taskType === "exam-timetable"
@@ -388,9 +381,9 @@ function TimeTracker({ activeUserId = "guest" }) {
             : 2 * 60 * 60;
         const deficitSeconds = recommendedSeconds - studiedSeconds;
 
-        if (deficitSeconds <= 0) return null;
+        if (deficitSeconds <= 0) return [];
 
-        return {
+        return [{
           id: task.id || `${task.courseTag}-${task.dueAtTime}`,
           title: task.title,
           courseTag: task.courseTag,
@@ -398,9 +391,8 @@ function TimeTracker({ activeUserId = "guest" }) {
           studiedSeconds,
           recommendedSeconds,
           deficitSeconds,
-        };
-      })
-      .filter(Boolean);
+        }];
+      });
 
     return {
       upcomingTestsCount: upcomingTests.length,

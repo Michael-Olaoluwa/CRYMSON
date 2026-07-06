@@ -650,12 +650,11 @@ function FinanceTracker({ activeUserId = "guest" }) {
         setEntries((prev) => {
           const existingRecurringKeys = new Set(
             prev
-              .filter(
-                (entry) =>
-                  entry.source === "recurring" &&
-                  entry.recurringPlanId === plan.id,
-              )
-              .map((entry) => `${entry.recurringPlanId}:${entry.date}`),
+              .flatMap((entry) =>
+                entry.source === "recurring" && entry.recurringPlanId === plan.id
+                  ? [`${entry.recurringPlanId}:${entry.date}`]
+                  : [],
+              ),
           );
 
           const merged = [...prev];
@@ -760,11 +759,10 @@ function FinanceTracker({ activeUserId = "guest" }) {
 
     const todayKey = getTodayDateKey();
     const dueSoonPlans = activePlans
-      .map((plan) => ({
-        plan,
-        alert: getRecurringAlertStatus(plan, todayKey),
-      }))
-      .filter((item) => item.alert)
+      .flatMap((plan) => {
+        const alert = getRecurringAlertStatus(plan, todayKey);
+        return alert ? [{ plan, alert }] : [];
+      })
       .sort((left, right) => left.alert.dueInDays - right.alert.dueInDays);
 
     return {
@@ -843,13 +841,12 @@ function FinanceTracker({ activeUserId = "guest" }) {
     const now = new Date();
 
     return academicEvents
-      .filter((event) => isTuitionOrFeeEvent(event))
-      .filter((event) => !event.acknowledgedAt)
-      .map((event) => ({
-        event,
-        alert: getAcademicDeadlineAlert(event, now),
-      }))
-      .filter((item) => item.alert)
+      .flatMap((event) => {
+        if (!isTuitionOrFeeEvent(event)) return [];
+        if (event.acknowledgedAt) return [];
+        const alert = getAcademicDeadlineAlert(event, now);
+        return alert ? [{ event, alert }] : [];
+      })
       .sort(
         (left, right) =>
           new Date(left.event.dueAt) - new Date(right.event.dueAt),

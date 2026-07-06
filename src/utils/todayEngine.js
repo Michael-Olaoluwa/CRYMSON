@@ -236,13 +236,15 @@ const getCourseKey = (courseName) => normalizeCourseName(courseName).toLowerCase
 const getCourseMap = (cgpaState) => {
   const courses = Array.isArray(cgpaState?.courses) ? cgpaState.courses : [];
   return courses
-    .map((course) => ({
-      ...course,
-      courseName: normalizeCourseName(course?.courseName),
-      scoreValue: getScoreValue(course),
-      creditUnitsValue: Math.max(0, toNumber(course?.creditUnits, 0)),
-    }))
-    .filter((course) => course.courseName);
+    .flatMap((course) => {
+      const normalized = {
+        ...course,
+        courseName: normalizeCourseName(course?.courseName),
+        scoreValue: getScoreValue(course),
+        creditUnitsValue: Math.max(0, toNumber(course?.creditUnits, 0)),
+      };
+      return normalized.courseName ? [normalized] : [];
+    });
 };
 
 const getStudyWindowSeconds = (session, windowStart) => {
@@ -512,10 +514,16 @@ const buildFeedback = ({ actions, overdueTasks, totalStudyDeficitMinutes, target
 export const getTodayPlan = (userData = {}) => {
   const now = Date.now();
   const tasks = Array.isArray(userData.tasks)
-    ? userData.tasks.map(normalizeTask).filter((task) => task.title)
+    ? userData.tasks.flatMap((task) => {
+        const normalized = normalizeTask(task);
+        return normalized.title ? [normalized] : [];
+      })
     : [];
   const academicEvents = Array.isArray(userData.academicEvents)
-    ? userData.academicEvents.map(normalizeAcademicEvent).filter((event) => event.subject || event.title)
+    ? userData.academicEvents.flatMap((event) => {
+        const normalized = normalizeAcademicEvent(event);
+        return normalized.subject || normalized.title ? [normalized] : [];
+      })
     : [];
   const studySessions = Array.isArray(userData.timeSessions)
     ? userData.timeSessions.map(normalizeSession)
@@ -530,11 +538,9 @@ export const getTodayPlan = (userData = {}) => {
 
   const taskActions = openTasks.map((task) => buildTaskAction(task, now));
   const eventActions = academicEvents
-    .filter((event) => !event.acknowledgedAt)
-    .map((event) => buildAcademicEventAction(event, now));
+    .flatMap((event) => !event.acknowledgedAt ? [buildAcademicEventAction(event, now)] : []);
   const deficitActions = studyDeficits
-    .filter((item) => item.deficitMinutes > 0)
-    .map(buildStudyDeficitAction);
+    .flatMap((item) => item.deficitMinutes > 0 ? [buildStudyDeficitAction(item)] : []);
 
   const weakCourses = [];
   const riskActions = [];
