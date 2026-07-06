@@ -1,21 +1,20 @@
 header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 header h1 {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 700;
-  font-size: clamp(3rem, 8vw, 5rem);
-  color: var(--burgundy);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 1rem;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: #f2f0f5;
+  letter-spacing: -0.3px;
+  margin: 0 0 0.5rem;
 }
 
 .tagline {
   max-width: 600px;
   margin: 0 auto;
-  font-size: 1rem;
-  opacity: 0.8;
+  font-size: 0.9rem;
+  color: #9a95a3;
 }

@@ -35,7 +35,7 @@ tfoot td {
 }
 
 .summaryRow td {
-  background: rgba(128, 0, 32, 0.08);
+  background: rgba(139, 92, 246, 0.08);
   font-weight: 700;
 }
 
@@ -54,11 +54,11 @@ input[type="number"] {
   width: 100%;
   padding: 0.65rem;
   border-radius: 6px;
-  border: 2px solid var(--grey);
+  border: 1px solid var(--grey);
   outline: none;
-  transition: border-color var(--transition-fast);
-  background: var(--white);
-  color: var(--black);
+  transition: border-color 0.22s ease;
+  background: #1a1720;
+  color: #f2f0f5;
 }
 
 input:focus {
@@ -66,7 +66,7 @@ input:focus {
 }
 
 input[readonly] {
-  background: #fafaf8;
+  background: #151219;
   cursor: not-allowed;
 }
 
@@ -98,7 +98,7 @@ input[type="checkbox"] {
 }
 
 .btnDanger:hover {
-  background: #a00028;
+  background: #7c3aed;
 }
 
 .btnDanger:disabled {
