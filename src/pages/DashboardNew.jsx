@@ -224,7 +224,7 @@ function DashboardNew({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo
   }, [userId]);
 
   return (
-    <>
+    <div className={styles.dashboard}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.greeting}>Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {displayName.split(' ')[0]}</h1>
@@ -354,7 +354,7 @@ function DashboardNew({ userId, userName, onNavigateToUserCGPA, onNavigateToTodo
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

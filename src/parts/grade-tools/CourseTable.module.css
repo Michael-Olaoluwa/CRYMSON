@@ -57,7 +57,7 @@ input[type="number"] {
   border: 1px solid var(--grey);
   outline: none;
   transition: border-color 0.22s ease;
-  background: #1a1720;
+  background: var(--clr-bg-elevated);
   color: #f2f0f5;
 }
 

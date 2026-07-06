@@ -1,3 +1,9 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -8,14 +14,14 @@
   font-family: 'Cormorant Garamond', serif;
   font-size: 28px;
   font-weight: 700;
-  color: #f2f0f5;
+  color: var(--clr-text);
   margin: 0;
   letter-spacing: -0.3px;
 }
 
 .subtitle {
   font-size: 13px;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   margin: 4px 0 0 0;
   font-weight: 400;
 }
@@ -23,14 +29,14 @@
 .grid2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: var(--sp-5);
 }
 
 .card {
-  background: #211d26;
+  background: var(--clr-bg-card);
   border-radius: 18px;
-  border: 1px solid #2f2a38;
-  padding: 22px;
+  border: 1px solid var(--clr-border);
+  padding: var(--sp-5-5, 22px);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -39,7 +45,7 @@
 }
 
 .card:hover {
-  border-color: #36303f;
+  border-color: var(--clr-border);
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.3);
 }
 
@@ -52,7 +58,7 @@
 .cardTitle {
   font-size: 12px;
   font-weight: 600;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
@@ -60,20 +66,20 @@
 .cardCount {
   font-size: 22px;
   font-weight: 700;
-  color: #2dd4a7;
+  color: var(--clr-accent-green-alt);
   line-height: 1;
 }
 
 .cardBalance {
   font-size: 17px;
   font-weight: 700;
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 .cardBadge {
   font-size: 12px;
   font-weight: 600;
-  color: #a78bfa;
+  color: var(--clr-accent-light);
   background: rgba(139, 92, 246, 0.12);
   padding: 4px 12px;
   border-radius: 20px;
@@ -82,7 +88,7 @@
 
 .progressBar {
   height: 4px;
-  background: #2a2433;
+  background: var(--clr-bg-hover);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -96,7 +102,7 @@
 
 .progressLabel {
   font-size: 11px;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   margin-top: -10px;
 }
 
@@ -114,14 +120,14 @@
   align-items: center;
   gap: 10px;
   padding: 9px 12px;
-  background: #1a1720;
+  background: var(--clr-bg-elevated);
   border-radius: 10px;
   font-size: 13px;
   transition: background 0.15s ease;
 }
 
 .taskItem:hover {
-  background: #221e2a;
+  background: var(--clr-bg-hover);
 }
 
 .priorityDot {
@@ -148,7 +154,7 @@
 
 .taskText {
   flex: 1;
-  color: #f2f0f5;
+  color: var(--clr-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -156,18 +162,18 @@
 
 .taskMeta {
   font-size: 11px;
-  color: #6b6573;
+  color: var(--clr-text-muted);
   flex-shrink: 0;
-  background: #26212e;
+  background: var(--clr-bg-hover);
   padding: 2px 8px;
   border-radius: 6px;
 }
 
 .cardAction {
   padding: 9px 18px;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   background: transparent;
-  color: #a78bfa;
+  color: var(--clr-accent-light);
   font-size: 12px;
   font-family: inherit;
   font-weight: 600;
@@ -180,7 +186,7 @@
 
 .cardAction:hover {
   background: rgba(139, 92, 246, 0.1);
-  border-color: #8b5cf6;
+  border-color: var(--clr-accent);
 }
 
 .financeStrip {
@@ -196,7 +202,7 @@
 
 .financeLabel {
   font-size: 11px;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -204,13 +210,13 @@
 .financeIncome {
   font-size: 16px;
   font-weight: 700;
-  color: #34d399;
+  color: var(--clr-accent-green);
 }
 
 .financeExpense {
   font-size: 16px;
   font-weight: 700;
-  color: #f87171;
+  color: var(--clr-accent-red);
 }
 
 .goalRow {
@@ -222,7 +228,7 @@
 .goalBar {
   flex: 1;
   height: 6px;
-  background: #2a2433;
+  background: var(--clr-bg-hover);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -237,7 +243,7 @@
 .goalPct {
   font-size: 12px;
   font-weight: 600;
-  color: #a78bfa;
+  color: var(--clr-accent-light);
   min-width: 36px;
   text-align: right;
 }
@@ -271,7 +277,7 @@
 
 .miniBarLabel {
   font-size: 9px;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
 
 .quickActions {
@@ -283,7 +289,7 @@
 .sectionLabel {
   font-size: 12px;
   font-weight: 600;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
@@ -291,7 +297,7 @@
 .actionsRow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: var(--sp-5);
 }
 
 .actionBtn {
@@ -300,9 +306,9 @@
   justify-content: center;
   gap: 10px;
   padding: 16px 12px;
-  border: 1px solid #2f2a38;
-  background: #211d26;
-  color: #f2f0f5;
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-card);
+  color: var(--clr-text);
   font-size: 13px;
   font-family: inherit;
   font-weight: 600;
@@ -314,14 +320,14 @@
 
 .actionBtn[data-accent="green"]:hover {
   background: rgba(45, 212, 167, 0.08);
-  border-color: #2dd4a7;
+  border-color: var(--clr-accent-green-alt);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 212, 167, 0.15);
 }
 
 .actionBtn[data-accent="purple"]:hover {
   background: rgba(139, 92, 246, 0.08);
-  border-color: #8b5cf6;
+  border-color: var(--clr-accent);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.15);
 }
@@ -336,7 +342,7 @@
 }
 
 .actionBtn[data-accent="green"] .actionIcon {
-  color: #2dd4a7;
+  color: var(--clr-accent-green-alt);
 }
 
 .actionBtn[data-accent="purple"] .actionIcon {
@@ -387,7 +393,7 @@
 
 .chartBarLabel {
   font-size: 9px;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   text-align: center;
   font-weight: 500;
 }
@@ -396,14 +402,14 @@
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: #9a95a3;
-  border-top: 1px solid #2f2a38;
-  padding-top: 12px;
-  margin-top: 2px;
+  color: var(--clr-text-secondary);
+  border-top: 1px solid var(--clr-border);
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-0);
 }
 
 .emptyState {
-  color: #6b6573;
+  color: var(--clr-text-muted);
   font-size: 13px;
   font-style: italic;
   padding: 16px 0;

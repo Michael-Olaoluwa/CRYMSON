@@ -29,13 +29,13 @@ button {
 }
 
 .btnSecondary {
-  background: #1a1720;
-  color: #f2f0f5;
-  border: 1px solid #2f2a38;
+  background: var(--clr-bg-elevated);
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border);
 }
 
 .btnSecondary:hover {
-  background: #211d26;
-  border-color: #8b5cf6;
+  background: var(--clr-bg-card);
+  border-color: var(--clr-accent);
   transform: translateY(-1px);
 }

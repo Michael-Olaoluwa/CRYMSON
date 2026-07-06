@@ -65,6 +65,34 @@
     radial-gradient(circle at 90% 4%, rgba(255, 111, 97, 0.12), transparent 32%),
     radial-gradient(circle at 78% 80%, rgba(44, 207, 163, 0.1), transparent 36%),
     linear-gradient(160deg, #ffffff 0%, #f7f9fd 55%, #eef2f8 100%);
+
+  --clr-bg: #161318;
+  --clr-bg-secondary: #1c1820;
+  --clr-bg-card: #211d26;
+  --clr-bg-elevated: #1a1720;
+  --clr-bg-hover: #2a2433;
+  --clr-text: #f2f0f5;
+  --clr-text-secondary: #9a95a3;
+  --clr-text-muted: #6b6573;
+  --clr-text-inverse: #fff;
+  --clr-border: #2f2a38;
+  --clr-accent: #8b5cf6;
+  --clr-accent-light: #a78bfa;
+  --clr-accent-red: #f87171;
+  --clr-accent-green: #34d399;
+  --clr-accent-green-alt: #2dd4a7;
+
+  --sp-0: 0px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 28px;
+  --sp-8: 32px;
+  --sp-9: 36px;
+  --sp-10: 40px;
 }
 
 [data-theme="light"] {
@@ -88,7 +116,27 @@
   --uh-royal: #3478f6;
   --uh-coral: #ff6f61;
   --uh-mint: #2ccfa3;
-  --uh-page-bg: #161318;
+  --uh-page-bg:
+    radial-gradient(circle at 12% 8%, rgba(52, 120, 246, 0.16), transparent 35%),
+    radial-gradient(circle at 90% 4%, rgba(255, 111, 97, 0.12), transparent 32%),
+    radial-gradient(circle at 78% 80%, rgba(44, 207, 163, 0.1), transparent 36%),
+    linear-gradient(160deg, #ffffff 0%, #f7f9fd 55%, #eef2f8 100%);
+
+  --clr-bg: #f8f5f0;
+  --clr-bg-secondary: #f4f1ed;
+  --clr-bg-card: #ffffff;
+  --clr-bg-elevated: #ffffff;
+  --clr-bg-hover: #e5e2dd;
+  --clr-text: #2a2a2a;
+  --clr-text-secondary: #8a8680;
+  --clr-text-muted: #b0aba5;
+  --clr-text-inverse: #fff;
+  --clr-border: #d9d4cf;
+  --clr-accent: #800020;
+  --clr-accent-light: #a00028;
+  --clr-accent-red: #dc2626;
+  --clr-accent-green: #1a7a4a;
+  --clr-accent-green-alt: #2a6a4a;
 }
 
 * {
@@ -127,8 +175,8 @@ body {
 }
 
 .App.financeTheme:not(.page-landing) {
-  background: var(--dark-bg);
-  color: var(--dark-text);
+  background: var(--clr-bg);
+  color: var(--clr-text);
 }
 
 .App.financeTheme button {

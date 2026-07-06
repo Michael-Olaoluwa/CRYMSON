@@ -2,7 +2,7 @@
   --ink-900: #131722;
   --ease-premium: cubic-bezier(0.22, 0.76, 0.2, 1);
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 .shell {
@@ -17,9 +17,9 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 18px;
-  background: #211d26;
+  background: var(--clr-bg-card);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 1.15rem 1.2rem;
 }
@@ -29,12 +29,12 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.71rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
 
 .title {
   margin: 0.35rem 0 0;
-  color: #f2f0f5;
+  color: var(--clr-text);
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(1.55rem, 3vw, 2.2rem);
   line-height: 1.14;
@@ -42,7 +42,7 @@
 
 .subtitle {
   margin: 0.5rem 0 0;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   line-height: 1.62;
   max-width: 62ch;
 }
@@ -54,16 +54,16 @@
 }
 
 .kpiCard {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 14px;
-  background: #211d26;
+  background: var(--clr-bg-card);
   padding: 0.72rem 0.8rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .kpiCard span {
   display: block;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -72,14 +72,14 @@
 .kpiCard strong {
   display: block;
   margin-top: 0.18rem;
-  color: #f2f0f5;
+  color: var(--clr-text);
   font-size: 1rem;
 }
 
 .workspacePane {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 18px;
-  background: #211d26;
+  background: var(--clr-bg-card);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 0.85rem;
 }

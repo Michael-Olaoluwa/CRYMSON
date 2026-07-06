@@ -1,5 +1,5 @@
 .page {
-  color: #f2f0f5;
+  color: var(--clr-text);
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
 
@@ -17,7 +17,7 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.72rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
 
 .title {
@@ -26,12 +26,12 @@
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1.12;
   letter-spacing: 0.01em;
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 .subtitle {
   margin: 0.45rem 0 0;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   line-height: 1.65;
   max-width: 64ch;
 }
@@ -39,9 +39,9 @@
 .card,
 .listCard {
   margin-top: 1rem;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 18px;
-  background: #211d26;
+  background: var(--clr-bg-card);
   padding: 1.1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -55,7 +55,7 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.68rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   line-height: 1.4;
 }
 
@@ -64,7 +64,7 @@
   font-weight: 400;
   text-transform: none;
   letter-spacing: normal;
-  color: #6b6573;
+  color: var(--clr-text-muted);
 }
 
 .row {
@@ -74,22 +74,22 @@
 
 .input {
   flex: 1;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 10px;
   padding: 0.72rem 0.85rem;
-  background: #1a1720;
-  color: #f2f0f5;
+  background: var(--clr-bg-elevated);
+  color: var(--clr-text);
   font-family: inherit;
   font-size: 0.9rem;
   transition: border-color 0.15s ease;
 }
 
 .textarea {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 10px;
   padding: 0.72rem 0.85rem;
-  background: #1a1720;
-  color: #f2f0f5;
+  background: var(--clr-bg-elevated);
+  color: var(--clr-text);
   font-family: inherit;
   font-size: 0.9rem;
   resize: vertical;
@@ -99,7 +99,7 @@
 .input:focus,
 .textarea:focus {
   outline: 0;
-  border-color: #8b5cf6;
+  border-color: var(--clr-accent);
 }
 
 .primaryButton {
@@ -126,10 +126,10 @@
 }
 
 .notificationButton {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 12px;
   background: transparent;
-  color: #a78bfa;
+  color: var(--clr-accent-light);
   font-weight: 700;
   font-family: inherit;
   padding: 0.72rem 1rem;
@@ -138,8 +138,8 @@
 }
 
 .notificationButton:hover:not(:disabled) {
-  background: #2a2433;
-  border-color: #8b5cf6;
+  background: var(--clr-bg-hover);
+  border-color: var(--clr-accent);
 }
 
 .notificationButton:disabled {
@@ -149,7 +149,7 @@
 
 .notificationHint {
   margin: 0.75rem 0 0;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   font-size: 0.84rem;
   line-height: 1.55;
 }
@@ -159,7 +159,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.85rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   font-size: 0.92rem;
 }
 
@@ -172,9 +172,9 @@
 
 .filterButton,
 .clearButton {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   background: transparent;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   border-radius: 999px;
   padding: 0.4rem 0.82rem;
   font-size: 0.76rem;
@@ -187,13 +187,13 @@
 
 .filterButton:hover,
 .clearButton:hover:not(:disabled) {
-  background: #2a2433;
-  border-color: #8b5cf6;
-  color: #f2f0f5;
+  background: var(--clr-bg-hover);
+  border-color: var(--clr-accent);
+  color: var(--clr-text);
 }
 
 .filterButtonActive {
-  border-color: #8b5cf6;
+  border-color: var(--clr-accent);
   background: #8b5cf6;
   color: #fff;
 }
@@ -220,10 +220,10 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.9rem;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 12px;
   padding: 0.72rem 0.8rem;
-  background: #1a1720;
+  background: var(--clr-bg-elevated);
 }
 
 .priorityHigh {
@@ -249,31 +249,31 @@
 .itemDone {
   display: inline-block;
   overflow-wrap: anywhere;
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 .itemMeta {
   margin: 0.2rem 0 0;
   font-size: 0.78rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
 
 .itemDetails {
   margin: 0.22rem 0 0;
   font-size: 0.85rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   line-height: 1.55;
 }
 
 .itemDone {
   text-decoration: line-through;
-  color: #6b6573;
+  color: var(--clr-text-muted);
 }
 
 .deleteButton {
   border: 1px solid rgba(248, 113, 113, 0.4);
   background: transparent;
-  color: #f87171;
+  color: var(--clr-accent-red);
   border-radius: 8px;
   padding: 0.4rem 0.72rem;
   font-family: inherit;
@@ -283,13 +283,13 @@
 
 .deleteButton:hover {
   background: rgba(248, 113, 113, 0.1);
-  border-color: #f87171;
+  border-color: var(--clr-accent-red);
 }
 
 .editButton {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   background: transparent;
-  color: #a78bfa;
+  color: var(--clr-accent-light);
   border-radius: 8px;
   padding: 0.4rem 0.72rem;
   font-family: inherit;
@@ -298,13 +298,13 @@
 }
 
 .editButton:hover {
-  background: #2a2433;
-  border-color: #8b5cf6;
+  background: var(--clr-bg-hover);
+  border-color: var(--clr-accent);
 }
 
 .emptyState {
   margin: 0;
-  color: #6b6573;
+  color: var(--clr-text-muted);
   font-style: italic;
 }
 
@@ -312,12 +312,12 @@
   margin: 0;
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.6rem;
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 .calendarHint {
   margin: 0.35rem 0 0.9rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   font-size: 0.9rem;
   line-height: 1.58;
 }
@@ -328,9 +328,9 @@
 }
 
 .calendarGroup {
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 12px;
-  background: #211d26;
+  background: var(--clr-bg-card);
   padding: 0.75rem 0.8rem;
 }
 
@@ -339,7 +339,7 @@
   font-size: 0.92rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
 
 .calendarItems {
@@ -354,16 +354,16 @@
   display: flex;
   gap: 0.6rem;
   align-items: flex-start;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   border-radius: 10px;
   padding: 0.55rem 0.6rem;
-  background: #1a1720;
+  background: var(--clr-bg-elevated);
 }
 
 .calendarBadge {
   border-radius: 999px;
-  background: #2a2433;
-  color: #a78bfa;
+  background: var(--clr-bg-hover);
+  color: var(--clr-accent-light);
   font-size: 0.66rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -379,13 +379,13 @@
 .calendarTaskTitle {
   margin: 0;
   font-size: 0.9rem;
-  color: #f2f0f5;
+  color: var(--clr-text);
   font-weight: 700;
 }
 
 .calendarMeta {
   margin: 0.2rem 0 0;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   font-size: 0.8rem;
   line-height: 1.5;
 }
@@ -402,19 +402,19 @@
 
 .priorityTag.priorityHigh {
   background: rgba(248, 113, 113, 0.16);
-  color: #f87171;
+  color: var(--clr-accent-red);
   border-left: none;
 }
 
 .priorityTag.priorityMedium {
   background: rgba(167, 139, 250, 0.16);
-  color: #a78bfa;
+  color: var(--clr-accent-light);
   border-left: none;
 }
 
 .priorityTag.priorityLow {
   background: rgba(52, 211, 153, 0.16);
-  color: #34d399;
+  color: var(--clr-accent-green);
   border-left: none;
 }
 
@@ -433,8 +433,8 @@
 .modal {
   width: min(520px, 96vw);
   border-radius: 20px;
-  border: 1px solid #2f2a38;
-  background: #211d26;
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg-card);
   padding: 1.2rem;
   box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4);
   position: relative;
@@ -451,9 +451,9 @@
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  border: 1px solid #2f2a38;
+  border: 1px solid var(--clr-border);
   background: transparent;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   font-size: 1.2rem;
   font-family: inherit;
   cursor: pointer;
@@ -464,9 +464,9 @@
 }
 
 .closeButton:hover {
-  background: #2a2433;
-  border-color: #8b5cf6;
-  color: #f2f0f5;
+  background: var(--clr-bg-hover);
+  border-color: var(--clr-accent);
+  color: var(--clr-text);
 }
 
 .modalEyebrow {
@@ -474,19 +474,19 @@
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-size: 0.72rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
 
 .modalTitle {
   margin: 0.25rem 0 0;
   font-family: 'Cormorant Garamond', serif;
   font-size: 2rem;
-  color: #f2f0f5;
+  color: var(--clr-text);
 }
 
 .modalSubtext {
   margin: 0.35rem 0 0.95rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
   line-height: 1.58;
 }
 

@@ -16,12 +16,12 @@
 }
 
 .footer {
-  border-top: 1px solid #2f2a38;
+  border-top: 1px solid var(--clr-border);
   padding: 2.5rem 1.5rem;
   text-align: center;
   font-size: 0.85rem;
-  color: #9a95a3;
-  background: #1c1820;
+  color: var(--clr-text-secondary);
+  background: var(--clr-bg-secondary);
 }
 
 .toastContainer {

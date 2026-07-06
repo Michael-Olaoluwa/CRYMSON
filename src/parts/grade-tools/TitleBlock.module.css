@@ -7,7 +7,7 @@ header h1 {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 700;
   font-size: clamp(1.8rem, 4vw, 2.8rem);
-  color: #f2f0f5;
+  color: var(--clr-text);
   letter-spacing: -0.3px;
   margin: 0 0 0.5rem;
 }
@@ -16,5 +16,5 @@ header h1 {
   max-width: 600px;
   margin: 0 auto;
   font-size: 0.9rem;
-  color: #9a95a3;
+  color: var(--clr-text-secondary);
 }
