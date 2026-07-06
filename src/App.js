@@ -14,6 +14,7 @@ import TextCaptureWidget from "./components/TextCaptureWidget";
 import { DetectionProvider } from "./hooks/useTextDetection";
 import ShareTarget from "./pages/ShareTarget";
 import CourseMaterials from "./pages/CourseMaterials";
+import StudyPlanner from "./pages/StudyPlanner";
 import { TimerProvider } from "./context/TimerContext";
 import {
   clearAuthSession,
@@ -36,6 +37,7 @@ const ALLOWED_PAGES = new Set([
   "admin",
   "share-target",
   "course-materials",
+  "study-planner",
 ]);
 
 const getSavedAppState = () => {
@@ -240,6 +242,10 @@ function App() {
     setCurrentPage("course-materials");
   };
 
+  const navigateToStudyPlanner = () => {
+    setCurrentPage("study-planner");
+  };
+
   const shouldShowShareTarget = currentPage === "share-target";
   const shouldShowCourseMaterials = currentPage === "course-materials";
 
@@ -340,6 +346,10 @@ function App() {
                   userName={activeUserName}
                   isAdmin={true}
                 />
+              )}
+
+              {currentPage === "study-planner" && (
+                <StudyPlanner activeUserId={activeUserId} />
               )}
             </AppLayout>
           )}

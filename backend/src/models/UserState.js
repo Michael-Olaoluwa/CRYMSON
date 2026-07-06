@@ -23,6 +23,14 @@ const userStateSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: null,
     },
+    studyPlans: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
+    studyCheckIns: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
     financeState: {
       entries: {
         type: [mongoose.Schema.Types.Mixed],
