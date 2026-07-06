@@ -24,6 +24,21 @@
   --finance-radius-lg: 14px;
   --finance-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.08);
   --finance-shadow-md: 0 8px 20px rgba(17, 24, 39, 0.08);
+
+  --dark-bg: #161318;
+  --dark-sidebar: #1c1820;
+  --dark-card: #211d26;
+  --dark-border: #2f2a38;
+  --dark-hover: #2a2433;
+  --dark-text: #f2f0f5;
+  --dark-muted: #9a95a3;
+  --dark-accent-purple: #8b5cf6;
+  --dark-accent-light-purple: #a78bfa;
+  --dark-accent-green: #2dd4a7;
+  --dark-accent-light-green: #34d399;
+  --dark-accent-red: #f87171;
+  --dark-radius: 18px;
+  --dark-radius-sm: 12px;
 }
 
 * {
@@ -62,18 +77,8 @@ body {
 }
 
 .App.financeTheme:not(.page-landing) {
-  background:
-    radial-gradient(
-      1200px 520px at 88% -8%,
-      rgba(59, 130, 246, 0.12),
-      transparent 65%
-    ),
-    radial-gradient(
-      900px 420px at -12% 22%,
-      rgba(16, 185, 129, 0.09),
-      transparent 62%
-    ),
-    var(--finance-gray-50);
+  background: var(--dark-bg);
+  color: var(--dark-text);
 }
 
 .App.financeTheme button {

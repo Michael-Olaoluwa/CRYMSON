@@ -1,11 +1,9 @@
 .page {
   min-height: 100vh;
   padding: 2rem clamp(1rem, 4vw, 2.4rem);
-  background:
-    radial-gradient(circle at 8% 7%, rgba(52, 120, 246, 0.14), transparent 34%),
-    radial-gradient(circle at 90% 2%, rgba(44, 207, 163, 0.14), transparent 32%),
-    linear-gradient(160deg, #ffffff 0%, #f6f8fd 58%, #edf2fa 100%);
-  color: #151b29;
+  background: #161318;
+  color: #f2f0f5;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
 
 .header {
@@ -22,29 +20,41 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.72rem;
-  color: rgba(21, 27, 41, 0.58);
+  color: #9a95a3;
 }
 
 .title {
   margin: 0.3rem 0 0;
   font-size: clamp(1.6rem, 3.6vw, 2.2rem);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700;
+  color: #f2f0f5;
 }
 
 .subtitle {
   margin: 0.45rem 0 0;
   max-width: 62ch;
-  color: rgba(21, 27, 41, 0.72);
+  color: #9a95a3;
   line-height: 1.55;
+  font-size: 0.9rem;
 }
 
 .backButton {
-  border: 1px solid rgba(95, 111, 135, 0.26);
-  background: #fff;
-  color: #151b29;
+  border: 1px solid #2f2a38;
+  background: transparent;
+  color: #a78bfa;
   border-radius: 11px;
   padding: 0.62rem 0.95rem;
   font-weight: 700;
+  font-size: 0.82rem;
+  font-family: inherit;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.backButton:hover {
+  background: #2a2433;
+  border-color: #8b5cf6;
 }
 
 .grid {
@@ -56,10 +66,10 @@
 }
 
 .card {
-  border: 1px solid rgba(95, 111, 135, 0.16);
+  border: 1px solid #2f2a38;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 14px 34px rgba(20, 26, 37, 0.09);
+  background: #211d26;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 1rem;
 }
 
@@ -68,7 +78,7 @@
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.68rem;
-  color: rgba(21, 27, 41, 0.54);
+  color: #9a95a3;
 }
 
 .timer {
@@ -76,7 +86,7 @@
   font-size: clamp(1.9rem, 7vw, 2.9rem);
   font-weight: 800;
   letter-spacing: 0.07em;
-  color: #1f4c82;
+  color: #2dd4a7;
 }
 
 .field {
@@ -84,24 +94,39 @@
   display: grid;
   gap: 0.34rem;
   font-size: 0.84rem;
-  color: rgba(21, 27, 41, 0.75);
+  color: #9a95a3;
 }
 
 .field input {
   height: 2.6rem;
-  border: 1px solid rgba(95, 111, 135, 0.24);
+  border: 1px solid #2f2a38;
   border-radius: 10px;
   padding: 0 0.8rem;
   font: inherit;
+  background: #1a1720;
+  color: #f2f0f5;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.field input:focus {
+  border-color: #8b5cf6;
 }
 
 .field select {
   height: 2.6rem;
-  border: 1px solid rgba(95, 111, 135, 0.24);
+  border: 1px solid #2f2a38;
   border-radius: 10px;
   padding: 0 0.8rem;
   font: inherit;
-  background: #fff;
+  background: #1a1720;
+  color: #f2f0f5;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.field select:focus {
+  border-color: #8b5cf6;
 }
 
 .actions {
@@ -113,9 +138,9 @@
 
 .manualSection {
   margin-top: 1rem;
-  border: 1px solid rgba(95, 111, 135, 0.18);
+  border: 1px solid #2f2a38;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
+  background: #1a1720;
   padding: 0.7rem;
 }
 
@@ -125,13 +150,13 @@
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #203451;
+  color: #f2f0f5;
 }
 
 .manualHint {
   margin: 0.3rem 0 0;
   font-size: 0.78rem;
-  color: rgba(21, 27, 41, 0.68);
+  color: #9a95a3;
   line-height: 1.5;
 }
 
@@ -144,7 +169,7 @@
 
 .manualError {
   margin: 0.5rem 0 0;
-  color: #9a302a;
+  color: #f87171;
   font-size: 0.76rem;
   font-weight: 700;
 }
@@ -163,29 +188,49 @@
   padding: 0.58rem 0.8rem;
   border: 1px solid transparent;
   font-weight: 700;
+  font-family: inherit;
+  font-size: 0.82rem;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .primaryButton {
-  background: linear-gradient(130deg, #3478f6 0%, #5e6cff 100%);
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
   color: #fff;
+  border-color: transparent;
+}
+
+.primaryButton:hover {
+  background: linear-gradient(135deg, #9d71f8, #b89cff);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .secondaryButton {
-  border-color: rgba(95, 111, 135, 0.28);
-  background: #fff;
-  color: #151b29;
+  border-color: #2f2a38;
+  background: transparent;
+  color: #a78bfa;
+}
+
+.secondaryButton:hover {
+  background: #2a2433;
+  border-color: #8b5cf6;
 }
 
 .saveButton {
-  background: linear-gradient(130deg, #2ccfa3 0%, #22b589 100%);
+  background: linear-gradient(135deg, #2dd4a7, #34d399);
   color: #fff;
+  border-color: transparent;
+}
+
+.saveButton:hover {
+  background: linear-gradient(135deg, #3ddbb2, #4ddb9e);
+  box-shadow: 0 4px 12px rgba(45, 212, 167, 0.3);
 }
 
 .primaryButton:disabled,
 .secondaryButton:disabled,
 .saveButton:disabled {
-  opacity: 0.56;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -195,13 +240,14 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.92rem;
+  color: #f2f0f5;
 }
 
 .warningSection {
   margin-top: 0.68rem;
-  border: 1px solid rgba(179, 62, 35, 0.22);
+  border: 1px solid rgba(248, 113, 113, 0.25);
   border-radius: 12px;
-  background: rgba(179, 62, 35, 0.06);
+  background: rgba(248, 113, 113, 0.06);
   padding: 0.62rem;
 }
 
@@ -211,7 +257,7 @@
   font-size: 0.84rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #8a2d25;
+  color: #f87171;
 }
 
 .warningList {
@@ -223,9 +269,9 @@
 }
 
 .warningItem {
-  border: 1px solid rgba(179, 62, 35, 0.18);
+  border: 1px solid rgba(248, 113, 113, 0.18);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.95);
+  background: #1a1720;
   padding: 0.46rem 0.54rem;
 }
 
@@ -233,13 +279,13 @@
   margin: 0;
   font-size: 0.84rem;
   font-weight: 700;
-  color: #222c40;
+  color: #f2f0f5;
 }
 
 .warningMeta {
   margin: 0.2rem 0 0;
   font-size: 0.76rem;
-  color: rgba(21, 27, 41, 0.68);
+  color: #9a95a3;
   line-height: 1.5;
 }
 
@@ -247,27 +293,29 @@
   margin: 0.24rem 0 0;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #9a302a;
+  color: #f87171;
   line-height: 1.45;
 }
 
 .warningGood {
-  color: #1f6f56;
+  color: #34d399;
   font-weight: 700;
 }
 
 .historyTitle {
   margin: 1rem 0 0;
   font-weight: 700;
+  color: #f2f0f5;
 }
 
 .empty {
   margin: 0.5rem 0 0;
-  color: rgba(21, 27, 41, 0.62);
+  color: #6b6573;
 }
 
 .courseTotalsHeader {
   margin-top: 1rem;
+  color: #f2f0f5;
 }
 
 .courseTotalsFilterRow {
@@ -278,21 +326,28 @@
 }
 
 .courseTotalsFilterButton {
-  border: 1px solid rgba(95, 111, 135, 0.24);
+  border: 1px solid #2f2a38;
   border-radius: 999px;
-  background: #fff;
-  color: #151b29;
+  background: transparent;
+  color: #9a95a3;
   padding: 0.3rem 0.56rem;
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.courseTotalsFilterButton:hover {
+  background: #2a2433;
+  color: #f2f0f5;
 }
 
 .courseTotalsFilterButtonActive {
-  border-color: rgba(52, 120, 246, 0.42);
-  background: rgba(52, 120, 246, 0.12);
-  color: #1f4c82;
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
 }
 
 .courseTotalsList {
@@ -304,14 +359,15 @@
 }
 
 .courseTotalsItem {
-  border: 1px solid rgba(95, 111, 135, 0.17);
+  border: 1px solid #2f2a38;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.95);
+  background: #1a1720;
   padding: 0.42rem 0.54rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 0.82rem;
+  color: #f2f0f5;
 }
 
 .historyList {
@@ -323,8 +379,9 @@
 }
 
 .historyItem {
-  border: 1px solid rgba(95, 111, 135, 0.17);
+  border: 1px solid #2f2a38;
   border-radius: 11px;
+  background: #1a1720;
   padding: 0.5rem 0.6rem;
   display: flex;
   justify-content: space-between;
@@ -336,6 +393,7 @@
   margin: 0;
   font-size: 0.85rem;
   font-weight: 700;
+  color: #f2f0f5;
 }
 
 .historyTag {
@@ -343,8 +401,8 @@
   display: inline-flex;
   border-radius: 999px;
   padding: 0.12rem 0.42rem;
-  background: rgba(52, 120, 246, 0.12);
-  color: #1f4c82;
+  background: rgba(139, 92, 246, 0.18);
+  color: #a78bfa;
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -354,7 +412,7 @@
 .historyMeta {
   margin: 0.2rem 0 0;
   font-size: 0.76rem;
-  color: rgba(21, 27, 41, 0.64);
+  color: #9a95a3;
 }
 
 .manualSourceTag {
@@ -362,8 +420,8 @@
   display: inline-flex;
   border-radius: 999px;
   padding: 0.1rem 0.36rem;
-  background: rgba(44, 207, 163, 0.18);
-  color: #1f6f56;
+  background: rgba(45, 212, 167, 0.18);
+  color: #34d399;
   font-size: 0.62rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -378,14 +436,22 @@
 }
 
 .historyActions button {
-  border: 1px solid rgba(95, 111, 135, 0.24);
+  border: 1px solid #2f2a38;
   border-radius: 999px;
-  background: #fff;
-  color: #151b29;
+  background: transparent;
+  color: #9a95a3;
   padding: 0.2rem 0.48rem;
   font-size: 0.68rem;
   font-weight: 700;
+  font-family: inherit;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.historyActions button:hover {
+  background: #2a2433;
+  color: #f2f0f5;
+  border-color: #8b5cf6;
 }
 
 @media (max-width: 900px) {

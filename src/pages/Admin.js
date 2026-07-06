@@ -5,7 +5,7 @@ import styles from './Admin.module.css';
 
 const AUTH_API_BASE_URL = getApiBaseUrl();
 
-export default function Admin() {
+export default function Admin({ userId = 'Admin', userName = 'Admin', isAdmin = true, onLogout = () => {}, onNavigateHome = () => {} }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -44,9 +44,7 @@ export default function Admin() {
   }
 
   function handleLogout() {
-    clearAuthSession();
-    localStorage.removeItem('crymson_app_state');
-    window.location.reload();
+    if (onLogout) onLogout();
   }
 
   async function fetchUsers() {
@@ -220,13 +218,33 @@ export default function Admin() {
   const featureKeys = Object.keys(settings || {}).filter((k) => String(k).startsWith('feature_'));
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Admin Panel</h1>
-        <div>
-          <button className={styles.backBtn} onClick={handleLogout}>Logout</button>
+    <div className={styles.dashboard}>
+      <aside className={styles.sidebar}>
+        <div className={styles.sidebarHeader}>
+          <div className={styles.avatar}>{userName.charAt(0).toUpperCase()}</div>
+          <div className={styles.userInfo}>
+            <h3>{userName}</h3>
+            <p>{userId}</p>
+          </div>
         </div>
-      </div>
+        <nav className={styles.sidebarNav}>
+          <button className={`${styles.navItem} ${styles.active}`} onClick={() => {}}>
+            <span>⚙</span> Admin Panel
+          </button>
+          <button className={styles.navItem} onClick={onNavigateHome}>
+            <span>⌂</span> Home
+          </button>
+        </nav>
+        <div className={styles.sidebarFooter}>
+          <button className={styles.navItem} onClick={handleLogout}>
+            <span>↩</span> Log Out
+          </button>
+        </div>
+      </aside>
+      <main className={styles.mainContent}>
+        <div className={styles.header}>
+          <h1>Admin Panel</h1>
+        </div>
 
       {error && <div className={styles.error}>{error}</div>}
 
@@ -374,7 +392,8 @@ export default function Admin() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

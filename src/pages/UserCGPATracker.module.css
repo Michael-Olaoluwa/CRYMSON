@@ -1,14 +1,10 @@
 .page {
-  --slate-500: #5f6f87;
   --ink-900: #131722;
-  --royal: #3478f6;
-  --mint: #2ccfa3;
   --ease-premium: cubic-bezier(0.22, 0.76, 0.2, 1);
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 8% 12%, rgba(52, 120, 246, 0.16), transparent 34%),
-    radial-gradient(circle at 90% 14%, rgba(44, 207, 163, 0.12), transparent 34%),
-    linear-gradient(156deg, #ffffff 0%, #f6f9ff 55%, #eef3fb 100%);
+  background: #161318;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  color: #f2f0f5;
 }
 
 .shell {
@@ -23,11 +19,10 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  border: 1px solid rgba(95, 111, 135, 0.18);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(11px);
-  box-shadow: 0 18px 40px rgba(19, 23, 34, 0.1);
+  border: 1px solid #2f2a38;
+  border-radius: 18px;
+  background: #211d26;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 1.15rem 1.2rem;
 }
 
@@ -36,39 +31,41 @@
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.71rem;
-  color: rgba(19, 23, 34, 0.58);
+  color: #9a95a3;
 }
 
 .title {
   margin: 0.35rem 0 0;
-  color: var(--ink-900);
+  color: #f2f0f5;
+  font-family: 'Cormorant Garamond', serif;
   font-size: clamp(1.55rem, 3vw, 2.2rem);
   line-height: 1.14;
 }
 
 .subtitle {
   margin: 0.5rem 0 0;
-  color: rgba(19, 23, 34, 0.72);
+  color: #9a95a3;
   line-height: 1.62;
   max-width: 62ch;
 }
 
 .backButton {
   align-self: flex-start;
-  border: 1px solid rgba(95, 111, 135, 0.24);
+  border: 1px solid #2f2a38;
   border-radius: 999px;
-  background: #fff;
-  color: #24334d;
+  background: transparent;
+  color: #a78bfa;
   padding: 0.56rem 0.92rem;
-  font-weight: 700;
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   transition: transform 220ms var(--ease-premium), box-shadow 220ms var(--ease-premium), border-color 220ms var(--ease-premium);
 }
 
 .backButton:hover {
   transform: translateY(-1px);
-  border-color: rgba(52, 120, 246, 0.34);
-  box-shadow: 0 10px 18px rgba(19, 23, 34, 0.12);
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .kpiRow {
@@ -78,15 +75,16 @@
 }
 
 .kpiCard {
-  border: 1px solid rgba(95, 111, 135, 0.16);
+  border: 1px solid #2f2a38;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.84);
+  background: #211d26;
   padding: 0.72rem 0.8rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .kpiCard span {
   display: block;
-  color: rgba(19, 23, 34, 0.6);
+  color: #9a95a3;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -95,15 +93,15 @@
 .kpiCard strong {
   display: block;
   margin-top: 0.18rem;
-  color: var(--ink-900);
+  color: #f2f0f5;
   font-size: 1rem;
 }
 
 .workspacePane {
-  border: 1px solid rgba(95, 111, 135, 0.16);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 14px 34px rgba(19, 23, 34, 0.1);
+  border: 1px solid #2f2a38;
+  border-radius: 18px;
+  background: #211d26;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 0.85rem;
 }
 

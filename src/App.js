@@ -272,7 +272,13 @@ function App() {
         )}
 
         {currentPage === "admin" && (
-          <Admin onNavigateHome={() => setCurrentPage("home")} />
+          <Admin
+            userId={activeUserId}
+            userName={activeUserName}
+            isAdmin={true}
+            onLogout={handleLogout}
+            onNavigateHome={() => setCurrentPage("home")}
+          />
         )}
       </div>
     </TimerProvider>
