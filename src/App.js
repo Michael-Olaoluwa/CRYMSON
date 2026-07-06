@@ -63,12 +63,34 @@ const clearSessionStorage = () => {
   clearAuthSession();
 };
 
+const THEME_KEY = "crymson_theme";
+
+const getSavedTheme = () => {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    return saved === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+};
+
 function App() {
   const [currentPage, setCurrentPage] = useState("landing");
   const [activeUserId, setActiveUserId] = useState("");
   const [activeUserName, setActiveUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [sessionNotice, setSessionNotice] = useState("");
+  const [theme, setTheme] = useState(getSavedTheme);
+
+  const darkMode = theme === "dark";
+
+  const handleToggleDark = () => {
+    setTheme(prev => {
+      const next = prev === "dark" ? "light" : "dark";
+      try { localStorage.setItem(THEME_KEY, next); } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     let isCancelled = false;
@@ -209,7 +231,7 @@ function App() {
 
   return (
     <TimerProvider>
-      <div className={`App financeTheme page-${currentPage}`}>
+      <div className={`App financeTheme page-${currentPage}`} data-theme={theme}>
         {currentPage === "landing" && (
           <WelcomeScreen
             onNavigateToCGPA={navigateToCGPA}
@@ -230,6 +252,8 @@ function App() {
             isAdmin={isAdmin}
             onNavigate={(page) => setCurrentPage(page)}
             onLogout={handleLogout}
+            darkMode={darkMode}
+            onToggleDark={handleToggleDark}
           >
             {currentPage === "home" && (
               <HomeScreen

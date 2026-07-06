@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { id: 'admin', label: 'Admin', icon: Icons.admin, adminOnly: true },
 ];
 
-function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin = false, children }) {
+function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin = false, darkMode, onToggleDark, children }) {
   const displayName = userName || userId || 'User';
   const [showBadge, setShowBadge] = useState(true);
 
@@ -48,6 +48,17 @@ function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin
             </button>
           ))}
         </nav>
+        <div className={styles.themeRow}>
+          <span className={styles.themeLabel}>Dark Mode</span>
+          <button
+            className={styles.toggle}
+            role="switch"
+            aria-checked={darkMode}
+            onClick={onToggleDark}
+          >
+            <span className={styles.toggleKnob} />
+          </button>
+        </div>
         <button className={styles.logoutBtn} onClick={onLogout}>
           <span className={styles.navIcon}>{Icons.logout}</span>
           <span className={styles.navLabel}>Log Out</span>
