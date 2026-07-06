@@ -15,6 +15,9 @@
 }
 
 .navLogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: "Cormorant Garamond", serif;
   font-weight: 700;
   font-size: 1.8rem;
@@ -24,6 +27,13 @@
   opacity: 0;
   transform: translateY(8px);
   animation: logoFade 0.9s ease forwards;
+}
+
+.navLogoImg {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
 }
 
 @keyframes logoFade {

@@ -10,7 +10,10 @@ function BottomBar() {
 		<footer className={styles.footer}>
 			<div className={styles.footerInner}>
 				<div>
-					<div className={styles.footerLogo}>Crymson</div>
+					<div className={styles.footerLogo}>
+						<img src="/icons/logo.png" alt="" className={styles.footerLogoImg} />
+						Crymson
+					</div>
 					<p className={styles.footerMuted}>
 						A minimalist, corporate-grade ecosystem of tools designed to enhance student productivity
 						and institutional performance.

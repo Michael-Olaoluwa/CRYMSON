@@ -10,6 +10,7 @@ function BigHero() {
 
 	return (
 		<section id="hero" className={`${styles.hero} ${isVisible ? styles.visible : ''}`}>
+			<img src="/icons/logo.png" alt="" className={styles.heroLogo} />
 			<h1 className={styles.heroTitle}>Crymson</h1>
 			<p className={styles.heroTagline}>Student Productivity Ecosystem</p>
 			<p className={styles.heroSubtext}>

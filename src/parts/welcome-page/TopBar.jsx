@@ -4,7 +4,10 @@ import styles from './TopBar.module.css';
 function TopBar({ onSignInClick, onSignUpClick }) {
 	return (
 		<header className={styles.navbar}>
-			<div className={styles.navLogo}>Crymson</div>
+			<div className={styles.navLogo}>
+				<img src="/icons/logo.png" alt="" className={styles.navLogoImg} />
+				Crymson
+			</div>
 			<nav className={styles.navLinks}>
 				<a href="#hero">Home</a>
 				<a href="#tools">Tools</a>

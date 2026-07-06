@@ -29,6 +29,10 @@ function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin
   return (
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
+        <div className={styles.brand}>
+          <img src="/icons/logo.png" alt="Crymson" className={styles.logo} />
+          <span className={styles.brandName}>Crymson</span>
+        </div>
         <div className={styles.profile}>
           <div className={styles.avatar}>{displayName.charAt(0).toUpperCase()}</div>
           <div className={styles.profileInfo}>

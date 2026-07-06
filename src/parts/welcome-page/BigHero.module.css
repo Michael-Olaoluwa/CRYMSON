@@ -16,6 +16,14 @@
   transform: translateY(0);
 }
 
+.heroLogo {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
 .heroTitle {
   font-family: "Cormorant Garamond", serif;
   font-weight: 700;
@@ -45,6 +53,11 @@
     min-height: auto;
     padding: 5.25rem 1.25rem 3.75rem;
     gap: 1rem;
+  }
+
+  .heroLogo {
+    width: 56px;
+    height: 56px;
   }
 
   .heroTitle {

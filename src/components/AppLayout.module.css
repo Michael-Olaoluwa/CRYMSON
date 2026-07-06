@@ -18,6 +18,29 @@
   border-right: 1px solid var(--sidebar-border);
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 12px 20px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.brandName {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sidebar-text);
+  letter-spacing: 0.3px;
+}
+
 .profile {
   display: flex;
   align-items: center;
@@ -235,6 +258,10 @@
     gap: 6px;
     border-right: none;
     border-bottom: 1px solid var(--clr-border);
+  }
+
+  .brand {
+    display: none;
   }
 
   .profile {

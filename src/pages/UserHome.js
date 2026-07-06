@@ -802,6 +802,7 @@ function UserHome({
     return (
       <div className={styles.bootScreen}>
         <div className={styles.bootCard}>
+          <img src="/icons/logo.png" alt="" className={styles.bootLogo} />
           <p className={styles.bootEyebrow}>Crymson</p>
           <h1 className={styles.bootTitle}>Welcome back, {displayName} <WaveIcon /></h1>
           <p className={styles.bootQuote}>{bootQuote}</p>
@@ -823,6 +824,7 @@ function UserHome({
       <div className={styles.shell}>
         <header className={`${styles.hero} ${styles.startupReveal} ${styles.revealDelay1}`}>
           <div className={styles.heroContent}>
+            <img src="/icons/logo.png" alt="" className={styles.heroLogo} />
             <p className={styles.heroEyebrow}>Crymson Command Center</p>
             <h1 className={styles.heroTitle}>Hello, {displayName}</h1>
             <p className={styles.heroSubtitle}>
