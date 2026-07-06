@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./FinanceTracker.module.css";
 import { getAuthToken } from "../utils/authSession";
-import { BarChartIcon, NoteIcon, RefreshIcon, GearIcon } from "../utils/icons";
+import { BarChartIcon, NoteIcon, RefreshIcon, GearIcon, PencilIcon, TrashIcon } from "../utils/icons";
 import {
   BarChart,
   Bar,
@@ -1190,7 +1190,7 @@ function FinanceTracker({ activeUserId = "guest" }) {
                   {formatMoney(entryStats.balance)}
                 </p>
                 <p className={styles.metricNote}>
-                  {entryStats.balance >= 0 ? "âœ“ Positive" : "âš  Overspent"}
+                  {entryStats.balance >= 0 ? "Positive" : "Overspent"}
                 </p>
               </div>
               <div className={styles.metricCard}>
@@ -1345,14 +1345,14 @@ function FinanceTracker({ activeUserId = "guest" }) {
                           className={styles.transactionAction}
                           onClick={() => handleEdit(entry)}
                         >
-                          âœŽ
+                          <PencilIcon />
                         </button>
                         <button
                           type="button"
                           className={styles.transactionAction}
                           onClick={() => handleDelete(entry.id)}
                         >
-                          âœ•
+                          <TrashIcon />
                         </button>
                       </div>
                     </div>
@@ -1498,14 +1498,14 @@ function FinanceTracker({ activeUserId = "guest" }) {
                           className={styles.transactionAction}
                           onClick={() => handleEdit(entry)}
                         >
-                          âœŽ
+                          <PencilIcon />
                         </button>
                         <button
                           type="button"
                           className={styles.transactionAction}
                           onClick={() => handleDelete(entry.id)}
                         >
-                          âœ•
+                          <TrashIcon />
                         </button>
                       </div>
                     </div>
@@ -1682,14 +1682,14 @@ function FinanceTracker({ activeUserId = "guest" }) {
                           className={styles.transactionAction}
                           onClick={() => handleEditRecurringPlan(plan)}
                         >
-                          âœŽ
+                          <PencilIcon />
                         </button>
                         <button
                           type="button"
                           className={styles.transactionAction}
                           onClick={() => handleDeleteRecurringPlan(plan.id)}
                         >
-                          âœ•
+                          <TrashIcon />
                         </button>
                       </div>
                     </div>
@@ -1701,7 +1701,7 @@ function FinanceTracker({ activeUserId = "guest" }) {
             {/* Due Soon Alerts */}
             {dueSoonPlans.length > 0 && (
               <div className={styles.alertsCard}>
-                <h3 className={styles.cardTitle}>âš ï¸ Due Soon</h3>
+                <h3 className={styles.cardTitle}>Due Soon</h3>
                 <div className={styles.alertsList}>
                   {dueSoonPlans.map(({ plan, alert }) => (
                     <div
@@ -1712,7 +1712,7 @@ function FinanceTracker({ activeUserId = "guest" }) {
                         <p className={styles.alertTitle}>{plan.label}</p>
                         <p className={styles.alertMeta}>
                           {alert.isDueToday
-                            ? "ðŸ”´ DUE TODAY"
+                            ? "DUE TODAY"
                             : `Due in ${alert.dueInDays} day${alert.dueInDays === 1 ? "" : "s"}`}
                         </p>
                       </div>
@@ -1792,7 +1792,7 @@ function FinanceTracker({ activeUserId = "guest" }) {
 
               {lowBalanceWarning.isCritical && (
                 <div className={styles.warningBox}>
-                  <p className={styles.warningTitle}>âš ï¸ Financial Alert</p>
+                  <p className={styles.warningTitle}>Financial Alert</p>
                   {lowBalanceWarning.warnings.map((warning, idx) => (
                     <p key={idx} className={styles.warningText}>
                       {warning}

@@ -251,6 +251,13 @@ export const DownloadIcon = (props) => (
   </svg>
 );
 
+export const PencilIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    <path d="M15 5l4 4" />
+  </svg>
+);
+
 export const TrashIcon = (props) => (
   <svg viewBox="0 0 24 24" width="1em" height="1em" {...s} {...props}>
     <polyline points="3 6 5 6 21 6" />
@@ -301,4 +308,5 @@ export const iconMap = {
   download: DownloadIcon,
   trash: TrashIcon,
   lightbulb: LightbulbIcon,
+  pencil: PencilIcon,
 };
