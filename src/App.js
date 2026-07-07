@@ -15,6 +15,10 @@ import { DetectionProvider } from "./hooks/useTextDetection";
 import ShareTarget from "./pages/ShareTarget";
 import CourseMaterials from "./pages/CourseMaterials";
 import StudyPlanner from "./pages/StudyPlanner";
+import WellbeingScreen from "./screens/WellbeingScreen";
+import CrymsonScoreScreen from "./screens/CrymsonScoreScreen";
+import SemesterWrappedScreen from "./screens/SemesterWrappedScreen";
+import SocialScreen from "./screens/SocialScreen";
 import { TimerProvider } from "./context/TimerContext";
 import {
   clearAuthSession,
@@ -38,6 +42,10 @@ const ALLOWED_PAGES = new Set([
   "share-target",
   "course-materials",
   "study-planner",
+  "wellbeing",
+  "crymson-score",
+  "semester-wrapped",
+  "social",
 ]);
 
 const getSavedAppState = () => {
@@ -350,6 +358,22 @@ function App() {
 
               {currentPage === "study-planner" && (
                 <StudyPlanner activeUserId={activeUserId} />
+              )}
+
+              {currentPage === "wellbeing" && (
+                <WellbeingScreen />
+              )}
+
+              {currentPage === "crymson-score" && (
+                <CrymsonScoreScreen activeUserId={activeUserId} />
+              )}
+
+              {currentPage === "semester-wrapped" && (
+                <SemesterWrappedScreen activeUserId={activeUserId} />
+              )}
+
+              {currentPage === "social" && (
+                <SocialScreen activeUserId={activeUserId} />
               )}
             </AppLayout>
           )}

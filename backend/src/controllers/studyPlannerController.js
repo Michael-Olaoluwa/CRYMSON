@@ -12,13 +12,14 @@ async function getSchedule(req, res) {
     const tasks = Array.isArray(userState.tasks) ? userState.tasks : [];
     const sessions = Array.isArray(userState.timeSessions) ? userState.timeSessions : [];
     const cgpaState = userState.cgpaState || null;
+    const wellbeingCheckIns = Array.isArray(userState.wellbeingCheckIns) ? userState.wellbeingCheckIns : [];
 
     let courses = [];
     if (cgpaState && Array.isArray(cgpaState.courses)) {
       courses = cgpaState.courses;
     }
 
-    const schedule = generateSchedule(courses, tasks, sessions, cgpaState);
+    const schedule = generateSchedule(courses, tasks, sessions, cgpaState, wellbeingCheckIns);
     const existingPlans = Array.isArray(userState.studyPlans) ? userState.studyPlans : [];
     const checkIns = Array.isArray(userState.studyCheckIns) ? userState.studyCheckIns : [];
 
@@ -45,13 +46,14 @@ async function generateNewSchedule(req, res) {
     const tasks = Array.isArray(userState.tasks) ? userState.tasks : [];
     const sessions = Array.isArray(userState.timeSessions) ? userState.timeSessions : [];
     const cgpaState = userState.cgpaState || null;
+    const wellbeingCheckIns = Array.isArray(userState.wellbeingCheckIns) ? userState.wellbeingCheckIns : [];
 
     let courses = [];
     if (cgpaState && Array.isArray(cgpaState.courses)) {
       courses = cgpaState.courses;
     }
 
-    const schedule = generateSchedule(courses, tasks, sessions, cgpaState);
+    const schedule = generateSchedule(courses, tasks, sessions, cgpaState, wellbeingCheckIns);
 
     res.json({ schedule });
   } catch (error) {

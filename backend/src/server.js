@@ -10,6 +10,9 @@ const adminRoutes = require("./routes/adminRoutes");
 const detectionRoutes = require("./routes/detectionRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const studyPlannerRoutes = require("./routes/studyPlannerRoutes");
+const wellbeingRoutes = require("./routes/wellbeingRoutes");
+const socialRoutes = require("./routes/socialRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -94,6 +97,9 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/detect", detectionRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/planner", studyPlannerRoutes);
+app.use("/api/wellbeing", wellbeingRoutes);
+app.use("/api/social", socialRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found." });

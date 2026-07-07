@@ -4,6 +4,7 @@ import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import TimerWidget from '../components/TimerWidget';
 import { getAuthToken } from '../utils/authSession';
 import { iconMap, WaveIcon, CalmIcon, ExhaleIcon, FireIcon } from '../utils/icons';
+import { computeCrymsonScore, getTier } from '../utils/crymsonScore';
 import ExtensionBridge from '../components/ExtensionBridge';
 
 const BadgeIcon = ({ icon }) => {
@@ -349,6 +350,7 @@ function UserHome({
   const [dashboardTasks, setDashboardTasks] = useState([]);
   const [studySessions, setStudySessions] = useState([]);
   const [financePrefs, setFinancePrefs] = useState(() => getStoredFinancePrefs(userId));
+  const [wellbeingCheckIns, setWellbeingCheckIns] = useState([]);
 
   const touchStartRef = useRef(0);
   const longPressTimerRef = useRef(null);
@@ -473,6 +475,11 @@ function UserHome({
             localStorage.setItem(scopedFinancePrefsKey, JSON.stringify(mergedPrefs));
           }
         }
+
+        const remoteWellbeing = Array.isArray(allState.wellbeingCheckIns)
+          ? allState.wellbeingCheckIns
+          : [];
+        setWellbeingCheckIns(remoteWellbeing);
       } catch (error) {
         // Keep local dashboard data when remote fetch fails.
       }
@@ -647,12 +654,19 @@ function UserHome({
 
   const financeSummary = useMemo(() => getFinanceDashboardSummary(userId, financePrefs), [userId, financePrefs]);
 
-  const crymsonScore = useMemo(() => {
-    const cgpaScore = cgpaSummary.currentCgpa !== null ? (cgpaSummary.currentCgpa / 5) * 55 : 0;
-    const taskScore = dashboardTaskStats.completionRate * 0.25;
-    const studyScore = Math.min(25, Math.round(dashboardStudyStats.weekSeconds / 1800) * 4);
-    return Math.min(100, Math.round(cgpaScore + taskScore + studyScore));
-  }, [cgpaSummary.currentCgpa, dashboardTaskStats.completionRate, dashboardStudyStats.weekSeconds]);
+  const crymsonScoreResult = useMemo(() => {
+    return computeCrymsonScore({
+      cgpaSummary,
+      dashboardTaskStats,
+      dashboardStudyStats,
+      financeSummary,
+      wellbeingCheckIns,
+      userId,
+    });
+  }, [cgpaSummary, dashboardTaskStats, dashboardStudyStats, financeSummary, wellbeingCheckIns, userId]);
+
+  const crymsonScore = crymsonScoreResult.score;
+  const scoreTier = crymsonScoreResult.tier;
 
   const handleToggleFinanceBalance = () => {
     setFinancePrefs((prev) => ({
@@ -1059,8 +1073,9 @@ function UserHome({
                   <span className={styles.tooltipText}>Pulse reflects current task and study data</span>
                   <div className={`${styles.gaugeCircle} ${styles.scorePulse}`} style={{ '--value': `${crymsonScore}%` }}>
                     <span>{Math.round(crymsonScore)}</span>
+                    <small className={styles.scoreTierLabel} style={{ color: scoreTier.color }}>{scoreTier.label}</small>
                   </div>
-                  <p>Momentum Score</p>
+                  <p>Crymson Score</p>
                 </button>
               </div>
 

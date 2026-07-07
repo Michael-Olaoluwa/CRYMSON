@@ -188,6 +188,7 @@ async function getAllUserState(req, res) {
       tasks: Array.isArray(state?.tasks) ? state.tasks : [],
       cgpaState: state?.cgpaState || null,
       timeSessions: Array.isArray(state?.timeSessions) ? state.timeSessions : [],
+      wellbeingCheckIns: Array.isArray(state?.wellbeingCheckIns) ? state.wellbeingCheckIns : [],
       finance: {
         entries: Array.isArray(financeState.entries) ? financeState.entries : [],
         recurringPlans: Array.isArray(financeState.recurringPlans) ? financeState.recurringPlans : [],

@@ -90,7 +90,37 @@ function generateFreeBlocks(daysAhead = 7) {
   return blocks;
 }
 
-function generateSchedule(courses, tasks, sessions, cgpaState) {
+function detectPeakSlotsFromWellbeing(checkIns) {
+  if (!checkIns || checkIns.length < 3) return {};
+  const slotEnergies = {};
+  for (const c of checkIns) {
+    const dateStr = c.date || c.createdAt || '';
+    if (!dateStr) continue;
+    const d = new Date(dateStr);
+    const dayOfWeek = d.getDay();
+    const hour = d.getHours();
+    const slotKey = `${dayOfWeek}-${Math.floor(hour / 4)}`;
+    if (!slotEnergies[slotKey]) slotEnergies[slotKey] = { energies: [], dayOfWeek, hourSlot: Math.floor(hour / 4) };
+    if (typeof c.energy === 'number') slotEnergies[slotKey].energies.push(c.energy);
+  }
+  const result = {};
+  for (const [key, val] of Object.entries(slotEnergies)) {
+    if (val.energies.length >= 2) {
+      const avg = val.energies.reduce((a, b) => a + b, 0) / val.energies.length;
+      result[key] = Math.round(avg * 10) / 10;
+    }
+  }
+  return result;
+}
+
+function slotKeyForBlock(block) {
+  const day = new Date(block.date).getDay();
+  const startHour = block.startHour;
+  const hourSlot = Math.floor(startHour / 4);
+  return `${day}-${hourSlot}`;
+}
+
+function generateSchedule(courses, tasks, sessions, cgpaState, wellbeingCheckIns) {
   const courseMap = {};
   const cgpaCourses = cgpaState?.courses || [];
   const cgpaByCourse = {};
@@ -136,16 +166,31 @@ function generateSchedule(courses, tasks, sessions, cgpaState) {
   });
 
   const freeBlocks = generateFreeBlocks(7);
+  const peakSlots = detectPeakSlotsFromWellbeing(wellbeingCheckIns);
+
+  const scoredBlocks = freeBlocks.map((block) => {
+    const sk = slotKeyForBlock(block);
+    const peakEnergy = peakSlots[sk] || 0;
+    return { ...block, peakEnergy };
+  });
+
+  scoredBlocks.sort((a, b) => b.peakEnergy - a.peakEnergy);
+
+  const avgPeakEnergy =
+    Object.values(peakSlots).length > 0
+      ? Object.values(peakSlots).reduce((s, v) => s + v, 0) / Object.values(peakSlots).length
+      : 0;
+
   const recommendations = [];
-  const blocksPerCourse = Math.ceil(freeBlocks.length / Math.max(1, priorities.length));
+  const blocksPerCourse = Math.ceil(scoredBlocks.length / Math.max(1, priorities.length));
   let blockIndex = 0;
 
   for (const p of priorities) {
     if (blockIndex >= freeBlocks.length) break;
     if (p.deficitHours <= 0 && p.daysUntilDue > 7) continue;
-    const numBlocks = Math.min(blocksPerCourse, freeBlocks.length - blockIndex);
-    for (let i = 0; i < numBlocks && blockIndex < freeBlocks.length; i++) {
-      const block = freeBlocks[blockIndex];
+    const numBlocks = Math.min(blocksPerCourse, scoredBlocks.length - blockIndex);
+    for (let i = 0; i < numBlocks && blockIndex < scoredBlocks.length; i++) {
+      const block = scoredBlocks[blockIndex];
       blockIndex++;
 
       let reason;
@@ -159,6 +204,7 @@ function generateSchedule(courses, tasks, sessions, cgpaState) {
         reason = `Keep up with ${p.courseTag} — ${p.actualHours}h studied of ${p.recommendedHours}h goal.`;
       }
 
+      const isPeakTime = block.peakEnergy >= 3.5;
       recommendations.push({
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         courseTag: p.courseTag,
@@ -167,7 +213,9 @@ function generateSchedule(courses, tasks, sessions, cgpaState) {
         startTime: block.startTime,
         endTime: block.endTime,
         durationMinutes: block.durationMinutes,
-        reason,
+        peakEnergy: block.peakEnergy,
+        isPeakTime,
+        reason: isPeakTime ? `Peak energy window — schedule ${p.courseTag} here.` : reason,
         priority: p.priorityScore >= 0.7 ? "high" : p.priorityScore >= 0.4 ? "medium" : "low",
         approved: false,
         declined: false,

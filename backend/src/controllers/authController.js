@@ -127,6 +127,28 @@ async function getSession(req, res) {
   });
 }
 
+async function searchUsers(req, res) {
+  try {
+    const raw = String(req.query.q || '').trim();
+    if (raw.length < 2) {
+      return res.status(400).json({ error: 'Query must be at least 2 characters' });
+    }
+
+    const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'i');
+
+    const users = await User.find(
+      { $or: [{ crymsonId: { $regex: regex } }, { fullName: { $regex: regex } }] },
+      { crymsonId: 1, fullName: 1, department: 1, level: 1, _id: 0 }
+    ).limit(20).lean();
+
+    res.json({ users });
+  } catch (error) {
+    console.error('Search users error:', error.message);
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+}
+
 async function setupFirstAdmin(req, res) {
   try {
     // Check if any admins exist
@@ -182,5 +204,6 @@ module.exports = {
   signup,
   login,
   getSession,
-  setupFirstAdmin
+  setupFirstAdmin,
+  searchUsers,
 };

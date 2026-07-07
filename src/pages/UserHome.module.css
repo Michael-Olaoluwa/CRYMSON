@@ -743,8 +743,10 @@
   width: 88px;
   height: 88px;
   border-radius: 999px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background:
     radial-gradient(circle at center, rgb(var(--uh-white-rgb)) 56%, transparent 57%),
     conic-gradient(var(--royal) var(--value), rgba(var(--uh-slate-rgb), 0.2) 0);
@@ -753,6 +755,16 @@
 .gaugeCircle span {
   font-weight: 800;
   font-size: 1rem;
+  line-height: 1.2;
+}
+
+.gaugeCircle .scoreTierLabel {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1;
 }
 
 .scorePulse {

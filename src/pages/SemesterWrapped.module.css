@@ -1,0 +1,526 @@
+.page {
+  padding: 32px 40px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--text-secondary, #94a3b8);
+  gap: 16px;
+}
+
+.loadingSpinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-color, #334155);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 80px 20px;
+  gap: 12px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+}
+
+.emptyTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin: 0;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: var(--text-secondary, #94a3b8);
+  max-width: 380px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.hero {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0 0 6px;
+}
+
+.title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0;
+}
+
+.cardWrapper {
+  margin-bottom: 24px;
+}
+
+.card {
+  position: relative;
+  border-radius: 20px;
+  padding: 32px 28px;
+  overflow: hidden;
+  color: #f1f5f9;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.cardBrand {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.cardLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  opacity: 0.7;
+}
+
+.cardTitleBlock {
+  position: relative;
+  z-index: 1;
+  margin-top: 8px;
+}
+
+.cardTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cardSubtitle {
+  font-size: 13px;
+  opacity: 0.7;
+  margin: 4px 0 0;
+}
+
+.cgpaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.cgpaFrom {
+  font-size: 20px;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.cgpaArrow {
+  font-size: 22px;
+  opacity: 0.5;
+}
+
+.cgpaTo {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.cgpaChange {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.changeUp {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.changeDown {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.divider {
+  height: 2px;
+  opacity: 0.3;
+  border-radius: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.highlight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.highlightIcon {
+  font-size: 16px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.statIcon {
+  font-size: 18px;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.6;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.scoreBadge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.scoreInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scoreLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+.scoreTier {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.historyStrip {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.historyStripLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.historyDots {
+  display: flex;
+  gap: 12px;
+}
+
+.historyDotWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.historyDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid transparent;
+}
+
+.historyDotCurrent {
+  background: transparent;
+  border-width: 2px;
+}
+
+.historyDotLabel {
+  font-size: 8px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.shareBtn {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.shareBtn:hover {
+  opacity: 0.85;
+}
+
+.regenerateBtn {
+  padding: 12px 20px;
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.regenerateBtn:hover {
+  border-color: var(--accent, #6366f1);
+  color: var(--accent, #6366f1);
+}
+
+.statReveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: all 0.5s ease-out;
+}
+
+.statVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.courseBreakdown {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.courseRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.courseRank {
+  min-width: 24px;
+  font-weight: 700;
+  color: var(--text-secondary, #64748b);
+}
+
+.courseName {
+  min-width: 80px;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.courseBar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-subtle, #0f172a);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.courseFill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #22c55e);
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+.courseHours {
+  min-width: 36px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.historySection {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.historyChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 140px;
+}
+
+.chartBarWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chartBar {
+  width: 100%;
+  max-width: 40px;
+  background: linear-gradient(180deg, #6366f1, #22c55e);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.8s ease;
+  min-height: 4px;
+}
+
+.chartValue {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.chartLabel {
+  font-size: 10px;
+  color: var(--text-secondary, #64748b);
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 20px 16px;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+
+  .cardTitle {
+    font-size: 24px;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .statValue {
+    font-size: 16px;
+  }
+}

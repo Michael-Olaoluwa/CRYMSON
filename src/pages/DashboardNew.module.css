@@ -1,15 +1,30 @@
+/* ── Layout ── */
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-6);
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
 }
 
-.header {
+.loadingState {
+  text-align: center;
+  color: var(--clr-text-secondary);
+  font-size: 14px;
+  padding: 60px 0;
+}
+
+/* ── Banner ── */
+.banner {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 16px;
 }
-
+.greetingArea {
+  flex: 1;
+}
 .greeting {
   font-family: 'Cormorant Garamond', serif;
   font-size: 28px;
@@ -18,274 +33,602 @@
   margin: 0;
   letter-spacing: -0.3px;
 }
-
-.subtitle {
+.bannerSub {
   font-size: 13px;
   color: var(--clr-text-secondary);
-  margin: 4px 0 0 0;
+  margin: 4px 0 0;
   font-weight: 400;
+  text-transform: capitalize;
 }
-
-.grid2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-5);
-}
-
-.card {
-  background: var(--clr-bg-card);
-  border-radius: 18px;
-  border: 1px solid var(--clr-border);
-  padding: var(--sp-5-5, 22px);
+.scorePill {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.card:hover {
-  border-color: var(--clr-border);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.3);
-}
-
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid;
+  flex-shrink: 0;
 }
-
-.cardTitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--clr-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.cardCount {
+.scorePillValue {
   font-size: 22px;
-  font-weight: 700;
-  color: var(--clr-accent-green-alt);
+  font-weight: 800;
   line-height: 1;
 }
-
-.cardBalance {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--clr-text);
-}
-
-.cardBadge {
+.scorePillLabel {
   font-size: 12px;
   font-weight: 600;
-  color: var(--clr-accent-light);
-  background: rgba(139, 92, 246, 0.12);
-  padding: 4px 12px;
-  border-radius: 20px;
-  letter-spacing: 0.3px;
-}
-
-.progressBar {
-  height: 4px;
-  background: var(--clr-bg-hover);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: linear-gradient(90deg, #2dd4a7, #34d399);
-  border-radius: 4px;
-  transition: width 0.4s ease;
-}
-
-.progressLabel {
-  font-size: 11px;
-  color: var(--clr-text-secondary);
-  margin-top: -10px;
-}
-
-.taskList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.taskItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  background: var(--clr-bg-elevated);
-  border-radius: 10px;
-  font-size: 13px;
-  transition: background 0.15s ease;
-}
-
-.taskItem:hover {
-  background: var(--clr-bg-hover);
-}
-
-.priorityDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.priorityhigh {
-  background: #f87171;
-  box-shadow: 0 0 6px rgba(248, 113, 113, 0.3);
-}
-
-.prioritymedium {
-  background: #fbbf24;
-  box-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
-}
-
-.prioritylow {
-  background: #34d399;
-  box-shadow: 0 0 6px rgba(52, 211, 153, 0.3);
-}
-
-.taskText {
-  flex: 1;
-  color: var(--clr-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.taskMeta {
-  font-size: 11px;
-  color: var(--clr-text-muted);
-  flex-shrink: 0;
-  background: var(--clr-bg-hover);
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-.cardAction {
-  padding: 9px 18px;
-  border: 1px solid var(--clr-border);
-  background: transparent;
-  color: var(--clr-accent-light);
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: all 0.18s ease;
-  align-self: flex-start;
-  letter-spacing: 0.3px;
-}
-
-.cardAction:hover {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: var(--clr-accent);
-}
-
-.financeStrip {
-  display: flex;
-  gap: 28px;
-}
-
-.financeItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.financeLabel {
-  font-size: 11px;
   color: var(--clr-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.financeIncome {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--clr-accent-green);
+/* ── Briefing ── */
+.briefing {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 14px;
+  padding: 16px;
 }
-
-.financeExpense {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--clr-accent-red);
+.briefingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
-
-.goalRow {
+.briefingTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--clr-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.briefingDismiss {
+  font-size: 11px;
+  color: var(--clr-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.briefingDismiss:hover {
+  color: var(--clr-text);
+  background: var(--clr-bg-hover);
+}
+.briefingItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.briefingItem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--clr-bg-elevated);
+  border-radius: 8px;
+  font-size: 12px;
+}
+.briefingValue {
+  font-weight: 600;
+  color: var(--clr-text);
+}
+.briefingDetail {
+  color: var(--clr-text-muted);
+}
+.briefingInsight {
+  margin-top: 12px;
 }
 
-.goalBar {
+/* ── Widget Grid ── */
+.widgetGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .widgetGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .widgetGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.widgetWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  position: relative;
+}
+.widgetWrapper.dragging {
+  opacity: 0.5;
+  transform: scale(0.97);
+}
+.dragHandle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--clr-text-muted);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 2;
+  padding: 4px;
+  border-radius: 4px;
+}
+.widgetWrapper:hover .dragHandle {
+  opacity: 1;
+}
+.dragHandle:hover {
+  background: var(--clr-bg-hover);
+  color: var(--clr-text-secondary);
+}
+
+.widget {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s;
+}
+.widget:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+
+.widgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.widgetTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--clr-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.widgetAction {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--clr-accent-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.widgetAction:hover {
+  background: rgba(139,92,246,0.1);
+}
+
+.mutedText {
+  font-size: 12px;
+  color: var(--clr-text-muted);
+}
+.emptyWidget {
+  font-size: 13px;
+  color: var(--clr-text-muted);
+  font-style: italic;
+  padding: 12px 0;
+  text-align: center;
+}
+
+/* ── CGPA Widget ── */
+.widgetCgpa {
+  border-left: 3px solid var(--clr-accent-light);
+}
+.cgpaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.cgpaMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cgpaValue {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.cgpaGoal {
+  font-size: 12px;
+  color: var(--clr-text-muted);
+}
+.cgpaRing {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+.cgpaRingLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--clr-text);
+}
+.cgpaFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.classBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--clr-accent-light);
+  background: rgba(139,92,246,0.12);
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+/* ── Tasks Widget ── */
+.widgetTasks {
+  border-left: 3px solid #60a5fa;
+}
+.taskMetrics {
+  display: flex;
+  gap: 12px;
+}
+.taskMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+.taskMetricValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--clr-text);
+  line-height: 1.2;
+}
+.taskMetricLabel {
+  font-size: 10px;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.progressTrack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progressTrackBar {
+  flex: 1;
+  height: 4px;
+  background: var(--clr-bg-hover);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progressTrackFill {
+  height: 100%;
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+.progressTrackLabel {
+  font-size: 11px;
+  color: var(--clr-text-secondary);
+  white-space: nowrap;
+}
+
+/* ── Study Widget ── */
+.widgetStudy {
+  border-left: 3px solid var(--clr-accent-green-alt);
+}
+.studyWeekTotal {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--clr-accent-green-alt);
+}
+.courseList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.courseRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.courseName {
+  font-size: 12px;
+  color: var(--clr-text);
+  min-width: 60px;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.courseBarTrack {
   flex: 1;
   height: 6px;
   background: var(--clr-bg-hover);
   border-radius: 6px;
   overflow: hidden;
 }
-
-.goalFill {
+.courseBarFill {
   height: 100%;
-  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  background: linear-gradient(90deg, #2dd4a7, #34d399);
   border-radius: 6px;
-  transition: width 0.4s ease;
+  transition: width 0.4s;
+}
+.courseBarLow {
+  background: linear-gradient(90deg, #f87171, #fb923c);
+}
+.courseHours {
+  font-size: 11px;
+  color: var(--clr-text-secondary);
+  min-width: 30px;
+  text-align: right;
+}
+.studyFooter {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--clr-text-secondary);
+  border-top: 1px solid var(--clr-border);
+  padding-top: 10px;
+  margin-top: auto;
 }
 
-.goalPct {
-  font-size: 12px;
+/* ── Finance Widget ── */
+.widgetFinance {
+  border-left: 3px solid #a78bfa;
+}
+.financeBalance {
+  margin: 4px 0;
+}
+.financeAmount {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--clr-text);
+}
+.financeRow {
+  display: flex;
+  gap: 24px;
+}
+.financeItem {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.financeItemLabel {
+  font-size: 10px;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.financeIncome {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--clr-accent-green);
+}
+.financeExpense {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--clr-accent-red);
+}
+.savingsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.savingsLabel {
+  font-size: 11px;
+  color: var(--clr-text-muted);
+  white-space: nowrap;
+}
+.savingsTrack {
+  flex: 1;
+  height: 5px;
+  background: var(--clr-bg-hover);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.savingsFill {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  border-radius: 5px;
+  transition: width 0.4s;
+}
+.savingsPct {
+  font-size: 11px;
   font-weight: 600;
   color: var(--clr-accent-light);
-  min-width: 36px;
+  min-width: 30px;
   text-align: right;
 }
 
-.miniChart {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 48px;
-  padding-top: 6px;
+/* ── Score Widget ── */
+.widgetScore {
+  border-left: 3px solid #f59e0b;
 }
-
-.miniBarCol {
-  flex: 1;
+.scoreTop {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.scoreRingOuter {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.scoreRingInner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  height: 100%;
-  justify-content: flex-end;
+  line-height: 1;
 }
-
-.miniBar {
-  width: 100%;
-  max-width: 28px;
-  border-radius: 4px 4px 0 0;
-  min-height: 2px;
-  transition: height 0.3s ease;
-  background: linear-gradient(180deg, #a78bfa, #8b5cf6);
+.scoreValue {
+  font-size: 24px;
+  font-weight: 800;
 }
-
-.miniBarLabel {
-  font-size: 9px;
+.scoreLabel {
+  font-size: 8px;
   color: var(--clr-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+.scoreDims {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.scoreDim {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.scoreDimLabel {
+  font-size: 9px;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  min-width: 40px;
+}
+.scoreDimBar {
+  flex: 1;
+  height: 4px;
+  background: var(--clr-bg-hover);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.scoreDimFill {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #8b5cf6);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+.scoreDimValue {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--clr-text-secondary);
+  min-width: 22px;
+  text-align: right;
+}
+.scoreNext {
+  font-size: 11px;
+  color: var(--clr-text-muted);
+  text-align: center;
+  padding: 6px 0 0;
+  border-top: 1px solid var(--clr-border);
+  margin-top: auto;
 }
 
+/* ── Wellbeing Widget ── */
+.widgetWellbeing {
+  border-left: 3px solid #f87171;
+}
+.moodBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--clr-text);
+  background: var(--clr-bg-hover);
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+.wellbeingMetrics {
+  display: flex;
+  gap: 12px;
+}
+.wellbeingMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  align-items: center;
+}
+.wellbeingValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--clr-text);
+}
+.wellbeingLabel {
+  font-size: 10px;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+/* ── Insights Widget ── */
+.widgetInsights {
+  grid-column: 1 / -1;
+  border-left: 3px solid #a78bfa;
+}
+.insightCount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--clr-accent-light);
+  background: rgba(139,92,246,0.12);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+.insightList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.insightCard {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid;
+}
+.insightIcon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.insightBody {
+  flex: 1;
+  min-width: 0;
+}
+.insightTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--clr-text);
+  margin-bottom: 2px;
+}
+.insightMessage {
+  font-size: 12px;
+  color: var(--clr-text-secondary);
+  line-height: 1.4;
+}
+
+/* ── Quick Access (legacy footer) ── */
 .quickActions {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
 .sectionLabel {
   font-size: 12px;
   font-weight: 600;
@@ -293,13 +636,11 @@
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
-
 .actionsRow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-5);
+  gap: var(--sp-5, 20px);
 }
-
 .actionBtn {
   display: flex;
   align-items: center;
@@ -317,21 +658,18 @@
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-
 .actionBtn[data-accent="green"]:hover {
   background: rgba(45, 212, 167, 0.08);
   border-color: var(--clr-accent-green-alt);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 212, 167, 0.15);
 }
-
 .actionBtn[data-accent="purple"]:hover {
   background: rgba(139, 92, 246, 0.08);
   border-color: var(--clr-accent);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.15);
 }
-
 .actionIcon {
   display: flex;
   align-items: center;
@@ -340,88 +678,31 @@
   height: 18px;
   flex-shrink: 0;
 }
-
 .actionBtn[data-accent="green"] .actionIcon {
   color: var(--clr-accent-green-alt);
 }
-
 .actionBtn[data-accent="purple"] .actionIcon {
   color: #8b5cf6;
 }
-
 .actionLabel {
   white-space: nowrap;
 }
 
-.chartArea {
-  min-height: 140px;
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 4px;
-}
-
-.chartBars {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  width: 100%;
-  height: 130px;
-}
-
-.chartBarCol {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.chartBar {
-  width: 100%;
-  max-width: 36px;
-  min-height: 4px;
-  transition: height 0.4s ease;
-  border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, #4ade80, #2dd4a7);
-}
-
-.chartBarPurple {
-  background: linear-gradient(180deg, #a78bfa, #8b5cf6);
-}
-
-.chartBarLabel {
-  font-size: 9px;
-  color: var(--clr-text-secondary);
-  text-align: center;
-  font-weight: 500;
-}
-
-.cardFooter {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--clr-text-secondary);
-  border-top: 1px solid var(--clr-border);
-  padding-top: var(--sp-3);
-  margin-top: var(--sp-0);
-}
-
 .emptyState {
-  color: var(--clr-text-muted);
-  font-size: 13px;
-  font-style: italic;
-  padding: 16px 0;
-  width: 100%;
   text-align: center;
+  padding: 60px 20px;
+  color: var(--clr-text-secondary);
+}
+.emptyState h2 {
+  font-size: 20px;
+  margin: 0 0 8px;
+  color: var(--clr-text);
 }
 
 @media (max-width: 820px) {
-  .grid2col {
-    grid-template-columns: 1fr;
+  .dashboard {
+    padding: 16px;
   }
-
   .actionsRow {
     grid-template-columns: repeat(2, 1fr);
   }

@@ -51,6 +51,11 @@ export default function StudyScheduleCard({
             {recommendation.priority}
           </span>
           <span className={styles.courseTag}>{recommendation.courseTag}</span>
+          {recommendation.isPeakTime && (
+            <span className={styles.peakBadge} title={`Energy score: ${recommendation.peakEnergy}/5`}>
+              Peak
+            </span>
+          )}
         </div>
         <div className={styles.timeRow}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
