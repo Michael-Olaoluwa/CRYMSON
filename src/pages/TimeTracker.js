@@ -2,14 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./TimeTracker.module.css";
 import { formatClock, getStudyStreakStats } from "../utils/timeFormatting";
 import { useTimer } from "../context/TimerContext";
-import { getAuthToken } from "../utils/authSession";
+import apiClient from "../utils/apiClient";
 
 const STORAGE_KEY_BASE = "crymson_time_tracker_sessions";
 const USER_CGPA_STATE_KEY_BASE = "crymson_user_cgpa_state_v1";
 const TODO_STORAGE_KEY_BASE = "crymson_todo_tasks";
-const AUTH_API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL ||
-  `${window.location.protocol}//${window.location.hostname}:5000`;
 const TEST_TASK_TYPES = new Set(["test-1", "test-2", "exam", "exam-timetable"]);
 const COURSE_TOTAL_FILTERS = [
   { id: "week", label: "This Week" },
@@ -114,29 +111,12 @@ function TimeTracker({ activeUserId = "guest" }) {
     hasHydratedRemoteSessionsRef.current = false;
 
     const loadRemoteSessions = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        hasHydratedRemoteSessionsRef.current = true;
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${AUTH_API_BASE_URL}/api/user-state/time-sessions`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const { data } = await apiClient.get("/api/user-state/time-sessions");
+        if (cancelled) return;
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok || cancelled) {
-          return;
-        }
-
-        const remoteSessions = Array.isArray(payload.sessions)
-          ? payload.sessions
+        const remoteSessions = Array.isArray(data.sessions)
+          ? data.sessions
           : [];
         if (remoteSessions.length > 0) {
           setSessions(remoteSessions);
@@ -156,8 +136,7 @@ function TimeTracker({ activeUserId = "guest" }) {
   }, [activeUserId]);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token || !hasHydratedRemoteSessionsRef.current) {
+    if (!hasHydratedRemoteSessionsRef.current) {
       return undefined;
     }
 
@@ -167,17 +146,10 @@ function TimeTracker({ activeUserId = "guest" }) {
 
     sessionSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
-        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+        await apiClient.put("/api/user-state/all", {
+          data: {
+            timeSessions: sessions,
           },
-          body: JSON.stringify({
-            data: {
-              timeSessions: sessions,
-            },
-          }),
         });
       } catch (error) {
         // Keep local sessions even if remote sync fails.
@@ -225,23 +197,10 @@ function TimeTracker({ activeUserId = "guest" }) {
     }
 
     const loadRemoteTasks = async () => {
-      const token = getAuthToken();
-      if (!token) return;
-
       try {
-        const response = await fetch(
-          `${AUTH_API_BASE_URL}/api/user-state/tasks`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const { data } = await apiClient.get("/api/user-state/tasks");
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) return;
-
-        const remoteTasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+        const remoteTasks = Array.isArray(data.tasks) ? data.tasks : [];
         if (remoteTasks.length > 0) {
           setCalendarTasks(remoteTasks);
         }

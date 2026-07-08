@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./FinanceTracker.module.css";
-import { getAuthToken } from "../utils/authSession";
+import apiClient from "../utils/apiClient";
 import { BarChartIcon, NoteIcon, RefreshIcon, GearIcon, PencilIcon, TrashIcon } from "../utils/icons";
 import {
   BarChart,
@@ -19,9 +19,6 @@ import {
 const STORAGE_KEY_BASE = "crymson_finance_entries";
 const RECURRING_STORAGE_KEY_BASE = "crymson_finance_recurring_plans";
 const FINANCE_PREFS_STORAGE_KEY_BASE = "crymson_finance_prefs";
-const AUTH_API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL ||
-  `${window.location.protocol}//${window.location.hostname}:5000`;
 
 const ENTRY_TYPES = {
   income: "Income",
@@ -477,30 +474,13 @@ function FinanceTracker({ activeUserId = "guest" }) {
     hasHydratedRemoteFinanceRef.current = false;
 
     const loadRemoteFinance = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        hasHydratedRemoteFinanceRef.current = true;
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${AUTH_API_BASE_URL}/api/user-state/finance`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok || cancelled) {
-          return;
-        }
+        const { data } = await apiClient.get("/api/user-state/finance");
+        if (cancelled) return;
 
         const remoteFinance =
-          payload.finance && typeof payload.finance === "object"
-            ? payload.finance
+          data.finance && typeof data.finance === "object"
+            ? data.finance
             : null;
 
         if (!remoteFinance) {
@@ -545,8 +525,7 @@ function FinanceTracker({ activeUserId = "guest" }) {
   }, [activeUserId]);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token || !hasHydratedRemoteFinanceRef.current) {
+    if (!hasHydratedRemoteFinanceRef.current) {
       return undefined;
     }
 
@@ -556,21 +535,14 @@ function FinanceTracker({ activeUserId = "guest" }) {
 
     financeSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
-        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            data: {
-              finance: {
-                entries,
-                recurringPlans,
-                prefs: financePrefs,
-              },
+        await apiClient.put("/api/user-state/all", {
+          data: {
+            finance: {
+              entries,
+              recurringPlans,
+              prefs: financePrefs,
             },
-          }),
+          },
         });
       } catch (error) {
         // Keep local finance state even if remote sync fails.
@@ -588,28 +560,11 @@ function FinanceTracker({ activeUserId = "guest" }) {
     let cancelled = false;
 
     const loadAcademicEvents = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        setAcademicEvents([]);
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${AUTH_API_BASE_URL}/api/academic-events`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const { data } = await apiClient.get("/api/academic-events");
+        if (cancelled) return;
 
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok || cancelled) {
-          return;
-        }
-
-        const events = Array.isArray(payload.events) ? payload.events : [];
+        const events = Array.isArray(data.events) ? data.events : [];
         setAcademicEvents(events.map(normalizeAcademicEvent));
       } catch (error) {
         if (!cancelled) {

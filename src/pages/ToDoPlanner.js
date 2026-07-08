@@ -1,13 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./ToDoPlanner.module.css";
-import { getAuthToken } from "../utils/authSession";
+import apiClient from "../utils/apiClient";
 
 const STORAGE_KEY_BASE = "crymson_todo_tasks";
 const NOTIFIED_TASKS_KEY_BASE = "crymson_todo_notified_tasks";
 const USER_CGPA_STATE_KEY_BASE = "crymson_user_cgpa_state_v1";
-const AUTH_API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL ||
-  `${window.location.protocol}//${window.location.hostname}:5000`;
 const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
   "test-1": 24 * 60,
   "test-2": 24 * 60,
@@ -153,31 +150,11 @@ function ToDoPlanner({ activeUserId = "guest" }) {
     let cancelled = false;
 
     const loadRemoteTasks = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        hasHydratedTaskStateRef.current = true;
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${AUTH_API_BASE_URL}/api/user-state/tasks`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          hasHydratedTaskStateRef.current = true;
-          return;
-        }
-
+        const { data } = await apiClient.get("/api/user-state/tasks");
         if (cancelled) return;
 
-        const remoteTasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+        const remoteTasks = Array.isArray(data.tasks) ? data.tasks : [];
         if (remoteTasks.length > 0) {
           const normalized = remoteTasks.map((task) => ({
             ...task,
@@ -209,8 +186,7 @@ function ToDoPlanner({ activeUserId = "guest" }) {
   }, [tasks, scopedTasksKey]);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token || !hasHydratedTaskStateRef.current) return undefined;
+    if (!hasHydratedTaskStateRef.current) return undefined;
 
     if (taskSyncTimeoutRef.current) {
       window.clearTimeout(taskSyncTimeoutRef.current);
@@ -218,17 +194,8 @@ function ToDoPlanner({ activeUserId = "guest" }) {
 
     taskSyncTimeoutRef.current = window.setTimeout(async () => {
       try {
-        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            data: {
-              tasks,
-            },
-          }),
+        await apiClient.put("/api/user-state/all", {
+          data: { tasks },
         });
       } catch (error) {
         // Keep local save even if remote sync fails.
@@ -415,61 +382,37 @@ function ToDoPlanner({ activeUserId = "guest" }) {
     setIsModalOpen(true);
   };
 
-  const removeAcademicEventBySourceTaskId = async (token, sourceTaskId) => {
-    if (!token || !sourceTaskId) return;
+  const removeAcademicEventBySourceTaskId = async (sourceTaskId) => {
+    if (!sourceTaskId) return;
 
-    const listResponse = await fetch(
-      `${AUTH_API_BASE_URL}/api/academic-events`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    if (!listResponse.ok) return;
-
-    const listPayload = await listResponse.json().catch(() => ({}));
-    const events = Array.isArray(listPayload.events) ? listPayload.events : [];
-    const linked = events.find(
-      (event) => String(event.sourceTaskId || "") === String(sourceTaskId),
-    );
-
-    if (!linked) return;
-
-    await fetch(`${AUTH_API_BASE_URL}/api/academic-events/${linked.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const { data } = await apiClient.get("/api/academic-events");
+      const events = Array.isArray(data.events) ? data.events : [];
+      const linked = events.find(
+        (event) => String(event.sourceTaskId || "") === String(sourceTaskId),
+      );
+      if (linked) {
+        await apiClient.delete(`/api/academic-events/${linked.id}`);
+      }
+    } catch (error) {
+      // Ignore errors during cleanup.
+    }
   };
 
-  const createAcademicEventFromTask = async (token, task) => {
-    if (!token || !task || task.taskType === "general") return;
+  const createAcademicEventFromTask = async (task) => {
+    if (!task || task.taskType === "general") return;
 
     const reminderDelayMinutes = getAcademicReminderDelayMinutes(task.taskType);
 
-    const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        subject: task.courseTag,
-        title: task.title,
-        taskType: task.taskType,
-        dueAt: task.dueAt,
-        reminderDelayMinutes,
-        sourceTaskId: task.id,
-        notes: task.details,
-      }),
+    await apiClient.post("/api/academic-events", {
+      subject: task.courseTag,
+      title: task.title,
+      taskType: task.taskType,
+      dueAt: task.dueAt,
+      reminderDelayMinutes,
+      sourceTaskId: task.id,
+      notes: task.details,
     });
-
-    if (!response.ok) {
-      throw new Error("Academic reminder sync failed.");
-    }
   };
 
   const handleAddTask = async (event) => {
@@ -522,20 +465,17 @@ function ToDoPlanner({ activeUserId = "guest" }) {
       setTasks((prev) => [task, ...prev]);
     }
 
-    const token = getAuthToken();
-
-    if (token && editingTaskId) {
+    if (editingTaskId) {
       try {
-        await removeAcademicEventBySourceTaskId(token, editingTaskId);
+        await removeAcademicEventBySourceTaskId(editingTaskId);
       } catch (error) {
         // Ignore soft sync failures and keep local task update.
       }
     }
 
     if (isAcademicTask) {
-      if (token) {
-        try {
-          await createAcademicEventFromTask(token, task);
+      try {
+          await createAcademicEventFromTask(task);
 
           setSaveStatus(
             editingTaskId
@@ -549,12 +489,7 @@ function ToDoPlanner({ activeUserId = "guest" }) {
               : "Saved locally, but could not sync the academic reminder to the shared backend yet.",
           );
         }
-      } else {
-        setSaveStatus(
-          "Saved locally. Sign in to sync academic reminders across devices.",
-        );
-      }
-    } else if (token && editingTaskId) {
+    } else if (editingTaskId) {
       setSaveStatus("Task updated successfully.");
     }
 
@@ -603,12 +538,11 @@ function ToDoPlanner({ activeUserId = "guest" }) {
       return next;
     });
 
-    const token = getAuthToken();
-    if (!token || !isCompleting) return;
+    if (!isCompleting) return;
 
     if (targetTask.taskType && targetTask.taskType !== "general") {
       try {
-        await removeAcademicEventBySourceTaskId(token, targetTask.id);
+        await removeAcademicEventBySourceTaskId(targetTask.id);
       } catch (error) {
         // Keep local completion even if sync removal fails.
       }
@@ -619,7 +553,7 @@ function ToDoPlanner({ activeUserId = "guest" }) {
       generatedRecurringTask.taskType !== "general"
     ) {
       try {
-        await createAcademicEventFromTask(token, generatedRecurringTask);
+        await createAcademicEventFromTask(generatedRecurringTask);
       } catch (error) {
         // Keep local recurring task even if sync creation fails.
       }
