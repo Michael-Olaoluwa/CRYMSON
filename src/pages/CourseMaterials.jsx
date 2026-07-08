@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { BookIcon, NoteIcon, SearchIcon, DownloadIcon, TrashIcon } from "../utils/icons";
 import { getApiBaseUrl } from "../utils/apiBaseUrl";
-import { getAuthToken } from "../utils/authSession";
+import apiClient from "../utils/apiClient";
 import FileUploader from "../components/FileUploader";
 import NoteEditor from "../components/NoteEditor";
 import MaterialsPanel from "../components/MaterialsPanel";
@@ -33,17 +33,16 @@ export default function CourseMaterials({ courseCode: initialCode, onBack }) {
     setError("");
 
     try {
-      const [matRes, noteRes] = await Promise.all([
-        fetch(`${getApiBaseUrl()}/api/courses/${code}/materials`, {
-          headers: { Authorization: `Bearer ${getAuthToken()}` },
-        }),
-        fetch(`${getApiBaseUrl()}/api/courses/${code}/notes`, {
-          headers: { Authorization: `Bearer ${getAuthToken()}` },
-        }),
+      const [matRes, noteRes] = await Promise.allSettled([
+        apiClient.get(`/api/courses/${code}/materials`),
+        apiClient.get(`/api/courses/${code}/notes`),
       ]);
 
-      if (matRes.ok) setMaterials(await matRes.json());
-      if (noteRes.ok) setNotes(await noteRes.json());
+      if (matRes.status === "fulfilled") setMaterials(matRes.value.data);
+      if (noteRes.status === "fulfilled") setNotes(noteRes.value.data);
+      if (matRes.status === "rejected" && noteRes.status === "rejected") {
+        setError("Failed to load course data");
+      }
     } catch {
       setError("Failed to load course data");
     } finally {
@@ -63,18 +62,14 @@ export default function CourseMaterials({ courseCode: initialCode, onBack }) {
 
     const timer = setTimeout(async () => {
       try {
-        const [matRes, noteRes] = await Promise.all([
-          fetch(`${getApiBaseUrl()}/api/courses/materials/search?q=${encodeURIComponent(searchQuery)}`, {
-            headers: { Authorization: `Bearer ${getAuthToken()}` },
-          }),
-          fetch(`${getApiBaseUrl()}/api/courses/notes/search?q=${encodeURIComponent(searchQuery)}`, {
-            headers: { Authorization: `Bearer ${getAuthToken()}` },
-          }),
+        const [matRes, noteRes] = await Promise.allSettled([
+          apiClient.get(`/api/courses/materials/search?q=${encodeURIComponent(searchQuery)}`),
+          apiClient.get(`/api/courses/notes/search?q=${encodeURIComponent(searchQuery)}`),
         ]);
 
         setSearchResults({
-          materials: matRes.ok ? await matRes.json() : [],
-          notes: noteRes.ok ? await noteRes.json() : [],
+          materials: matRes.status === "fulfilled" ? matRes.value.data : [],
+          notes: noteRes.status === "fulfilled" ? noteRes.value.data : [],
         });
       } catch {
         setSearchResults({ materials: [], notes: [] });
@@ -87,10 +82,7 @@ export default function CourseMaterials({ courseCode: initialCode, onBack }) {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this material?")) return;
     try {
-      await fetch(`${getApiBaseUrl()}/api/courses/materials/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${getAuthToken()}` },
-      });
+      await apiClient.delete(`/api/courses/materials/${id}`);
       setMaterials((prev) => prev.filter((m) => m._id !== id));
     } catch {
       setError("Delete failed");

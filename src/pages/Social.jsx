@@ -1,16 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { getAuthToken } from '../utils/authSession';
+import apiClient from '../utils/apiClient';
 import styles from './Social.module.css';
-
-const API_BASE = process.env.REACT_APP_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
-
-function getAuthHeaders() {
-  const token = getAuthToken();
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
 
 const TABS = [
   { id: 'friends', label: 'Friends' },
@@ -47,12 +37,9 @@ function FriendsTab({ userId }) {
   const fetchFriends = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/social/friends`, { headers: getAuthHeaders() });
-      if (res.ok) {
-        const data = await res.json();
-        setFriends(data.friends || []);
-        setRequests(data.friendRequests || []);
-      }
+      const { data } = await apiClient.get('/api/social/friends');
+      setFriends(data.friends || []);
+      setRequests(data.friendRequests || []);
     } catch {} finally {
       setLoading(false);
     }
@@ -64,56 +51,38 @@ function FriendsTab({ userId }) {
     setSearchQuery(q);
     if (q.trim().length < 2) { setSearchResults([]); return; }
     try {
-      const res = await fetch(`${API_BASE}/api/auth/users/search?q=${encodeURIComponent(q)}`, { headers: getAuthHeaders() });
-      if (res.ok) {
-        const data = await res.json();
-        setSearchResults(data.users || []);
-      }
+      const { data } = await apiClient.get(`/api/auth/users/search?q=${encodeURIComponent(q)}`);
+      setSearchResults(data.users || []);
     } catch {}
   };
 
   const sendRequest = async (target) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/friend/request`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ targetCrymsonId: target }),
-      });
-      const data = await res.json();
-      setMsg(data.error || 'Request sent!');
-    } catch { setMsg('Failed to send request'); }
+      await apiClient.post('/api/social/friend/request', { targetCrymsonId: target });
+      setMsg('Request sent!');
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Failed to send request');
+    }
   };
 
   const acceptRequest = async (from) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/friend/accept`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ fromUserId: from }),
-      });
-      if (res.ok) fetchFriends();
+      await apiClient.post('/api/social/friend/accept', { fromUserId: from });
+      fetchFriends();
     } catch {}
   };
 
   const declineRequest = async (from) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/friend/decline`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ fromUserId: from }),
-      });
-      if (res.ok) fetchFriends();
+      await apiClient.post('/api/social/friend/decline', { fromUserId: from });
+      fetchFriends();
     } catch {}
   };
 
   const removeFriend = async (friendId) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/friend/remove`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ friendId }),
-      });
-      if (res.ok) fetchFriends();
+      await apiClient.post('/api/social/friend/remove', { friendId });
+      fetchFriends();
     } catch {}
   };
 
@@ -189,8 +158,8 @@ function GroupsTab({ userId }) {
   const fetchGroups = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/social/groups`, { headers: getAuthHeaders() });
-      if (res.ok) setGroups(await res.json());
+      const { data } = await apiClient.get('/api/social/groups');
+      setGroups(data);
     } catch {} finally { setLoading(false); }
   }, []);
 
@@ -199,51 +168,39 @@ function GroupsTab({ userId }) {
   const createGroup = async () => {
     if (!name.trim()) return;
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/create`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ name, description: desc }),
-      });
-      const data = await res.json();
-      if (res.ok) { setName(''); setDesc(''); fetchGroups(); setMsg(`Group created! Invite code: ${data.inviteCode}`); }
-      else setMsg(data.error);
-    } catch {}
+      const { data } = await apiClient.post('/api/social/group/create', { name, description: desc });
+      setName(''); setDesc(''); fetchGroups(); setMsg(`Group created! Invite code: ${data.inviteCode}`);
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Failed to create group');
+    }
   };
 
   const joinGroup = async () => {
     if (!inviteCode.trim()) return;
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/join`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ inviteCode }),
-      });
-      const data = await res.json();
-      if (res.ok) { setInviteCode(''); fetchGroups(); setMsg(`Joined ${data.name}!`); }
-      else setMsg(data.error);
-    } catch {}
+      const { data } = await apiClient.post('/api/social/group/join', { inviteCode });
+      setInviteCode(''); fetchGroups(); setMsg(`Joined ${data.name}!`);
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Failed to join group');
+    }
   };
 
   const leaveGroup = async (groupId) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/leave`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ groupId }),
-      });
-      if (res.ok) { setSelectedGroup(null); setGroupStats(null); fetchGroups(); }
+      await apiClient.post('/api/social/group/leave', { groupId });
+      setSelectedGroup(null); setGroupStats(null); fetchGroups();
     } catch {}
   };
 
   const viewGroup = async (groupId) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/${groupId}`, { headers: getAuthHeaders() });
-      if (res.ok) {
-        const g = await res.json();
-        setSelectedGroup(g);
-        const sres = await fetch(`${API_BASE}/api/social/group/${groupId}/stats`, { headers: getAuthHeaders() });
-        if (sres.ok) setGroupStats(await sres.json());
-        else setGroupStats(null);
+      const { data: g } = await apiClient.get(`/api/social/group/${groupId}`);
+      setSelectedGroup(g);
+      try {
+        const { data: s } = await apiClient.get(`/api/social/group/${groupId}/stats`);
+        setGroupStats(s);
+      } catch {
+        setGroupStats(null);
       }
     } catch {}
   };
@@ -333,9 +290,8 @@ function ChallengesTab({ userId }) {
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/social/groups`, { headers: getAuthHeaders() })
-      .then(r => r.ok ? r.json() : [])
-      .then(setGroups)
+    apiClient.get('/api/social/groups')
+      .then(({ data }) => setGroups(data))
       .catch(() => {});
   }, []);
 
@@ -343,39 +299,30 @@ function ChallengesTab({ userId }) {
     setSelectedGroupId(groupId);
     if (!groupId) { setChallenges([]); return; }
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/${groupId}`, { headers: getAuthHeaders() });
-      if (res.ok) {
-        const g = await res.json();
-        setChallenges(g.challenges || []);
-      }
+      const { data } = await apiClient.get(`/api/social/group/${groupId}`);
+      setChallenges(data.challenges || []);
     } catch {}
   };
 
   const createChallenge = async () => {
     if (!title.trim() || !target || !selectedGroupId) return;
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/${selectedGroupId}/challenge`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ title, type, target: Number(target), unit, endDate: endDate || undefined }),
+      await apiClient.post(`/api/social/group/${selectedGroupId}/challenge`, {
+        title, type, target: Number(target), unit, endDate: endDate || undefined,
       });
-      const data = await res.json();
-      if (res.ok) { setTitle(''); setTarget(''); fetchChallenges(selectedGroupId); setMsg('Challenge created!'); }
-      else setMsg(data.error);
-    } catch {}
+      setTitle(''); setTarget(''); fetchChallenges(selectedGroupId); setMsg('Challenge created!');
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Failed to create challenge');
+    }
   };
 
   const joinChallenge = async (challengeId) => {
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/${selectedGroupId}/challenge/join`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ challengeId }),
-      });
-      const data = await res.json();
-      if (res.ok) { fetchChallenges(selectedGroupId); setMsg('Joined challenge!'); }
-      else setMsg(data.error);
-    } catch {}
+      await apiClient.post(`/api/social/group/${selectedGroupId}/challenge/join`, { challengeId });
+      fetchChallenges(selectedGroupId); setMsg('Joined challenge!');
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Failed to join challenge');
+    }
   };
 
   return (
@@ -442,9 +389,8 @@ function LeaderboardTab() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/social/groups`, { headers: getAuthHeaders() })
-      .then(r => r.ok ? r.json() : [])
-      .then(setGroups)
+    apiClient.get('/api/social/groups')
+      .then(({ data }) => setGroups(data))
       .catch(() => {});
   }, []);
 
@@ -453,8 +399,8 @@ function LeaderboardTab() {
     if (!groupId) { setStats([]); return; }
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/social/group/${groupId}/stats`, { headers: getAuthHeaders() });
-      if (res.ok) setStats(await res.json());
+      const { data } = await apiClient.get(`/api/social/group/${groupId}/stats`);
+      setStats(data);
     } catch {} finally { setLoading(false); }
   };
 
@@ -499,9 +445,8 @@ function PrivacyTab() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/social/privacy`, { headers: getAuthHeaders() })
-      .then(r => r.ok ? r.json() : null)
-      .then(setPrivacy)
+    apiClient.get('/api/social/privacy')
+      .then(({ data }) => setPrivacy(data))
       .catch(() => {});
   }, []);
 
@@ -512,13 +457,8 @@ function PrivacyTab() {
   const save = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/social/privacy`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(privacy),
-      });
-      if (res.ok) setMsg('Privacy settings saved!');
-      else setMsg('Failed to save');
+      await apiClient.put('/api/social/privacy', privacy);
+      setMsg('Privacy settings saved!');
     } catch { setMsg('Failed to save'); } finally { setSaving(false); }
   };
 

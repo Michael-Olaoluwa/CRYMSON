@@ -200,7 +200,7 @@ function App() {
   }, [currentPage, activeUserId, activeUserName]);
 
   const navigateToCGPA = () => {
-    setCurrentPage("cgpa");
+    setCurrentPage("user-cgpa");
   };
 
   const navigateToUserCGPA = () => {
@@ -317,10 +317,6 @@ function App() {
                   onNavigateToAdmin={navigateToAdmin}
                   isAdmin={isAdmin}
                 />
-              )}
-
-              {currentPage === "cgpa" && (
-                <CGPATracker />
               )}
 
               {currentPage === "user-cgpa" && (

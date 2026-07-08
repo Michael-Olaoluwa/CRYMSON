@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './DashboardNew.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
-import { getAuthToken } from '../utils/authSession';
-
-const API_BASE = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
+import apiClient from '../utils/apiClient';
 
 const WIDGET_ORDER_KEY = 'crymson_dashboard_widget_order';
 const DEFAULT_WIDGET_ORDER = ['cgpa', 'tasks', 'study', 'finance', 'wellbeing_score', 'insights'];
@@ -340,16 +337,9 @@ export default function DashboardNew({
   });
 
   const fetchDashboard = useCallback(async () => {
-    const token = getAuthToken();
-    if (!token) { setLoading(false); return; }
     try {
-      const res = await fetch(`${API_BASE}/api/dashboard`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const d = await res.json();
-        setData(d);
-      }
+      const { data } = await apiClient.get('/api/dashboard');
+      setData(data);
     } catch {} finally {
       setLoading(false);
     }

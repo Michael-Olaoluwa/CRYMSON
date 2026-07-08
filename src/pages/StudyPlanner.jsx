@@ -1,17 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import StudyScheduleCard from '../components/StudyScheduleCard';
-import { getAuthToken } from '../utils/authSession';
+import apiClient from '../utils/apiClient';
 import styles from './StudyPlanner.module.css';
-
-const API_BASE = process.env.REACT_APP_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
-
-function getAuthHeaders() {
-  const token = getAuthToken();
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
 
 export default function StudyPlanner({ activeUserId }) {
   const [schedule, setSchedule] = useState(null);
@@ -27,15 +17,13 @@ export default function StudyPlanner({ activeUserId }) {
     try {
       setLoading(true);
       setError('');
-      const res = await fetch(`${API_BASE}/api/planner/schedule`, { headers: getAuthHeaders() });
-      if (!res.ok) throw new Error('Failed to load schedule');
-      const data = await res.json();
+      const { data } = await apiClient.get('/api/planner/schedule');
       setSchedule(data.schedule);
       setApprovedPlans(data.approvedPlans || []);
       setCompletedPlans(data.completedPlans || []);
       setCheckInStats(data.checkInStats);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to load schedule');
     } finally {
       setLoading(false);
     }
@@ -46,16 +34,11 @@ export default function StudyPlanner({ activeUserId }) {
   const generateSchedule = async () => {
     try {
       setGenerating(true);
-      const res = await fetch(`${API_BASE}/api/planner/generate`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      });
-      if (!res.ok) throw new Error('Failed to generate');
-      const data = await res.json();
+      const { data } = await apiClient.post('/api/planner/generate');
       setSchedule(data.schedule);
       setError('');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to generate');
     } finally {
       setGenerating(false);
     }
@@ -63,61 +46,41 @@ export default function StudyPlanner({ activeUserId }) {
 
   const handleApprove = async (recommendation) => {
     try {
-      const res = await fetch(`${API_BASE}/api/planner/approve`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ recommendation }),
-      });
-      if (!res.ok) throw new Error('Failed to approve');
-      const data = await res.json();
+      const { data } = await apiClient.post('/api/planner/approve', { recommendation });
       setApprovedPlans((prev) => [...prev, data.plan]);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to approve');
     }
   };
 
   const handleDecline = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/api/planner/decline`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ recommendationId: id }),
-      });
-      if (!res.ok) throw new Error('Failed to decline');
+      await apiClient.post('/api/planner/decline', { recommendationId: id });
       setSchedule((prev) => ({
         ...prev,
         recommendations: (prev?.recommendations || []).filter((r) => r.id !== id),
       }));
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to decline');
     }
   };
 
   const handleReschedule = async (id, date, startTime, endTime) => {
     try {
-      const res = await fetch(`${API_BASE}/api/planner/reschedule`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ recommendationId: id, newDate: date, newStartTime: startTime, newEndTime: endTime }),
+      await apiClient.post('/api/planner/reschedule', {
+        recommendationId: id, newDate: date, newStartTime: startTime, newEndTime: endTime,
       });
-      if (!res.ok) throw new Error('Failed to reschedule');
       setApprovedPlans((prev) =>
         prev.map((p) => (p.id === id ? { ...p, date, startTime, endTime, rescheduled: true } : p))
       );
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to reschedule');
     }
   };
 
   const handleCheckIn = async (planId, studied, minutesStudied) => {
     try {
-      const res = await fetch(`${API_BASE}/api/planner/checkin`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ planId, studied, minutesStudied }),
-      });
-      if (!res.ok) throw new Error('Failed to check in');
-      const data = await res.json();
+      const { data } = await apiClient.post('/api/planner/checkin', { planId, studied, minutesStudied });
       setCheckInStats(data.stats);
       setApprovedPlans((prev) => prev.filter((p) => p.id !== planId));
       setCompletedPlans((prev) => [
@@ -125,7 +88,7 @@ export default function StudyPlanner({ activeUserId }) {
         { ...(approvedPlans.find((p) => p.id === planId) || {}), completed: true, checkIn: data.checkIn },
       ]);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to check in');
     }
   };
 

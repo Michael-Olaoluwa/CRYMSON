@@ -1,12 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./MyTrackerWidget.module.css";
 import OnboardingWizard from "./OnboardingWizard";
-import { getAuthToken } from "../../utils/authSession";
+import apiClient from "../../utils/apiClient";
 
 const USER_CGPA_STATE_KEY_BASE = "crymson_user_cgpa_state_v1";
-const AUTH_API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL ||
-  `${window.location.protocol}//${window.location.hostname}:5000`;
 const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
   "test-1": 24 * 60,
   "test-2": 24 * 60,
@@ -269,32 +266,12 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
     let cancelled = false;
 
     const loadRemoteCgpaState = async () => {
-      const token = getAuthToken();
-      if (!token) {
-        hasHydratedCgpaStateRef.current = true;
-        return;
-      }
-
       try {
-        const response = await fetch(
-          `${AUTH_API_BASE_URL}/api/user-state/cgpa`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          hasHydratedCgpaStateRef.current = true;
-          return;
-        }
-
+        const { data } = await apiClient.get('/api/user-state/cgpa');
         if (cancelled) return;
 
-        if (payload.state && typeof payload.state === "object") {
-          applyCgpaState(payload.state);
+        if (data.state && typeof data.state === "object") {
+          applyCgpaState(data.state);
         }
       } catch (error) {
         // Keep local state if remote load fails.
@@ -322,28 +299,9 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
   };
 
   const loadAcademicEvents = async () => {
-    const token = getAuthToken();
-    if (!token) {
-      setAcademicEvents([]);
-      setAcademicNotice("Sign in to sync academic reminders across devices.");
-      return;
-    }
-
     try {
-      const response = await fetch(`${AUTH_API_BASE_URL}/api/academic-events`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(
-          payload.message || "Unable to load academic reminders.",
-        );
-      }
-
-      setAcademicEvents(Array.isArray(payload.events) ? payload.events : []);
+      const { data } = await apiClient.get('/api/academic-events');
+      setAcademicEvents(Array.isArray(data.events) ? data.events : []);
       setAcademicNotice("");
     } catch (error) {
       setAcademicNotice(
@@ -724,29 +682,8 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
   }, [academicReminders]);
 
   const handleAcknowledgeAcademicEvent = async (eventId) => {
-    const token = getAuthToken();
-    if (!token) {
-      setAcademicEvents((prev) => prev.filter((event) => event.id !== eventId));
-      return;
-    }
-
     try {
-      const response = await fetch(
-        `${AUTH_API_BASE_URL}/api/academic-events/${eventId}/acknowledge`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(payload.message || "Unable to update the reminder.");
-      }
-
+      await apiClient.patch(`/api/academic-events/${eventId}/acknowledge`);
       setAcademicEvents((prev) => prev.filter((event) => event.id !== eventId));
     } catch (error) {
       setAcademicNotice(
@@ -790,8 +727,7 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
   ]);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token || !hasHydratedCgpaStateRef.current) return undefined;
+    if (!hasHydratedCgpaStateRef.current) return undefined;
 
     if (cgpaSyncTimeoutRef.current) {
       window.clearTimeout(cgpaSyncTimeoutRef.current);
@@ -814,17 +750,8 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
       };
 
       try {
-        await fetch(`${AUTH_API_BASE_URL}/api/user-state/all`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            data: {
-              cgpaState: state,
-            },
-          }),
+        await apiClient.put('/api/user-state/all', {
+          data: { cgpaState: state },
         });
       } catch (error) {
         // Keep local save even if remote sync fails.

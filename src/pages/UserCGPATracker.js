@@ -1,11 +1,13 @@
 import React from 'react';
 import MyTrackerWidget from '../parts/grade-tools/MyTrackerWidget';
+import LegacyCgpaMigrationBanner from '../parts/grade-tools/LegacyCgpaMigrationBanner';
 import styles from './UserCGPATracker.module.css';
 
 function UserCGPATracker({ activeUserId = 'guest', onNavigateToCourseMaterials }) {
   return (
     <div className={styles.page}>
       <div className={styles.shell}>
+        <LegacyCgpaMigrationBanner />
         <header className={styles.hero}>
           <div>
             <p className={styles.eyebrow}>Academic Intelligence</p>
