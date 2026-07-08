@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
-import WelcomeScreen from "./screens/WelcomeScreen.jsx";
-import GradeTrackerScreen from "./screens/GradeTrackerScreen";
-import TaskPlannerScreen from "./screens/TaskPlannerScreen";
-import HomeScreen from "./screens/HomeScreen";
-import MyGradeTrackerScreen from "./screens/MyGradeTrackerScreen";
-import TimeTrackerScreen from "./screens/TimeTrackerScreen";
-import FinanceTrackerScreen from "./screens/FinanceTrackerScreen";
 import Admin from "./pages/Admin";
 import AppLayout from "./components/AppLayout";
-import DetectionPrompt from "./components/DetectionPrompt";
-import PermissionsPanel from "./components/PermissionsPanel";
-import TextCaptureWidget from "./components/TextCaptureWidget";
-import { DetectionProvider } from "./hooks/useTextDetection";
-import ShareTarget from "./pages/ShareTarget";
+import CGPATracker from "./pages/CGPATracker";
 import CourseMaterials from "./pages/CourseMaterials";
+import CrymsonScore from "./pages/CrymsonScore";
+import DashboardNew from "./pages/DashboardNew";
+import DetectionPrompt from "./components/DetectionPrompt";
+import FinanceTracker from "./pages/FinanceTracker";
+import Landing from "./pages/Landing.jsx";
+import PermissionsPanel from "./components/PermissionsPanel";
+import SemesterWrapped from "./pages/SemesterWrapped";
+import ShareTarget from "./pages/ShareTarget";
+import Social from "./pages/Social";
 import StudyPlanner from "./pages/StudyPlanner";
-import WellbeingScreen from "./screens/WellbeingScreen";
-import CrymsonScoreScreen from "./screens/CrymsonScoreScreen";
-import SemesterWrappedScreen from "./screens/SemesterWrappedScreen";
-import SocialScreen from "./screens/SocialScreen";
+import TextCaptureWidget from "./components/TextCaptureWidget";
+import TimeTracker from "./pages/TimeTracker";
+import ToDoPlanner from "./pages/ToDoPlanner";
+import UserCGPATracker from "./pages/UserCGPATracker";
+import Wellbeing from "./pages/Wellbeing";
+import { DetectionProvider } from "./hooks/useTextDetection";
 import { TimerProvider } from "./context/TimerContext";
 import {
   clearAuthSession,
@@ -270,7 +270,7 @@ function App() {
       <DetectionProvider>
         <div className={`App financeTheme page-${currentPage}`} data-theme={theme}>
           {currentPage === "landing" && (
-            <WelcomeScreen
+            <Landing
               onNavigateToCGPA={navigateToCGPA}
               onNavigateToTodo={navigateToTodo}
               onNavigateToTime={navigateToTimeTracker}
@@ -307,7 +307,7 @@ function App() {
               onToggleDark={handleToggleDark}
             >
               {currentPage === "home" && (
-                <HomeScreen
+                <DashboardNew
                   userId={activeUserId}
                   userName={activeUserName}
                   onNavigateToUserCGPA={navigateToUserCGPA}
@@ -320,30 +320,30 @@ function App() {
               )}
 
               {currentPage === "cgpa" && (
-                <GradeTrackerScreen />
+                <CGPATracker />
               )}
 
               {currentPage === "user-cgpa" && (
-                <MyGradeTrackerScreen
+                <UserCGPATracker
                   activeUserId={activeUserId}
                   onNavigateToCourseMaterials={navigateToCourseMaterials}
                 />
               )}
 
               {currentPage === "todo" && (
-                <TaskPlannerScreen
+                <ToDoPlanner
                   activeUserId={activeUserId}
                 />
               )}
 
               {currentPage === "time" && (
-                <TimeTrackerScreen
+                <TimeTracker
                   activeUserId={activeUserId}
                 />
               )}
 
               {currentPage === "finance" && (
-                <FinanceTrackerScreen
+                <FinanceTracker
                   activeUserId={activeUserId}
                 />
               )}
@@ -361,19 +361,19 @@ function App() {
               )}
 
               {currentPage === "wellbeing" && (
-                <WellbeingScreen />
+                <Wellbeing />
               )}
 
               {currentPage === "crymson-score" && (
-                <CrymsonScoreScreen activeUserId={activeUserId} />
+                <CrymsonScore activeUserId={activeUserId} />
               )}
 
               {currentPage === "semester-wrapped" && (
-                <SemesterWrappedScreen activeUserId={activeUserId} />
+                <SemesterWrapped activeUserId={activeUserId} />
               )}
 
               {currentPage === "social" && (
-                <SocialScreen activeUserId={activeUserId} />
+                <Social activeUserId={activeUserId} />
               )}
             </AppLayout>
           )}
