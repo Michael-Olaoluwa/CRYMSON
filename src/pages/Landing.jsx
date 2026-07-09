@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import apiClient from '../utils/apiClient';
 import TopBar from '../parts/welcome-page/TopBar';
 import BigHero from '../parts/welcome-page/BigHero';
 import ToolCards from '../parts/welcome-page/ToolCards';
@@ -9,9 +10,6 @@ import BottomBar from '../parts/welcome-page/BottomBar';
 import CreateAccountDialog from '../parts/welcome-page/CreateAccountDialog';
 import SignupSuccessDialog from '../parts/welcome-page/SignupSuccessDialog';
 import styles from './Landing.module.css';
-
-const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL
-  || `${window.location.protocol}//${window.location.hostname}:5000`;
 
 const INITIAL_FORM_DATA = {
   fullName: '',
@@ -114,22 +112,10 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
     setSignInError('');
 
     try {
-      const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          crymsonId: submittedUserId,
-          password: submittedPassword
-        })
+      const { data: payload } = await apiClient.post('/api/auth/login', {
+        crymsonId: submittedUserId,
+        password: submittedPassword
       });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload.message || 'Sign in failed. Please try again.');
-      }
 
       const accountId = payload?.user?.crymsonId || submittedUserId;
       const accountName = payload?.user?.fullName || '';
@@ -140,7 +126,7 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
       setPendingSignupCredentials({ crymsonId: '', password: '' });
       onLoginSuccess(accountId, accountName, token, Boolean(payload?.user?.isAdmin));
     } catch (error) {
-      setSignInError(error.message || 'Unable to sign in right now.');
+      setSignInError(error.response?.data?.message || error.message || 'Unable to sign in right now.');
     } finally {
       setIsSigningIn(false);
     }
@@ -171,25 +157,13 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
     setIsSigningUp(true);
 
     try {
-      const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
-          department: formData.department,
-          level: formData.level,
-          password: formData.password
-        })
+      const { data: payload } = await apiClient.post('/api/auth/signup', {
+        fullName: formData.fullName,
+        email: formData.email,
+        department: formData.department,
+        level: formData.level,
+        password: formData.password
       });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(payload.message || 'Unable to create account.');
-      }
 
       const newId = payload?.user?.crymsonId;
       setGeneratedCrymsonId(newId || 'Unavailable');
@@ -199,11 +173,11 @@ function Landing({ onNavigateToCGPA, onNavigateToTodo, onNavigateToTime, onNavig
       setIsSuccessOpen(true);
       setFormData(INITIAL_FORM_DATA);
     } catch (error) {
-      const isNetworkError = error instanceof TypeError;
+      const isNetworkError = !error.response;
       setSignupError(
         isNetworkError
           ? 'Cannot reach the server. Please make sure the backend is running on port 5000.'
-          : (error.message || 'Unable to create account right now.')
+          : (error.response?.data?.message || error.message || 'Unable to create account right now.')
       );
     } finally {
       setIsSigningUp(false);
