@@ -71,3 +71,113 @@ All call sites follow the same pattern: manual token fetch + `fetch(url, { heade
 
 **No confirmation dialogs were added or removed.** The existing `window.confirm()` on `handleDelete()` and `alert()` on `sendBulkEmail()` are preserved. The pre-existing gap ("no confirmation dialogs for destructive actions") noted in earlier audits remains unchanged.
 
+**Result:** All 9 sites migrated. Build passes. Committed as `f0acb2fc` with message `"P1.1 Batch 4: migrate Admin.js"`.
+
+---
+
+## Task 3 — Landing.jsx migration (P1.1 Batch 4, part 2)
+
+**Status:** ✅ Completed
+
+**Call sites catalog:**
+
+| # | Function | Method | Path | Auth | Notes |
+|---|----------|--------|------|------|-------|
+| 1 | `handleSignInSubmit()` | POST | `/api/auth/login` | None (public) | Sign-in; returns `{ token, user: { crymsonId, fullName, isAdmin } }` |
+| 2 | `handleSignupSubmit()` | POST | `/api/auth/signup` | None (public) | Signup; returns `{ user: { crymsonId } }` |
+
+**Before (handleSignInSubmit):**
+```js
+try {
+  const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ crymsonId: submittedUserId, password: submittedPassword })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.message || 'Sign in failed. Please try again.');
+  }
+  const accountId = payload?.user?.crymsonId || submittedUserId;
+  const accountName = payload?.user?.fullName || '';
+  const token = payload?.token;
+  setIsSignInOpen(false);
+  setCredentials({ crymsonId: '', password: '' });
+  setPendingSignupCredentials({ crymsonId: '', password: '' });
+  onLoginSuccess(accountId, accountName, token, Boolean(payload?.user?.isAdmin));
+} catch (error) {
+  setSignInError(error.message || 'Unable to sign in right now.');
+}
+```
+
+**After (handleSignInSubmit):**
+```js
+try {
+  const { data: payload } = await apiClient.post('/api/auth/login', {
+    crymsonId: submittedUserId, password: submittedPassword
+  });
+  const accountId = payload?.user?.crymsonId || submittedUserId;
+  const accountName = payload?.user?.fullName || '';
+  const token = payload?.token;
+  setIsSignInOpen(false);
+  setCredentials({ crymsonId: '', password: '' });
+  setPendingSignupCredentials({ crymsonId: '', password: '' });
+  onLoginSuccess(accountId, accountName, token, Boolean(payload?.user?.isAdmin));
+} catch (error) {
+  setSignInError(error.response?.data?.message || error.message || 'Unable to sign in right now.');
+}
+```
+
+**Before (handleSignupSubmit — relevant portion):**
+```js
+try {
+  const response = await fetch(`${AUTH_API_BASE_URL}/api/auth/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fullName, email, department, level, password })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.message || 'Unable to create account.');
+  }
+  const newId = payload?.user?.crymsonId;
+  ...
+} catch (error) {
+  const isNetworkError = error instanceof TypeError;
+  setSignupError(isNetworkError ? 'Cannot reach the server...' : (error.message || '...'));
+}
+```
+
+**After (handleSignupSubmit):**
+```js
+try {
+  const { data: payload } = await apiClient.post('/api/auth/signup', { fullName, email, department, level, password });
+  const newId = payload?.user?.crymsonId;
+  ...
+} catch (error) {
+  const isNetworkError = !error.response;
+  setSignupError(isNetworkError ? 'Cannot reach the server...' : (error.response?.data?.message || error.message || '...'));
+}
+```
+
+**Note on network error detection:** Changed from `error instanceof TypeError` (fetch-specific) to `!error.response` (axios-specific). This is not business logic — it's an implementation detail of the HTTP client swap. The user-facing message behavior is preserved.
+
+**Result:** Build passes. Committed as `9d663f2b` with message `"P1.1 Batch 4: migrate Landing.jsx"`.
+
+---
+
+### 🏆 P1.1 MILESTONE: Shared API Client Migration Complete 🏆
+
+All pages across the entire app now use `apiClient` (axios) instead of raw `fetch`. Files migrated across all batches:
+
+| Batch | Files |
+|-------|-------|
+| 1 | ToDoPlanner.js, DashboardNew.jsx |
+| 2 | CourseMaterials.jsx, FinanceTracker.js, TimeTracker.js |
+| 3 | Social.jsx, StudyPlanner.jsx |
+| 4 | **Admin.js**, **Landing.jsx** |
+
+Plus: StudentDashboard.jsx, WellbeingCheckIn.jsx, MyTrackerWidget.jsx (migrated earlier).
+
+All references to `getApiBaseUrl()`, `AUTH_API_BASE_URL`, and `getAuthToken()` for manual fetch calls have been removed from migrated files. Auth is now handled centrally via apiClient interceptors.
+

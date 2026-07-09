@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./ToDoPlanner.module.css";
 import apiClient from "../utils/apiClient";
+import useApiRequest from "../hooks/useApiRequest";
 
 const STORAGE_KEY_BASE = "crymson_todo_tasks";
 const NOTIFIED_TASKS_KEY_BASE = "crymson_todo_notified_tasks";
@@ -146,40 +147,36 @@ function ToDoPlanner({ activeUserId = "guest" }) {
     }
   }, [scopedTasksKey]);
 
+  const remoteTasksReq = useApiRequest();
+
   useEffect(() => {
-    let cancelled = false;
-
     const loadRemoteTasks = async () => {
-      try {
-        const { data } = await apiClient.get("/api/user-state/tasks");
-        if (cancelled) return;
-
-        const remoteTasks = Array.isArray(data.tasks) ? data.tasks : [];
-        if (remoteTasks.length > 0) {
-          const normalized = remoteTasks.map((task) => ({
-            ...task,
-            courseTag: String(task.courseTag || task.subject || ""),
-            priority: ["high", "medium", "low"].includes(
-              String(task.priority || "").toLowerCase(),
-            )
-              ? String(task.priority).toLowerCase()
-              : "medium",
-            recurrence: normalizeRecurrence(task.recurrence),
-          }));
-          setTasks(normalized);
-        }
-      } catch (error) {
-        // Keep local tasks if remote read fails.
-      } finally {
+      const response = await remoteTasksReq.execute(apiClient.get("/api/user-state/tasks"));
+      if (!response) {
         hasHydratedTaskStateRef.current = true;
+        return;
       }
+
+      const data = response.data;
+      const remoteTasks = Array.isArray(data.tasks) ? data.tasks : [];
+      if (remoteTasks.length > 0) {
+        const normalized = remoteTasks.map((task) => ({
+          ...task,
+          courseTag: String(task.courseTag || task.subject || ""),
+          priority: ["high", "medium", "low"].includes(
+            String(task.priority || "").toLowerCase(),
+          )
+            ? String(task.priority).toLowerCase()
+            : "medium",
+          recurrence: normalizeRecurrence(task.recurrence),
+        }));
+        setTasks(normalized);
+      }
+      hasHydratedTaskStateRef.current = true;
     };
 
     loadRemoteTasks();
-    return () => {
-      cancelled = true;
-    };
-  }, [activeUserId]);
+  }, [activeUserId, remoteTasksReq.execute]);
 
   useEffect(() => {
     localStorage.setItem(scopedTasksKey, JSON.stringify(tasks));
