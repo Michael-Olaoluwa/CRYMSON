@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getApiBaseUrl } from '../utils/apiBaseUrl';
-import { getAuthToken } from '../utils/authSession';
+import apiClient from '../utils/apiClient';
 import styles from './Admin.module.css';
-
-const AUTH_API_BASE_URL = getApiBaseUrl();
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
@@ -39,28 +36,18 @@ export default function Admin() {
     fetchHealth();
   }, [page, search]);
 
-  function getToken() {
-    return getAuthToken();
-  }
-
   async function fetchUsers() {
     setLoading(true);
     setError('');
     try {
-      const token = getToken();
       const query = new URLSearchParams({ page, limit: pagination.limit });
       if (search) query.append('search', search);
 
-      const response = await fetch(`${AUTH_API_BASE_URL}/api/admin/users?${query}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
+      const { data } = await apiClient.get(`/api/admin/users?${query}`);
       setUsers(data.users || []);
       setPagination(data.pagination || { total: 0, pages: 0, limit: 20 });
     } catch (err) {
-      setError(err.message || 'Failed to load users');
+      setError(err.response?.data?.message || 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -68,37 +55,26 @@ export default function Admin() {
 
   async function fetchSettings() {
     try {
-      const token = getToken();
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/settings`, { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Failed to load settings');
-      const data = await res.json();
+      const { data } = await apiClient.get('/api/admin/settings');
       setSettings(data.settings || {});
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to load settings');
     }
   }
 
   async function toggleMaintenance() {
     try {
-      const token = getToken();
       const newVal = !Boolean(settings.maintenance);
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/settings`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ maintenance: newVal })
-      });
-      if (!res.ok) throw new Error('Failed to update settings');
-      const data = await res.json();
+      const { data } = await apiClient.put('/api/admin/settings', { maintenance: newVal });
       setSettings(data.settings || {});
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to update settings');
     }
   }
 
   async function fetchHealth() {
     try {
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/health`);
-      const data = await res.json();
+      const { data } = await apiClient.get('/api/health');
       setHealth(data || null);
     } catch (err) {
       setError('Failed to fetch health');
@@ -108,16 +84,11 @@ export default function Admin() {
   async function fetchLogs(offset = 0, limit = logsLimit) {
     setLogsLoading(true);
     try {
-      const token = getToken();
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/logs?limit=${limit}&offset=${offset}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to load logs');
-      const data = await res.json();
+      const { data } = await apiClient.get(`/api/admin/logs?limit=${limit}&offset=${offset}`);
       setLogs(data.logs || []);
       setLogsOffset(offset);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to load logs');
     } finally {
       setLogsLoading(false);
     }
@@ -138,20 +109,10 @@ export default function Admin() {
     setBulkRunning(true);
     setError('');
     try {
-      const token = getToken();
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/bulk/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ filter: bulkFilter, subject: bulkSubject, body: bulkBody })
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to queue bulk email');
-      }
-      const data = await res.json();
+      const { data } = await apiClient.post('/api/admin/bulk/email', { filter: bulkFilter, subject: bulkSubject, body: bulkBody });
       alert(`Queued ${data.queued || 0} emails.`);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to queue bulk email');
     } finally {
       setBulkRunning(false);
     }
@@ -162,22 +123,12 @@ export default function Admin() {
     setCreatingUser(true);
     setError('');
     try {
-      const token = getToken();
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(createForm)
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to create user');
-      }
-      const data = await res.json();
+      const { data } = await apiClient.post('/api/admin/users', createForm);
       setUsers((prev) => [data.user, ...prev]);
       setCreateForm({ fullName: '', email: '', department: '', level: '', password: '', isAdmin: false });
       setShowCreateForm(false);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to create user');
     } finally {
       setCreatingUser(false);
     }
@@ -186,28 +137,19 @@ export default function Admin() {
   async function handleDelete(crymsonId) {
     if (!window.confirm(`Delete user ${crymsonId}?`)) return;
     try {
-      const token = getToken();
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/users/${crymsonId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Failed to delete user');
+      await apiClient.delete(`/api/admin/users/${crymsonId}`);
       setUsers((prev) => prev.filter(u => u.crymsonId !== crymsonId));
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to delete user');
     }
   }
 
   async function toggleFeatureFlag(key, value) {
     try {
-      const token = getToken();
-      const res = await fetch(`${AUTH_API_BASE_URL}/api/admin/settings`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ [key]: value })
-      });
-      if (!res.ok) throw new Error('Failed to update feature flag');
-      const data = await res.json();
+      const { data } = await apiClient.put('/api/admin/settings', { [key]: value });
       setSettings(data.settings || {});
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || 'Failed to update feature flag');
     }
   }
 
