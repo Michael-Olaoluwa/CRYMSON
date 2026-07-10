@@ -36,7 +36,7 @@ function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin
   const displayName = userName || userId || 'User';
   const [showBadge, setShowBadge] = useState(true);
 
-  const visibleNav = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
+  const visibleNav = NAV_ITEMS.filter(item => isAdmin ? item.adminOnly : !item.adminOnly);
 
   return (
     <div className={styles.layout}>
