@@ -1,4 +1,5 @@
-const CACHE = "crymson-v1";
+const CACHE_VERSION = 2;
+const CACHE = `crymson-v${CACHE_VERSION}`;
 
 const STATIC_ASSETS = /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/;
 

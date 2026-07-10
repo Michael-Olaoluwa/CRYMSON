@@ -19,8 +19,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      clearAuthSession();
-      window.location.reload();
+      const token = getAuthToken();
+      if (token) {
+        clearAuthSession();
+        window.location.reload();
+      }
     }
     return Promise.reject(error);
   },
