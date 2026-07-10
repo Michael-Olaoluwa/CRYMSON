@@ -9,7 +9,7 @@ async function uploadMaterial(req, res) {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
     const { courseCode, title, type, tags } = req.body;
-    const crymsonId = req.user.crymsonId;
+    const crymsonId = req.auth.crymsonId;
 
     if (!courseCode || !title) {
       await fs.unlink(req.file.path).catch(() => {});
@@ -38,7 +38,7 @@ async function uploadMaterial(req, res) {
 async function listMaterials(req, res) {
   try {
     const { courseCode } = req.params;
-    const crymsonId = req.user.crymsonId;
+    const crymsonId = req.auth.crymsonId;
 
     const filter = { crymsonId, courseCode: courseCode.toUpperCase().trim() };
     if (req.query.type) filter.type = req.query.type;
@@ -59,7 +59,7 @@ async function getMaterial(req, res) {
   try {
     const material = await CourseMaterial.findOne({
       _id: req.params.id,
-      crymsonId: req.user.crymsonId,
+      crymsonId: req.auth.crymsonId,
     });
 
     if (!material) return res.status(404).json({ error: "Material not found" });
@@ -75,7 +75,7 @@ async function deleteMaterial(req, res) {
   try {
     const material = await CourseMaterial.findOneAndDelete({
       _id: req.params.id,
-      crymsonId: req.user.crymsonId,
+      crymsonId: req.auth.crymsonId,
     });
 
     if (!material) return res.status(404).json({ error: "Material not found" });
@@ -91,7 +91,7 @@ async function deleteMaterial(req, res) {
 
 async function searchMaterials(req, res) {
   try {
-    const crymsonId = req.user.crymsonId;
+    const crymsonId = req.auth.crymsonId;
     const q = req.query.q?.trim();
 
     if (!q) return res.json([]);

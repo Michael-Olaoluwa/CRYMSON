@@ -3,7 +3,7 @@ const CourseNote = require("../models/CourseNote");
 async function createNote(req, res) {
   try {
     const { courseCode, title, content, tags } = req.body;
-    const crymsonId = req.user.crymsonId;
+    const crymsonId = req.auth.crymsonId;
 
     if (!courseCode || !title) {
       return res.status(400).json({ error: "courseCode and title are required" });
@@ -27,7 +27,7 @@ async function createNote(req, res) {
 async function listNotes(req, res) {
   try {
     const { courseCode } = req.params;
-    const crymsonId = req.user.crymsonId;
+    const crymsonId = req.auth.crymsonId;
 
     const notes = await CourseNote.find({
       crymsonId,
@@ -45,7 +45,7 @@ async function getNote(req, res) {
   try {
     const note = await CourseNote.findOne({
       _id: req.params.id,
-      crymsonId: req.user.crymsonId,
+      crymsonId: req.auth.crymsonId,
     });
 
     if (!note) return res.status(404).json({ error: "Note not found" });
@@ -62,7 +62,7 @@ async function updateNote(req, res) {
     const { title, content, tags } = req.body;
 
     const note = await CourseNote.findOneAndUpdate(
-      { _id: req.params.id, crymsonId: req.user.crymsonId },
+      { _id: req.params.id, crymsonId: req.auth.crymsonId },
       {
         $set: {
           ...(title !== undefined && { title: title.trim() }),
@@ -87,7 +87,7 @@ async function deleteNote(req, res) {
   try {
     const note = await CourseNote.findOneAndDelete({
       _id: req.params.id,
-      crymsonId: req.user.crymsonId,
+      crymsonId: req.auth.crymsonId,
     });
 
     if (!note) return res.status(404).json({ error: "Note not found" });
@@ -101,7 +101,7 @@ async function deleteNote(req, res) {
 
 async function searchNotes(req, res) {
   try {
-    const crymsonId = req.user.crymsonId;
+    const crymsonId = req.auth.crymsonId;
     const q = req.query.q?.trim();
 
     if (!q) return res.json([]);

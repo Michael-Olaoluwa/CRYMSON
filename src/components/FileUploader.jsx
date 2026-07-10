@@ -37,7 +37,7 @@ export default function FileUploader({ courseCode, onUploaded }) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Upload failed");
+        throw new Error(data.error || data.message || "Upload failed");
       }
 
       const material = await res.json();

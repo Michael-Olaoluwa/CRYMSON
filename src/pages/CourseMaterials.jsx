@@ -130,6 +130,12 @@ export default function CourseMaterials({ courseCode: initialCode, onBack }) {
 
         <div className={styles.nav}>
           <button
+            className={styles.navItem}
+            onClick={() => { if (onBack) onBack(); }}
+          >
+            &larr; Dashboard
+          </button>
+          <button
             className={`${styles.navItem} ${!code ? styles.navActive : ""}`}
             onClick={() => { setCourseCode(""); setActiveTab("materials"); }}
           >
