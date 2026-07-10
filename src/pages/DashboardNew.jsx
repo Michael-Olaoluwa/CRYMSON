@@ -61,7 +61,7 @@ function calcFinalScore(course) {
 function formatMoney(value) {
   const n = Number(value);
   return new Intl.NumberFormat('en-US', {
-    style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0,
+    style: 'currency', currency: 'NGN', minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(Number.isFinite(n) ? n : 0);
 }
 

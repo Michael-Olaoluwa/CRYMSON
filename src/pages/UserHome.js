@@ -220,7 +220,7 @@ const formatMoney = (value) => {
 
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'NGN',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(safeValue);
