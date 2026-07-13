@@ -46,6 +46,7 @@
     "electron-builder": "^26.15.3",
     "electron-store": "^11.0.2",
     "postcss": "^8.5.8",
+    "puppeteer": "^25.3.0",
     "react-doctor": "^0.5.1"
   }
 }

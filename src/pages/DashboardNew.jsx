@@ -81,14 +81,14 @@ const Icons = {
 /* ── Insight Card ── */
 function InsightCard({ insight }) {
   const typeStyles = {
-    warning: { border: 'rgba(245,158,11,0.3)', bg: 'rgba(245,158,11,0.08)', icon: '#f59e0b' },
-    achievement: { border: 'rgba(52,211,153,0.3)', bg: 'rgba(52,211,153,0.08)', icon: '#34d399' },
-    alert: { border: 'rgba(248,113,113,0.3)', bg: 'rgba(248,113,113,0.08)', icon: '#f87171' },
-    info: { border: 'rgba(96,165,250,0.3)', bg: 'rgba(96,165,250,0.08)', icon: '#60a5fa' },
-    concern: { border: 'rgba(248,113,113,0.3)', bg: 'rgba(248,113,113,0.08)', icon: '#f87171' },
-    goal: { border: 'rgba(167,139,250,0.3)', bg: 'rgba(167,139,250,0.08)', icon: '#a78bfa' },
-    reminder: { border: 'rgba(96,165,250,0.3)', bg: 'rgba(96,165,250,0.08)', icon: '#60a5fa' },
-    tip: { border: 'rgba(52,211,153,0.3)', bg: 'rgba(52,211,153,0.08)', icon: '#34d399' },
+    warning:   { border: 'var(--color-warning-dim)', bg: 'var(--color-warning-dim)', icon: 'var(--color-warning)' },
+    achievement:{ border: 'var(--color-success-dim)', bg: 'var(--color-success-dim)', icon: 'var(--color-success)' },
+    alert:     { border: 'var(--color-error-dim)', bg: 'var(--color-error-dim)', icon: 'var(--color-error)' },
+    info:      { border: 'var(--color-accent-subtle)', bg: 'var(--color-accent-subtle)', icon: 'var(--color-accent)' },
+    concern:   { border: 'var(--color-error-dim)', bg: 'var(--color-error-dim)', icon: 'var(--color-error)' },
+    goal:      { border: 'var(--color-accent-muted)', bg: 'var(--color-accent-subtle)', icon: 'var(--color-accent)' },
+    reminder:  { border: 'var(--color-accent-subtle)', bg: 'var(--color-accent-subtle)', icon: 'var(--color-accent)' },
+    tip:       { border: 'var(--color-success-dim)', bg: 'var(--color-success-dim)', icon: 'var(--color-success)' },
   };
   const s = typeStyles[insight.type] || typeStyles.info;
 
@@ -125,7 +125,7 @@ function CgpaWidget({ cgpa, onNavigate }) {
         </div>
         <div className={styles.cgpaRing}>
           <svg width="72" height="72" viewBox="0 0 36 36">
-            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3"/>
+            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--color-hover)" strokeWidth="3"/>
             <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={color} strokeWidth="3" strokeDasharray={`${pct}, 100`} strokeLinecap="round"/>
           </svg>
           <span className={styles.cgpaRingLabel}>{pct}%</span>
@@ -153,11 +153,11 @@ function TasksWidget({ tasks, onNavigate }) {
           <span className={styles.taskMetricLabel}>Pending</span>
         </div>
         <div className={styles.taskMetric}>
-          <span className={styles.taskMetricValue} style={{ color: tasks.dueSoon > 0 ? '#f59e0b' : undefined }}>{tasks.dueSoon}</span>
+          <span className={styles.taskMetricValue} style={{ color: tasks.dueSoon > 0 ? 'var(--color-warning)' : undefined }}>{tasks.dueSoon}</span>
           <span className={styles.taskMetricLabel}>Due Soon</span>
         </div>
         <div className={styles.taskMetric}>
-          <span className={styles.taskMetricValue} style={{ color: tasks.overdue > 0 ? '#f87171' : undefined }}>{tasks.overdue}</span>
+          <span className={styles.taskMetricValue} style={{ color: tasks.overdue > 0 ? 'var(--color-error)' : undefined }}>{tasks.overdue}</span>
           <span className={styles.taskMetricLabel}>Overdue</span>
         </div>
       </div>
@@ -239,7 +239,7 @@ function FinanceWidget({ finance, onNavigate }) {
 
 function ScoreWidget({ score }) {
   if (!score) return null;
-  const tierColor = TIER_COLORS[score.tier] || '#a78bfa';
+  const tierColor = TIER_COLORS[score.tier] || 'var(--color-accent)';
   return (
     <div className={`${styles.widget} ${styles.widgetScore}`} style={{ borderColor: tierColor + '33' }}>
       <div className={styles.scoreTop}>
@@ -417,8 +417,8 @@ export default function DashboardNew({
           </p>
         </div>
         {score && (
-          <div className={styles.scorePill} style={{ background: (TIER_COLORS[score.tier] || '#a78bfa') + '22', borderColor: (TIER_COLORS[score.tier] || '#a78bfa') + '44' }}>
-            <span className={styles.scorePillValue} style={{ color: TIER_COLORS[score.tier] || '#a78bfa' }}>{score.score}</span>
+          <div className={styles.scorePill} style={{ background: `color-mix(in srgb, ${TIER_COLORS[score.tier] || 'var(--color-accent)'} 12%, transparent)`, borderColor: `color-mix(in srgb, ${TIER_COLORS[score.tier] || 'var(--color-accent)'} 25%, transparent)` }}>
+            <span className={styles.scorePillValue} style={{ color: TIER_COLORS[score.tier] || 'var(--color-accent)' }}>{score.score}</span>
             <span className={styles.scorePillLabel}>{TIER_LABELS[score.tier] || score.tier}</span>
           </div>
         )}

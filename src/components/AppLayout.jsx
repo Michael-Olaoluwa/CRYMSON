@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './AppLayout.module.css';
 
 const Icons = {
@@ -34,7 +34,6 @@ const NAV_ITEMS = [
 
 function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin = false, darkMode, onToggleDark, children }) {
   const displayName = userName || userId || 'User';
-  const [showBadge, setShowBadge] = useState(true);
 
   const visibleNav = NAV_ITEMS.filter(item => isAdmin ? item.adminOnly : !item.adminOnly);
 
@@ -80,8 +79,6 @@ function AppLayout({ activePage, onNavigate, onLogout, userId, userName, isAdmin
           <span className={styles.navLabel}>Log Out</span>
         </button>
       </aside>
-
-      {showBadge && <div className={styles.badge} onClick={() => setShowBadge(false)}>Pro</div>}
 
       <main className={styles.main}>
         {children}
