@@ -5,6 +5,7 @@
   gap: var(--space-6);
   max-width: 960px;
   margin: 0 auto;
+  animation: fadeIn var(--transition-enter) both;
 }
 
 .loadingState {
@@ -20,6 +21,8 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-4);
+  animation: slideUp var(--transition-enter) both;
+  animation-delay: 60ms;
 }
 
 .greetingArea {
@@ -140,6 +143,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
+  animation: slideUp var(--transition-enter) both;
+  animation-delay: 120ms;
 }
 
 @media (max-width: 900px) {
@@ -198,10 +203,12 @@
   gap: var(--space-3);
   height: 100%;
   box-sizing: border-box;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .widget:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
   border-color: var(--color-border-subtle);
 }
 
@@ -698,6 +705,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  animation: slideUp var(--transition-enter) both;
+  animation-delay: 200ms;
 }
 
 .sectionLabel {
@@ -729,7 +738,11 @@
   cursor: pointer;
   border-radius: var(--radius-md);
   min-height: var(--btn-height-lg);
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+
+.actionBtn:active {
+  transform: scale(0.97);
 }
 
 .actionBtn:hover {

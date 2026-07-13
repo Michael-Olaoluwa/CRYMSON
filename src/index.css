@@ -150,10 +150,14 @@
   --duration-fast: 150ms;
   --duration-normal: 200ms;
   --duration-slow: 300ms;
+  --duration-enter: 400ms;
   --ease-default: cubic-bezier(0.22, 0.76, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-fast: var(--duration-fast) var(--ease-default);
   --transition-normal: var(--duration-normal) var(--ease-default);
   --transition-slow: var(--duration-slow) var(--ease-default);
+  --transition-enter: var(--duration-enter) var(--ease-out);
 
   /* ── Component Tokens ───────────────────────────────────── */
   --btn-height: 36px;
@@ -416,3 +420,40 @@ svg {
   text-transform: uppercase;
   line-height: var(--leading-normal);
 }
+
+/* ── Keyframes ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Page entrance animation ────────────────────────────── */
+.animate-enter {
+  animation: fadeIn var(--transition-enter) both;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-enter) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-enter) both;
+}
+
+/* ── Stagger delays (for child lists) ───────────────────── */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }

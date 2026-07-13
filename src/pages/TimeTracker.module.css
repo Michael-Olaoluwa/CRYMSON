@@ -1,15 +1,15 @@
 .page {
   color: var(--color-text);
+  animation: fadeIn var(--transition-enter) both;
 }
 
 /* ── Header ──────────────────────────────────────────────── */
 .header {
-  max-width: 1060px;
+  max-width: var(--page-max-width);
   margin: 0 auto var(--space-6);
   display: flex;
-  justify-content: space-between;
-  gap: var(--space-5);
-  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .eyebrow {
@@ -41,11 +41,13 @@
 
 /* ── Grid ────────────────────────────────────────────────── */
 .grid {
-  max-width: 1060px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: var(--space-6);
+  animation: slideUp var(--transition-enter) both;
+  animation-delay: 80ms;
 }
 
 /* ── Card ────────────────────────────────────────────────── */
@@ -54,6 +56,12 @@
   border-radius: var(--radius-lg);
   background: var(--color-card);
   padding: var(--space-6);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .cardLabel {
@@ -168,7 +176,13 @@
   font-size: var(--text-sm);
   min-height: var(--btn-height);
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.primaryButton:active,
+.secondaryButton:active,
+.saveButton:active {
+  transform: scale(0.97);
 }
 
 .primaryButton {
@@ -346,6 +360,12 @@
   align-items: center;
   font-size: var(--text-sm);
   color: var(--color-text);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.courseTotalsItem:hover {
+  background: var(--color-hover);
+  border-color: var(--color-accent-muted);
 }
 
 .historyList {
@@ -354,6 +374,8 @@
   list-style: none;
   display: grid;
   gap: var(--space-2);
+  animation: slideUp var(--transition-enter) both;
+  animation-delay: 200ms;
 }
 
 .historyItem {
@@ -365,6 +387,12 @@
   justify-content: space-between;
   gap: var(--space-4);
   align-items: center;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.historyItem:hover {
+  background: var(--color-hover);
+  border-color: var(--color-accent-muted);
 }
 
 .historyNote {

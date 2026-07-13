@@ -255,7 +255,6 @@ function App() {
   };
 
   const shouldShowShareTarget = currentPage === "share-target";
-  const shouldShowCourseMaterials = currentPage === "course-materials";
 
   const handleLogout = () => {
     clearSessionStorage();
@@ -285,14 +284,7 @@ function App() {
             <ShareTarget />
           )}
 
-          {shouldShowCourseMaterials && (
-            <CourseMaterials
-              courseCode={activeCourseCode}
-              onBack={() => setCurrentPage("home")}
-            />
-          )}
-
-          {currentPage !== "landing" && !shouldShowShareTarget && !shouldShowCourseMaterials && (
+          {currentPage !== "landing" && !shouldShowShareTarget && (
             <AppLayout
               activePage={currentPage}
               userId={activeUserId}
@@ -370,6 +362,13 @@ function App() {
 
               {currentPage === "social" && (
                 <Social activeUserId={activeUserId} />
+              )}
+
+              {currentPage === "course-materials" && (
+                <CourseMaterials
+                  courseCode={activeCourseCode}
+                  onBack={() => setCurrentPage("home")}
+                />
               )}
             </AppLayout>
           )}

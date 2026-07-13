@@ -113,11 +113,18 @@ export default function CourseMaterials({ courseCode: initialCode, onBack }) {
 
   return (
     <div className={styles.page}>
-      <div className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>Course Hub</h2>
+      <div className={styles.toolbar}>
+        <div className={styles.toolbarLeft}>
+          <h2 className={styles.toolbarTitle}>Course Hub</h2>
+          {code && (
+            <div className={styles.currentCourse}>
+              <span className={styles.currentCourseCode}>{code}</span>
+              <button className={styles.changeBtn} onClick={() => setCourseCode("")}>
+                Change
+              </button>
+            </div>
+          )}
         </div>
-
         <div className={styles.searchBox}>
           <SearchIcon />
           <input
@@ -127,30 +134,6 @@ export default function CourseMaterials({ courseCode: initialCode, onBack }) {
             placeholder="Search materials & notes..."
           />
         </div>
-
-        <div className={styles.nav}>
-          <button
-            className={styles.navItem}
-            onClick={() => { if (onBack) onBack(); }}
-          >
-            &larr; Dashboard
-          </button>
-          <button
-            className={`${styles.navItem} ${!code ? styles.navActive : ""}`}
-            onClick={() => { setCourseCode(""); setActiveTab("materials"); }}
-          >
-            <SearchIcon /> Browse All
-          </button>
-        </div>
-
-        {code && (
-          <div className={styles.currentCourse}>
-            <span className={styles.currentCourseCode}>{code}</span>
-            <button className={styles.changeBtn} onClick={() => setCourseCode("")}>
-              Change
-            </button>
-          </div>
-        )}
       </div>
 
       <div className={styles.main}>
