@@ -7,6 +7,11 @@
 
 /* ── Sidebar ────────────────────────────────────────────── */
 .sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
   width: 220px;
   min-width: 220px;
   background: var(--color-surface);
@@ -237,6 +242,9 @@
   }
 
   .sidebar {
+    position: static;
+    height: auto;
+    overflow-y: visible;
     width: 100%;
     min-width: 100%;
     flex-direction: row;
