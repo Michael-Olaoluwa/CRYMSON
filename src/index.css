@@ -120,6 +120,9 @@
   --color-text-muted: #6b6573;
   --color-text-inverse: #ffffff;
 
+  /* ── Color Scheme (for form controls / scrollbars) ─────── */
+  color-scheme: dark;
+
   /* ── Color: Accent (Burgundy — adapted for dark surface) ── */
   --color-accent: #c93060;
   --color-accent-hover: #d94070;
@@ -257,6 +260,7 @@
 
 /* ── Light Theme ──────────────────────────────────────────── */
 [data-theme="light"] {
+  color-scheme: light;
   --color-bg: #f8f5f0;
   --color-surface: #f4f1ed;
   --color-card: #ffffff;
@@ -294,6 +298,43 @@
 
   --sidebar-active-gradient: linear-gradient(135deg, var(--color-accent-subtle), transparent);
   --sidebar-active-border: var(--color-accent-subtle);
+
+  /* ── Legacy aliases (re-declared for light mode dynamic re-evaluation) ── */
+  --color-accent-fallback: var(--color-accent);
+  --accent: var(--color-accent);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-secondary);
+  --border-color: var(--color-border);
+  --card-bg: var(--color-card);
+  --bg-subtle: var(--color-surface);
+
+  --app-bg: var(--color-bg);
+  --sidebar-bg: var(--color-surface);
+  --sidebar-border: var(--color-border);
+  --sidebar-text: var(--color-text);
+  --sidebar-muted: var(--color-text-secondary);
+  --sidebar-hover-bg: var(--color-hover);
+  --sidebar-active-gradient: linear-gradient(135deg, var(--color-accent-subtle), transparent);
+  --sidebar-active-border: var(--color-accent-subtle);
+  --sidebar-icon-active: var(--color-accent);
+  --logout-hover-color: var(--color-error);
+  --main-bg: var(--color-bg);
+  --main-text: var(--color-text);
+
+  --clr-bg: var(--color-bg);
+  --clr-bg-secondary: var(--color-surface);
+  --clr-bg-card: var(--color-card);
+  --clr-bg-elevated: var(--color-elevated);
+  --clr-bg-hover: var(--color-hover);
+  --clr-text: var(--color-text);
+  --clr-text-secondary: var(--color-text-secondary);
+  --clr-text-muted: var(--color-text-muted);
+  --clr-text-inverse: var(--color-text-inverse);
+  --clr-border: var(--color-border);
+  --clr-accent: var(--color-accent);
+  --clr-accent-light: var(--color-accent-hover);
+  --clr-accent-red: var(--color-error);
+  --clr-accent-green: var(--color-success);
 }
 
 /* ── Reset & Base ─────────────────────────────────────────── */

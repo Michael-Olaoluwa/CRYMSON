@@ -15,18 +15,18 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #60a5fa;
+  color: var(--color-accent);
   margin: 0 0 4px;
 }
 .title {
   font-size: 26px;
   font-weight: 700;
   margin: 0 0 6px;
-  color: #f1f5f9;
+  color: var(--color-text);
 }
 .subtitle {
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--color-text-secondary);
   margin: 0;
   max-width: 500px;
   line-height: 1.5;
@@ -37,7 +37,8 @@
 .tabBar {
   display: flex;
   gap: 4px;
-  background: rgba(255,255,255,0.04);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 4px;
   overflow-x: auto;
@@ -48,7 +49,7 @@
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: #94a3b8;
+  color: var(--color-text-muted);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -56,12 +57,12 @@
   white-space: nowrap;
 }
 .tab:hover {
-  color: #e2e8f0;
-  background: rgba(255,255,255,0.06);
+  color: var(--color-text-secondary);
+  background: var(--color-hover);
 }
 .tabActive {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
 }
 .section {
   margin-bottom: 24px;
@@ -69,41 +70,41 @@
 .sectionTitle {
   font-size: 15px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--color-text);
   margin: 0 0 12px;
 }
 .card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
 }
 .msg {
   padding: 8px 12px;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-muted);
   border-radius: 8px;
   font-size: 13px;
-  color: #60a5fa;
+  color: var(--color-accent);
   margin-bottom: 16px;
 }
 .input {
   width: 100%;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(0,0,0,0.2);
-  color: #e2e8f0;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: 13px;
   outline: none;
   box-sizing: border-box;
 }
 .input:focus {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: var(--color-accent);
 }
 .input::placeholder {
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 select.input {
   cursor: pointer;
@@ -122,8 +123,8 @@ select.input {
   margin-bottom: 16px;
 }
 .searchResults {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 8px;
   margin-bottom: 16px;
@@ -137,13 +138,13 @@ select.input {
   transition: background 0.15s;
 }
 .userRow:hover {
-  background: rgba(255,255,255,0.04);
+  background: var(--color-hover);
 }
 .tag {
   display: inline-block;
   font-size: 11px;
-  color: #64748b;
-  background: rgba(255,255,255,0.05);
+  color: var(--color-text-secondary);
+  background: var(--color-hover);
   padding: 2px 6px;
   border-radius: 4px;
   margin-left: 8px;
@@ -159,26 +160,26 @@ select.input {
   white-space: nowrap;
 }
 .btn {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
 }
 .btn:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.25);
+  background: var(--color-accent-muted);
 }
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .btnPrimary {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 .btnPrimary:hover {
-  background: rgba(59, 130, 246, 0.35);
+  background: var(--color-accent-hover);
 }
 .btnDanger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  background: var(--color-error-dim);
+  color: var(--color-error);
 }
 .btnDanger:hover {
   background: rgba(239, 68, 68, 0.25);
@@ -190,8 +191,8 @@ select.input {
   font-weight: 500;
   cursor: pointer;
   border: none;
-  background: rgba(239, 68, 68, 0.12);
-  color: #f87171;
+  background: var(--color-error-dim);
+  color: var(--color-error);
   transition: all 0.15s;
 }
 .btnDangerSmall:hover {
@@ -203,7 +204,7 @@ select.input {
 }
 .muted {
   font-size: 13px;
-  color: #64748b;
+  color: var(--color-text-muted);
   margin: 4px 0;
 }
 .groupGrid {
@@ -216,15 +217,15 @@ select.input {
   flex-direction: column;
   gap: 4px;
   padding: 12px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .groupCard:hover, .groupCardActive {
-  border-color: rgba(59, 130, 246, 0.3);
-  background: rgba(59, 130, 246, 0.05);
+  border-color: var(--color-accent);
+  background: var(--color-hover);
 }
 .groupHeader {
   display: flex;
@@ -243,7 +244,8 @@ select.input {
   flex-direction: column;
   gap: 2px;
   padding: 10px;
-  background: rgba(255,255,255,0.03);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 12px;
 }
@@ -263,29 +265,29 @@ select.input {
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   font-size: 13px;
 }
 .lbRank {
   font-weight: 700;
-  color: #60a5fa;
+  color: var(--color-accent);
   min-width: 32px;
 }
 .lbUser {
   flex: 1;
-  color: #e2e8f0;
+  color: var(--color-text-secondary);
 }
 .lbStat {
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--color-text);
   min-width: 60px;
   text-align: right;
 }
 .lbStatSmall {
   font-size: 11px;
-  color: #64748b;
+  color: var(--color-text-muted);
   min-width: 60px;
   text-align: right;
 }
@@ -301,12 +303,12 @@ select.input {
   align-items: center;
   padding: 8px 0;
   font-size: 13px;
-  color: #cbd5e1;
+  color: var(--color-text);
   cursor: pointer;
 }
 .privacyRow input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: #60a5fa;
+  accent-color: var(--color-accent);
   cursor: pointer;
 }

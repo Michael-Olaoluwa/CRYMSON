@@ -27,7 +27,7 @@
 	padding: 40px;
 	max-width: 500px;
 	width: 90%;
-	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+	box-shadow: var(--shadow-lg);
 	animation: slideUp 0.4s ease-out;
 	position: relative;
 }
@@ -150,7 +150,7 @@
 .btnNext:hover {
 	filter: brightness(0.85);
 	transform: translateY(-1px);
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+	box-shadow: var(--shadow-md);
 }
 
 .btnNo {
