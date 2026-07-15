@@ -3,6 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { computeCrymsonScore, getScoreHistory, getTier } from '../utils/crymsonScore';
 import { getStudyStreakStats } from '../utils/timeFormatting';
 import { getAuthToken } from '../utils/authSession';
+import { getGradePoint, calcFinalScore, calcSemesterGpa } from '../utils/academicEngine';
 import styles from './CrymsonScore.module.css';
 
 const AUTH_API_BASE_URL = process.env.REACT_APP_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -35,19 +36,8 @@ function getCgpaSummary(activeUserId) {
     let totalUnits = 0, totalWeighted = 0;
     for (const course of courses) {
       const units = Number(course?.creditUnits);
-      const directScore = Number(course?.score);
-      let finalScore;
-      if (Number.isFinite(directScore)) {
-        finalScore = directScore;
-      } else {
-        const t1 = Number(course?.test1Score), t2 = Number(course?.test2Score), e = Number(course?.examScore);
-        if (Number.isFinite(t1) && Number.isFinite(t2) && Number.isFinite(e)) {
-          finalScore = t1 + t2 + e;
-        }
-      }
-      const gradePoint = Number.isFinite(finalScore)
-        ? (finalScore >= 70 ? 5 : finalScore >= 60 ? 4 : finalScore >= 50 ? 3 : finalScore >= 45 ? 2 : finalScore >= 40 ? 1 : 0)
-        : null;
+      const finalScore = calcFinalScore(course);
+      const gradePoint = getGradePoint(finalScore);
       if (Number.isFinite(units) && units > 0 && Number.isFinite(gradePoint)) {
         totalUnits += units;
         totalWeighted += units * gradePoint;

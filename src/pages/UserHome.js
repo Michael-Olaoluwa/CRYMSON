@@ -5,6 +5,7 @@ import TimerWidget from '../components/TimerWidget';
 import { getAuthToken } from '../utils/authSession';
 import { iconMap, WaveIcon, CalmIcon, ExhaleIcon, FireIcon } from '../utils/icons';
 import { computeCrymsonScore, getTier } from '../utils/crymsonScore';
+import { getGradePoint, calcFinalScore, resolveClassification, calcSemesterGpa } from '../utils/academicEngine';
 import ExtensionBridge from '../components/ExtensionBridge';
 
 const BadgeIcon = ({ icon }) => {
@@ -57,43 +58,6 @@ const MOOD_TONES = {
   motivated: 'Energy is high. This is a great day to push harder.'
 };
 
-const getGradePoint = (score) => {
-  const numericScore = Number(score);
-  if (!Number.isFinite(numericScore)) return null;
-  if (numericScore >= 70) return 5;
-  if (numericScore >= 60) return 4;
-  if (numericScore >= 50) return 3;
-  if (numericScore >= 45) return 2;
-  if (numericScore >= 40) return 1;
-  return 0;
-};
-
-const calculateFinalScore = (course) => {
-  const directScore = Number(course?.score);
-  if (Number.isFinite(directScore)) {
-    return directScore;
-  }
-
-  const test1 = Number(course?.test1Score);
-  const test2 = Number(course?.test2Score);
-  const exam = Number(course?.examScore);
-  if (!Number.isFinite(test1) || !Number.isFinite(test2) || !Number.isFinite(exam)) {
-    return null;
-  }
-
-  return test1 + test2 + exam;
-};
-
-const resolveClassification = (value) => {
-  if (!Number.isFinite(value)) return null;
-  if (value >= 4.5) return 'First Class';
-  if (value >= 3.5) return 'Second Class Upper';
-  if (value >= 2.4) return 'Second Class Lower';
-  if (value >= 1.5) return 'Third Class';
-  if (value > 0) return 'Pass';
-  return null;
-};
-
 const getUserCgpaStateKey = (activeUserId) => `${USER_CGPA_STATE_KEY_BASE}:${activeUserId || 'guest'}`;
 
 const getCgpaSummary = (activeUserId) => {
@@ -127,7 +91,7 @@ const getCgpaSummary = (activeUserId) => {
 
     courses.forEach((course) => {
       const units = Number(course?.creditUnits);
-      const finalScore = calculateFinalScore(course);
+      const finalScore = calcFinalScore(course);
       const gradePoint = getGradePoint(finalScore);
 
       if (Number.isFinite(units) && units > 0 && Number.isFinite(gradePoint)) {

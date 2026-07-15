@@ -1,27 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import apiClient from '../../utils/apiClient';
+import { getGradePoint, resolveClassification, calcSemesterGpa } from '../../utils/academicEngine';
 
 const CGPA_TRACKER_STATE_KEY = 'crymson_cgpa_tracker_state_v1';
-
-function getGradePoint(score) {
-  const numericScore = Number(score);
-  if (!Number.isFinite(numericScore)) return null;
-  if (numericScore >= 70) return 5;
-  if (numericScore >= 60) return 4;
-  if (numericScore >= 50) return 3;
-  if (numericScore >= 45) return 2;
-  if (numericScore >= 40) return 1;
-  return 0;
-}
-
-function resolveClassification(value) {
-  if (value >= 4.5) return 'First Class';
-  if (value >= 3.5) return 'Second Class Upper';
-  if (value >= 2.4) return 'Second Class Lower';
-  if (value >= 1.5) return 'Third Class';
-  if (value > 0) return 'Pass';
-  return null;
-}
 
 function distributeScore(score) {
   const s = Number(score);
@@ -67,23 +48,7 @@ function buildMigrationPayload() {
 }
 
 function computeCgpa(allCourses) {
-  let totalUnits = 0;
-  let totalWeighted = 0;
-  (allCourses || []).forEach((c) => {
-    const units = Number(c.creditUnits);
-    if (!Number.isFinite(units) || units <= 0) return;
-    const t1 = Number(c.test1Score);
-    const t2 = Number(c.test2Score);
-    const exam = Number(c.examScore);
-    const finalScore = Number.isFinite(t1) && Number.isFinite(t2) && Number.isFinite(exam)
-      ? t1 + t2 + exam
-      : Number(c.score);
-    const gp = getGradePoint(finalScore);
-    if (gp === null) return;
-    totalUnits += units;
-    totalWeighted += units * gp;
-  });
-  const cgpa = totalUnits > 0 ? totalWeighted / totalUnits : null;
+  const { gpa: cgpa } = calcSemesterGpa(allCourses);
   const classification = cgpa !== null ? resolveClassification(cgpa) : null;
   return { cgpa, classification };
 }

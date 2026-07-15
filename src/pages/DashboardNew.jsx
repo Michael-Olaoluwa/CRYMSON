@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styles from './DashboardNew.module.css';
 import { formatClock, getStudyStreakStats } from '../utils/timeFormatting';
 import apiClient from '../utils/apiClient';
+import { getGradePoint, calcFinalScore } from '../utils/academicEngine';
 
 const WIDGET_ORDER_KEY = 'crymson_dashboard_widget_order';
 const DEFAULT_WIDGET_ORDER = ['cgpa', 'tasks', 'study', 'finance', 'wellbeing_score', 'insights'];
@@ -35,27 +36,6 @@ function saveWidgetOrder(order) {
   try {
     localStorage.setItem(WIDGET_ORDER_KEY, JSON.stringify(order));
   } catch {}
-}
-
-function getGradePoint(score) {
-  const n = Number(score);
-  if (!Number.isFinite(n)) return null;
-  if (n >= 70) return 5;
-  if (n >= 60) return 4;
-  if (n >= 50) return 3;
-  if (n >= 45) return 2;
-  if (n >= 40) return 1;
-  return 0;
-}
-
-function calcFinalScore(course) {
-  const direct = Number(course?.score);
-  if (Number.isFinite(direct)) return direct;
-  const t1 = Number(course?.test1Score);
-  const t2 = Number(course?.test2Score);
-  const exam = Number(course?.examScore);
-  if (!Number.isFinite(t1) || !Number.isFinite(t2) || !Number.isFinite(exam)) return null;
-  return t1 + t2 + exam;
 }
 
 function formatMoney(value) {

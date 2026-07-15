@@ -2,6 +2,21 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./MyTrackerWidget.module.css";
 import OnboardingWizard from "./OnboardingWizard";
 import apiClient from "../../utils/apiClient";
+import {
+  getGradePoint,
+  getGradeLabel,
+  resolveClassification,
+  calcFinalScore,
+  calcCourseGradePoint,
+  calcCourseWeightedPoints,
+  calcSemesterGpa,
+  calcCumulativeCgpa,
+  calcRequiredExamScore,
+  calcGoalProjection,
+  calcCourseImpact,
+  rankCourseImpact,
+  MAX_GRADE_POINT,
+} from "../../utils/academicEngine";
 
 const USER_CGPA_STATE_KEY_BASE = "crymson_user_cgpa_state_v1";
 const ACADEMIC_REMINDER_DELAY_BY_TASK_TYPE = {
@@ -322,64 +337,13 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
     };
   }, []);
 
-  const getGradePoint = (score) => {
-    const numericScore = Number(score);
-    if (!Number.isFinite(numericScore)) return null;
-    if (numericScore >= 70) return 5;
-    if (numericScore >= 60) return 4;
-    if (numericScore >= 50) return 3;
-    if (numericScore >= 45) return 2;
-    if (numericScore >= 40) return 1;
-    return 0;
-  };
-
-  const calculateFinalScore = (test1, test2, exam) => {
-    const t1 = Number(test1);
-    const t2 = Number(test2);
-    const e = Number(exam);
-
-    if (!Number.isFinite(t1) || !Number.isFinite(t2) || !Number.isFinite(e)) {
-      return null;
-    }
-
-    return t1 + t2 + e;
-  };
-
-  const calculateWeightedPoints = (
-    creditUnits,
-    test1Score,
-    test2Score,
-    examScore,
-  ) => {
-    const units = Number(creditUnits);
-    const finalScore = calculateFinalScore(test1Score, test2Score, examScore);
-    const gradePoint = getGradePoint(finalScore);
-    if (!Number.isFinite(units) || units <= 0 || gradePoint === null)
-      return null;
-    return units * gradePoint;
-  };
-
-  const resolveClassification = (value) => {
-    if (value >= 4.5) return "First Class";
-    if (value >= 3.5) return "Second Class Upper";
-    if (value >= 2.4) return "Second Class Lower";
-    if (value >= 1.5) return "Third Class";
-    if (value > 0) return "Pass";
-    return null;
-  };
-
   const stats = useMemo(() => {
     let totalUnits = 0;
     let totalWeighted = 0;
 
     courses.forEach((course) => {
       const units = Number(course.creditUnits);
-      const weighted = calculateWeightedPoints(
-        units,
-        course.test1Score,
-        course.test2Score,
-        course.examScore,
-      );
+      const weighted = calcCourseWeightedPoints(course);
       if (Number.isFinite(units) && units > 0 && Number.isFinite(weighted)) {
         totalUnits += units;
         totalWeighted += weighted;
@@ -1177,11 +1141,7 @@ function MyTrackerWidget({ activeUserId = "guest" }) {
           </thead>
           <tbody>
             {courses.map((course) => {
-              const finalScore = calculateFinalScore(
-                course.test1Score,
-                course.test2Score,
-                course.examScore,
-              );
+              const finalScore = calcFinalScore(course);
               const gradePoint = getGradePoint(finalScore);
 
               return (

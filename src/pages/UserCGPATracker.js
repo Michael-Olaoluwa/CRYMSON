@@ -1,5 +1,5 @@
 import React from 'react';
-import MyTrackerWidget from '../parts/grade-tools/MyTrackerWidget';
+import AcademicTracker from '../parts/grade-tools/AcademicTracker';
 import LegacyCgpaMigrationBanner from '../parts/grade-tools/LegacyCgpaMigrationBanner';
 import styles from './UserCGPATracker.module.css';
 
@@ -34,7 +34,7 @@ function UserCGPATracker({ activeUserId = 'guest', onNavigateToCourseMaterials }
         </section>
 
         <div className={styles.workspacePane}>
-          <MyTrackerWidget activeUserId={activeUserId} />
+          <AcademicTracker activeUserId={activeUserId} />
         </div>
       </div>
     </div>

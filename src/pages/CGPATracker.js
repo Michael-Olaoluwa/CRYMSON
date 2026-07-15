@@ -4,6 +4,7 @@ import ActionButtons from '../parts/grade-tools/ActionButtons';
 import CourseTable from '../parts/grade-tools/CourseTable';
 import ResultCards from '../parts/grade-tools/ResultCards';
 import styles from './CGPATracker.module.css';
+import { getGradePoint, resolveClassification } from '../utils/academicEngine';
 
 const CGPA_TRACKER_STATE_KEY = 'crymson_cgpa_tracker_state_v1';
 
@@ -70,31 +71,11 @@ function CGPATracker() {
   const [cgpa, setCgpa] = useState(initialState.cgpa);
   const [classification, setClassification] = useState(initialState.classification);
 
-  const getGradePoint = (score) => {
-    const numericScore = Number(score);
-    if (!Number.isFinite(numericScore)) return null;
-    if (numericScore >= 70) return 5;
-    if (numericScore >= 60) return 4;
-    if (numericScore >= 50) return 3;
-    if (numericScore >= 45) return 2;
-    if (numericScore >= 40) return 1;
-    return 0;
-  };
-
   const calculateWeightedPoints = (creditUnits, score) => {
     const units = Number(creditUnits);
     const gradePoint = getGradePoint(score);
     if (!Number.isFinite(units) || units <= 0 || gradePoint === null) return null;
     return units * gradePoint;
-  };
-
-  const resolveClassification = (value) => {
-    if (value >= 4.5) return 'First Class';
-    if (value >= 3.5) return 'Second Class Upper';
-    if (value >= 2.4) return 'Second Class Lower';
-    if (value >= 1.5) return 'Third Class';
-    if (value > 0) return 'Pass';
-    return null;
   };
 
   const stats = useMemo(() => {

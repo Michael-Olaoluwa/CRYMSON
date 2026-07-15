@@ -1,35 +1,11 @@
 const UserState = require("../models/UserState");
-
-function getGradePoint(score) {
-  const n = Number(score);
-  if (!Number.isFinite(n)) return null;
-  if (n >= 70) return 5;
-  if (n >= 60) return 4;
-  if (n >= 50) return 3;
-  if (n >= 45) return 2;
-  if (n >= 40) return 1;
-  return 0;
-}
-
-function calcFinalScore(course) {
-  const direct = Number(course?.score);
-  if (Number.isFinite(direct)) return direct;
-  const t1 = Number(course?.test1Score);
-  const t2 = Number(course?.test2Score);
-  const exam = Number(course?.examScore);
-  if (!Number.isFinite(t1) || !Number.isFinite(t2) || !Number.isFinite(exam)) return null;
-  return t1 + t2 + exam;
-}
-
-function resolveClassification(value) {
-  if (!Number.isFinite(value)) return null;
-  if (value >= 4.5) return "First Class";
-  if (value >= 3.5) return "Second Class Upper";
-  if (value >= 2.4) return "Second Class Lower";
-  if (value >= 1.5) return "Third Class";
-  if (value > 0) return "Pass";
-  return null;
-}
+const {
+  getGradePoint,
+  calcFinalScore,
+  resolveClassification,
+  calcSemesterGpa,
+  calcCumulativeCgpa,
+} = require("./academicEngine");
 
 function getWeekStart() {
   const now = new Date();
@@ -48,18 +24,10 @@ function getMonthKey(d) {
 function computeCgpa(cgpaState) {
   if (!cgpaState) return { currentCgpa: null, goalCgpa: null, classification: null, courses: [] };
   const courses = Array.isArray(cgpaState.courses) ? cgpaState.courses : [];
-  let totalUnits = 0;
-  let totalWeighted = 0;
-  courses.forEach((c) => {
-    const u = Number(c?.creditUnits);
-    const s = calcFinalScore(c);
-    const gp = getGradePoint(s);
-    if (Number.isFinite(u) && u > 0 && Number.isFinite(gp)) {
-      totalUnits += u;
-      totalWeighted += u * gp;
-    }
-  });
-  const currentCgpa = totalUnits > 0 ? totalWeighted / totalUnits : null;
+
+  const semesterResult = calcSemesterGpa(courses);
+  const currentCgpa = semesterResult.gpa;
+
   const goalCgpa =
     Number.isFinite(Number(cgpaState.goalCgpa)) && Number(cgpaState.goalCgpa) > 0
       ? Math.min(5, Math.max(0, Number(cgpaState.goalCgpa)))

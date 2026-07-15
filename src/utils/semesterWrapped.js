@@ -1,5 +1,6 @@
 import { computeCrymsonScore, getTier } from './crymsonScore';
 import { getStudyStreakStats } from './timeFormatting';
+import { getGradePoint, calcFinalScore } from './academicEngine';
 
 const CGPA_KEY_BASE = 'crymson_user_cgpa_state_v1';
 const TASKS_KEY_BASE = 'crymson_todo_tasks';
@@ -18,28 +19,11 @@ function getLocalJson(key) {
   }
 }
 
-function getGradePoint(score) {
-  const n = Number(score);
-  if (!Number.isFinite(n)) return null;
-  if (n >= 70) return 5;
-  if (n >= 60) return 4;
-  if (n >= 50) return 3;
-  if (n >= 45) return 2;
-  if (n >= 40) return 1;
-  return 0;
-}
-
 function calcCgpa(courses) {
   let totalUnits = 0, totalWeighted = 0;
   for (const c of courses || []) {
     const units = Number(c.creditUnits);
-    let finalScore;
-    if (Number.isFinite(Number(c.score))) {
-      finalScore = Number(c.score);
-    } else {
-      const t1 = Number(c.test1Score), t2 = Number(c.test2Score), e = Number(c.examScore);
-      if (Number.isFinite(t1) && Number.isFinite(t2) && Number.isFinite(e)) finalScore = t1 + t2 + e;
-    }
+    const finalScore = calcFinalScore(c);
     const gp = Number.isFinite(finalScore) ? getGradePoint(finalScore) : null;
     if (Number.isFinite(units) && units > 0 && gp !== null) {
       totalUnits += units;

@@ -44,6 +44,8 @@ export const TODAY_ENGINE_WEIGHTS = {
   },
 };
 
+import { getGradePoint, calcFinalScore } from './academicEngine';
+
 const toText = (value) => String(value || '').trim();
 
 const toNumber = (value, fallback = 0) => {
@@ -179,32 +181,6 @@ const getAcademicImportanceWeight = (taskType) => {
 
 const getTaskPriorityWeight = (priority) => TODAY_ENGINE_WEIGHTS.priority[normalizePriority(priority)] || TODAY_ENGINE_WEIGHTS.priority.medium;
 
-const getScoreValue = (course) => {
-  const directScore = toNumber(course?.score, NaN);
-  if (Number.isFinite(directScore)) return directScore;
-
-  const test1 = toNumber(course?.test1Score, NaN);
-  const test2 = toNumber(course?.test2Score, NaN);
-  const exam = toNumber(course?.examScore, NaN);
-
-  if (!Number.isFinite(test1) || !Number.isFinite(test2) || !Number.isFinite(exam)) {
-    return null;
-  }
-
-  return test1 + test2 + exam;
-};
-
-const getGradePoint = (score) => {
-  const numericScore = toNumber(score, NaN);
-  if (!Number.isFinite(numericScore)) return null;
-  if (numericScore >= 70) return 5;
-  if (numericScore >= 60) return 4;
-  if (numericScore >= 50) return 3;
-  if (numericScore >= 45) return 2;
-  if (numericScore >= 40) return 1;
-  return 0;
-};
-
 const getCurrentCgpa = (cgpaState) => {
   if (!cgpaState || !Array.isArray(cgpaState.courses)) {
     return null;
@@ -215,7 +191,7 @@ const getCurrentCgpa = (cgpaState) => {
 
   cgpaState.courses.forEach((course) => {
     const units = toNumber(course?.creditUnits, NaN);
-    const gradePoint = getGradePoint(getScoreValue(course));
+    const gradePoint = getGradePoint(calcFinalScore(course));
 
     if (Number.isFinite(units) && units > 0 && Number.isFinite(gradePoint)) {
       totalUnits += units;
@@ -240,7 +216,7 @@ const getCourseMap = (cgpaState) => {
       const normalized = {
         ...course,
         courseName: normalizeCourseName(course?.courseName),
-        scoreValue: getScoreValue(course),
+        scoreValue: calcFinalScore(course),
         creditUnitsValue: Math.max(0, toNumber(course?.creditUnits, 0)),
       };
       return normalized.courseName ? [normalized] : [];
@@ -547,7 +523,7 @@ export const getTodayPlan = (userData = {}) => {
 
   if (cgpaState && Array.isArray(cgpaState.courses)) {
     cgpaState.courses.forEach((course) => {
-      const scoreValue = getScoreValue(course);
+      const scoreValue = calcFinalScore(course);
       const courseName = normalizeCourseName(course?.courseName);
       if (!courseName) return;
 
